@@ -21,8 +21,7 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 
-
-from mathutils3d import fn_stack
+from modelviewprojection.mathutils3d import fn_stack
 
 
 # doc-region-begin function stack examples definitions
