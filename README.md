@@ -1,7 +1,7 @@
 ModelViewProjection
 ===================
 
-http://billsix.github.io/modelviewprojection/intro.html
+The book is built from `book/docs/` (see below); no website for it is published yet.
 
 Learn how to build 3D graphics from the ground up. This codebase demonstrates how
 to create objects, put them where you want them to go, view the scene with a camera
@@ -13,9 +13,10 @@ spaces, edges = transformations) — so you learn everything via function compos
 and inverses, with no linear-algebra prerequisite. The vector algebra and the
 transform layer live in the **gacalc** geometric-algebra library and are
 imported from it directly; `mathutils.py` carries only the graphics-specific
-math (projections, plane geometry, the function stack). The repo also
-includes faithful Python ports of the **OpenGL SuperBible v4** examples under
-`ports/openglsuperbiblev4/`.
+math (projections, plane geometry, the function stack). This repository is the successor of
+`github.com/billsix/modelviewprojection`, which is kept unchanged for history. The faithful Python ports of the **OpenGL SuperBible v4**
+examples are `python/` in `github.com/billsix/OpenGLSuperBibleV4Code`, and the Code the Classics games are in
+`github.com/billsix/CodeTheClassics`.
 
 For further reading (lighting, shadows, more explicit OpenGL):
 
@@ -98,7 +99,6 @@ Project structure
 | Path | What |
 | --- | --- |
 | `src/modelviewprojection/` | The package: `mathutils.py` (gacalc-backed graphics math; not a re-export façade), `demos/`, `util/`, `framebuffer/`, `mvpvisualization/`, `graphingcalculator/` (standalone `f(x)` / `f(x,y)` graphers). The matrix stack, Cayley-graph engine and GL toolkit come from gacalc (`gacalc.gl`, `gacalc.cayley`) |
-| `ports/openglsuperbiblev4/` | ~104 Python ports of the SuperBible v4 examples |
 | `book/docs/` | The Sphinx book (chapters `ch01`–`ch21`) |
 | `assignments/` | Student assignments (standalone exercises; lint/format-gated by `format.sh`) |
 | `tasks/` | Active work (one file per task); completed work under `tasks/archive/<YYYY>/<MM>/<DD>/` |

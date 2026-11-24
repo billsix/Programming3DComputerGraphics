@@ -1,5 +1,7 @@
 # Tightening the Code-the-Classics games — the standard, the findings, the traps
 
+> **Historical copy (2026-11-24).** In this repository, the Code the Classics games moved to `github.com/billsix/CodeTheClassics`; the maintained copy of this document is `tasks/reference/code-the-classics-tightening.md` there.
+
 **What this is:** the durable record of *how* the inlined Code-the-Classics games were tightened
 (dataclasses + `__post_init__`, tighter functions, Protocols, the pygame-comment strip) and *why*
 each choice was made. The standard was set on the **boing pilot** (`boing.py` + its `boing_gl1.py`

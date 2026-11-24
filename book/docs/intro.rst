@@ -245,6 +245,6 @@ Getting the Source code
 =======================
 
 
-This book references source code, which is at `https://github.com/billsix/modelviewprojection <https://github.com/billsix/modelviewprojection>`_
+This book references source code, which is at `https://github.com/billsix/Programming3DComputerGraphics <https://github.com/billsix/Programming3DComputerGraphics>`_
 
 .. include:: ./version.txt

@@ -4,7 +4,7 @@
 ports now import `Vector` straight from `gacalc.g3`; `mathutils` re-exports **no** gacalc type
 (verified: `grep "mathutils import" ports src tests` returns no gacalc type/transform). The stale
 `assignments/demo02/vec1.py` was left for `tasks/archive/2026/09/09/assignments-review.md` as noted. Committed in
-Bill's `18a0f7b2`. Ready to archive alongside the adoption task.
+Bill's `fcf98b27`. Ready to archive alongside the adoption task.
 **Priority:** 5
 **Difficulty:** 2
 **Created:** 2026-08-13

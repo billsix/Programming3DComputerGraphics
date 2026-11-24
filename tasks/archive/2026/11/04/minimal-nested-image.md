@@ -1,6 +1,6 @@
 # Lean image for nested-podman builds — what "minimal" means for modelviewprojection
 
-**Done 2026-11-04.** The flag mechanism had already landed on master (commit `6189c16e`, "mvp: finish
+**Done 2026-11-04.** The flag mechanism had already landed on master (commit `9215c4d9`, "mvp: finish
 Makefile/Dockerfile conformance to the standard template"); this pass measured both image sizes and
 recorded the convention in `CLAUDE.md`. Branch `minimal-nested-image`.
 

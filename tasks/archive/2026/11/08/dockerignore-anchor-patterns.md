@@ -15,7 +15,7 @@ is in the Dockerfile contract's `.dockerignore` bullet (personal overlay, github
 
 A stale `git am` session (one patch, "added task to migrate to doctests", already committed) blocked
 the branch switch; it was cleared with `git am --quit` at the maintainer's request, leaving `master`
-unchanged at `d8377514`.
+unchanged at `4bd9821c`.
 
 ## Verification (2026-11-08, nested podman)
 

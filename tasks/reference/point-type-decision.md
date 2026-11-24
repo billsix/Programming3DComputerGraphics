@@ -1,5 +1,7 @@
 # The engine's point type: keep `PointLike = tuple[float, float] | Vector` at the boundary
 
+> **Historical copy (2026-11-24).** In this repository, the games it concerns moved to `github.com/billsix/CodeTheClassics`; the maintained copy of this document is there.
+
 **Decided 2026-09-06 (Fable, executing `tasks/archive/2026/09/06/pointlike-type-study.md` with the
 maintainer's delegated discretion; William Emerison Six <billsix@gmail.com> may overrule).** Project:
 `github.com/billsix/modelviewprojection`; the vector type is gacalc's `g2.Vector`

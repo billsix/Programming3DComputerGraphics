@@ -1,6 +1,6 @@
 # Use gacalc's cross product everywhere (bump to gacalc 0.0.18)
 
-**Status:** DONE — archived 2026-08-31. Code committed (`83317697`, the cross-only half of
+**Status:** DONE — archived 2026-08-31. Code committed (`b0297eff`, the cross-only half of
 the split; helper named `_cross_arrays`, maintainer's pick); **display verification passed
 the same day**: the maintainer ran demo22 ("appears to be working" — the converted
 light-space/shadow path) and `mvpvisualization/coordinatesystems.py` ("looks fine" — the

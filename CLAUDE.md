@@ -1,8 +1,15 @@
 # MVP — context for Claude
 
+**This repository, `Programming3DComputerGraphics`, is the successor of `github.com/billsix/modelviewprojection`**, whose history it carries (1,446
+commits of `master`, with the ports left out of every commit). The old repository is kept unchanged for history and is no longer
+maintained. The Python package is still named `modelviewprojection`. The two sets of faithful ports that used to live in `ports/` have their own homes: the SuperBible v4 port is
+`python/` in `github.com/billsix/OpenGLSuperBibleV4Code`, and the Code the Classics games (with `pgzero_gl`) are
+`github.com/billsix/CodeTheClassics`. Reference docs here that mention `ports/`, `pgzero_gl` or the `ctc_*` gates describe code that
+lives there now. Citations of the form `tasks/archive/...` and old commit hashes refer to the old repository unless the file exists here.
+
 This is **modelviewprojection**, an OpenGL graphics course taught by William "Bill" Six (billsix@gmail.com) from his own codebase. The repo *is* the textbook (Sphinx book in `book/docs/`, one chapter per demo). Teaching philosophy is **"mistake-driven development"** (stated in README) — demos are deliberately procedural, with module-level globals, so students read top-to-bottom. Don't "clean up" by introducing classes/abstractions unless asked.
 
-External sources Bill draws from: **OpenGL SuperBible v4** (main porting source — see `ports/openglsuperbiblev4/`), *Mathematics for 3D Game Programming*, *Computer Graphics: Principles and Practice*.
+External sources Bill draws from: **OpenGL SuperBible v4** (main porting source; its Python port is `python/` in `github.com/billsix/OpenGLSuperBibleV4Code`), *Mathematics for 3D Game Programming*, *Computer Graphics: Principles and Practice*.
 
 ---
 
@@ -25,7 +32,7 @@ The same Pong scene (two paddles + a square defined relative to paddle1) is re-i
 
 ## SuperBible port plan
 
-Which SuperBible demos are already in the curriculum (do not re-port), the wishlist status, and the demo22 structure to follow are in `tasks/reference/superbible-ports-guide.md`. **Confirm the slot before writing any port** — pedagogical placement matters more than the port itself.
+Which SuperBible demos are already in the curriculum (do not re-port), the wishlist status, and the demo22 structure to follow are in `tasks/reference/superbible-ports-guide.md` (a historical copy; the maintained one is `tasks/reference/python-port/translation-guide.md` in `github.com/billsix/OpenGLSuperBibleV4Code`). **Confirm the slot before writing any port** — pedagogical placement matters more than the port itself.
 
 ---
 
@@ -35,7 +42,7 @@ Which SuperBible demos are already in the curriculum (do not re-port), the wishl
 - When asked "why is this written this way?" the answer is almost always "to avoid introducing matrices before the student understands what the transformation is doing."
 - The book chapters (`book/docs/chNN.rst`) are the authoritative source for terminology — use *Cayley graph*, *space*, *modelspace→NDC*, *invertible function*, not linear-algebra vocabulary.
 - Reference the visualizations in `src/modelviewprojection/mvpvisualization/` (`coordinatesystems.py`, `pushmatrix.py`, `modelviewperspectiveprojection.py`) when the user wants to *show* the graph traversal interactively — pedagogical aids, not demos; part of the installed package, run by path.
-- Match the demo-era style (procedural, globals, inline comments explaining the *why*), not idiomatic modern Python. When porting from external sources, port *into* his style rather than preserving the source's structure. Exception: each SuperBible v4 port keeps its mutable state in one module-level `state: AppState` dataclass, with no `global` statements (`tasks/reference/superbible-ports-guide.md` §3).
+- Match the demo-era style (procedural, globals, inline comments explaining the *why*), not idiomatic modern Python. When porting from external sources, port *into* his style rather than preserving the source's structure.
 - **Passing a vector to immediate-mode GL: unpack it** — `GL.glVertex3f(*v)`, not per-coordinate. gacalc's `Vector` iterates its coordinates in `(e_1, e_2[, e_3])` order with the right arity; the contract is guarded by `tests/test_gl_vector_unpacking.py`.
 
 ---
@@ -71,14 +78,11 @@ The texExpToPng SHA-pin details (and the `--bg`/`--fg` + `\documentclass[varwidt
 
 ---
 
-## Code-the-Classics ports (`ports/codetheclassics/`)
+## Code-the-Classics games
 
-A separate subtree from the course: **10 faithful game ports** (11 files — boing also has `boing_gl1.py`) under `ports/codetheclassics/vol1/` and `vol2/`, each ONE file on GLFW + OpenGL 3.3 core that owns its loop and inlines its engine (renderer, shaders, `Actor`, input), self-contained apart from the shared engine modules it imports from `src/modelviewprojection/pgzero_gl/` (`audio`, `resources`, `gl`) — the library-not-framework style. Behaviour-faithful (same RNG/update/draw order), structure-free.
-
-- **Read `tasks/reference/code-the-classics-tightening.md` before editing any game** — the file-shape standard, the gacalc dialect (`length`→`magnitude`, `dot`→`scalar_product`, `rotate(deg)`→`plane_rotation`, …), and the composition `@`-vs-`compose` rule.
-- **Gates** (`tasks/reference/tests-and-gates.md`): `tools/ctc_verify_game.sh` (frame pixel identity vs a git ref), `tools/ctc_state_trace.py` + `tools/ctc_compare_traces.py` (seeded scripted-input state trace), `tools/ctc_profile_update.py` when something feels slow. All need Xvfb on `:99` + the nested image. Audio and the gamepad are never gated — play-test.
-- **gacalc vectors are FROZEN** — change a coordinate by rebinding, never in place. `ty` catches `v.x = …` but **not** `v.x += …`, so a grep for `\.(x|y|z)\s*[-+*/]?=` is part of any audit after a bulk edit.
-- What is shared vs per game, and why: `tasks/reference/code-the-classics-tightening.md` §9. Audio mixer, `Rect`/`IntRect`, gacalc costs, and the renderer's gacalc-transform matrices are in `tasks/reference/notable-subsystems.md`, `point-type-decision.md`, and `gacalc-transforms-in-the-renderer.md`.
+The ten game ports and their shared package `pgzero_gl` moved to `github.com/billsix/CodeTheClassics` (2026-11-24). Their reference docs
+(`tasks/reference/code-the-classics-tightening.md`, `coordinate-spaces-in-code-the-classics.md`, `pgzero-gl-design-for-a-personal-learning-library.md`,
+`gacalc-transforms-in-the-renderer.md`, `point-type-decision.md`) stay here as historical copies; the maintained copies are in that repository.
 
 ---
 
@@ -98,7 +102,7 @@ Every `literalinclude` in `book/docs/` selects code by `doc-region-begin`/`doc-r
 
 The Python coding standard is in two parts, **read both**: the portable rules are the shared cross-project doc **`runClaudeInContainer/tasks/reference/python-coding-standard.md`** (canonical: github.com/billsix/runClaudeInContainer; mounted at `~/.claude/reference/python-coding-standard.md`), and mvp's own rules, worked examples, and file paths live in **`tasks/reference/python-coding-standard-mvp.md`** (line-length 80, the wx boundary, book-shorthand naming, the `m·x+b` keyword calls, GL/matrix conventions, the gacalc vector dialect, behaviour-faithful ports, mvp's inner-function precedents). A green `make format` means the mechanical (ruff) tier is done; spend attention on the judgment calls there.
 
-A separate **`make type-check`** gate runs `ty` plus `tools/check_local_annotations.py --include-module` — an AST checker enforcing that **every local AND module-level (global) variable across `src`, `tests`, and `ports/**` carries an explicit annotation** (not just an inferred type). It exempts what can't carry an inline annotation: tuple-unpack, `for`/`with`/`except`/comprehension/walrus targets, augmented assignment, attribute/subscript targets, class-body assignments (Enum members / class attrs), names declared `global`/`nonlocal` in a function, and `TypeVar`/`ParamSpec`/`TypeVarTuple` definitions. The checker lives only in `make type-check`, not `make format`. (`ty`'s own scope: src, tests, ports/codetheclassics; `ports/openglsuperbiblev4` is annotated but deliberately kept out of the `ty` step — its pre-existing diagnostics are glfw/imgui stub friction in faithful port code; decision and rejected options in `tasks/reference/tests-and-gates.md` §5.)
+A separate **`make type-check`** gate runs `ty` plus `tools/check_local_annotations.py --include-module` — an AST checker enforcing that **every local AND module-level (global) variable across `src` and `tests` carries an explicit annotation** (not just an inferred type). It exempts what can't carry an inline annotation: tuple-unpack, `for`/`with`/`except`/comprehension/walrus targets, augmented assignment, attribute/subscript targets, class-body assignments (Enum members / class attrs), names declared `global`/`nonlocal` in a function, and `TypeVar`/`ParamSpec`/`TypeVarTuple` definitions. The checker lives only in `make type-check`, not `make format`. (`ty`'s scope: `src` and `tests`.)
 
 The mvp invariants worth keeping in front of you:
 
@@ -107,7 +111,7 @@ The mvp invariants worth keeping in front of you:
 - **Python naming wins over the book's `\vec{R}`/`\vec{T}`/`\vec{S}` shorthand** — spell out `translate`/`rotate`/`uniform_scale`, and keep each demo's graph-to-code mapping comment above its imports.
 - **GL/shader gotchas and the repo-wide GL conventions** (import order, GL constants aren't `int`, the `-1` uniform sentinel, row-major + `GL_TRUE` at upload, CCW winding, GL-resource registry, VAO-never-zero, shader resolution) live in `tasks/reference/gl-and-imgui-gotchas.md` (§7 for the conventions, §§1–6 for the failure modes).
 - **`import glfw` before `import imgui_bundle` in every demo and framework file.** imgui_bundle bundles an X11-only `libglfw.so.3`; whichever GLFW loads first is the one pyglfw binds, and with the bundled one PyOpenGL (EGL under Wayland) cannot see the GLX context, so every ARB-aliased GL 4.2+ call (`glBindImageTexture`, `glMemoryBarrier`, `glTexStorage2D`, …) raises `NullFunctionError` on a host venv. `make shell` and `tools/render_probe.py` both mask it, so a green headless sweep is not evidence. A demo that imports imgui_bundle directly carries `import glfw  # noqa: F401` above it; mechanism and check command in `gl-and-imgui-gotchas.md` §1.
-- **The SuperBible v4 port's imgui controls go in the menubar's Controls menu, never a floating window; F11 (and View → Fullscreen) toggles fullscreen.** v4 demos draw their own menubar and call `_common.draw_view_menu`; a menu body runs only while the menu is open, so it applies changes on the spot or stores them on `self`. Menubar conventions: `tasks/reference/gl-and-imgui-gotchas.md`. The **graphing-calculator** programs (`src/modelviewprojection/graphingcalculator/`) follow the *same* menubar convention and are now short runners over `gacalc.gl.grapher2d.run` / `grapher3d.run`, which use gacalc's `cayley_gl` helpers (`menu_action`/`toggle_fullscreen`, the `begin_frame`/`clear_viewport`/`end_frame`/`shutdown` frame steps), not the ports' `_common` — only the `ports/` subtree is off-limits to import.
+- **imgui controls go in the menubar's Controls menu, never a floating window; F11 (and View → Fullscreen) toggles fullscreen.** A menu body runs only while the menu is open, so it applies changes on the spot or stores them on `self`. Menubar conventions: `tasks/reference/gl-and-imgui-gotchas.md`. The **graphing-calculator** programs (`src/modelviewprojection/graphingcalculator/`) are short runners over `gacalc.gl.grapher2d.run` / `grapher3d.run`, which use gacalc's `cayley_gl` helpers (`menu_action`/`toggle_fullscreen`, the `begin_frame`/`clear_viewport`/`end_frame`/`shutdown` frame steps).
 
 ---
 

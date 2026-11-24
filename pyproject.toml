@@ -53,19 +53,8 @@ select = [
 ignore = []
 
 [tool.ruff.lint.per-file-ignores]
-# The ports are ruff-FORMATTED (see entrypoint/format.sh) but keep their
-# upstream style where a rule would fight it: long teaching comments (E501,
-# codetheclassics only), game RNG (S311) and upstream debug prints (T201).
-#
-# E402 (module import after a sys.path insert) is scoped to the SuperBible ports
-# ONLY (ports/openglsuperbiblev4/** below): those are run by path and must
-# insert their own directory to find `_common`/`_primitives`.  The
-# Code-the-Classics games do not need E402: the engine modules they share live
-# in the modelviewprojection package (`modelviewprojection.pgzero_gl`), so they
-# import them at the top like any other dependency.
-# the src demos draw random scenery/spawns exactly like the game ports do
-# (game RNG, not crypto -- same S311 rationale as ports/** below), and print
-# on purpose (shader logs, teaching output -- same T201 rationale).
+# The demos draw random scenery and spawns (game-style RNG, not crypto: S311)
+# and print on purpose (shader logs, teaching output: T201).
 #
 # Python naming wins over the book's mathematical shorthand (Bill, 2026-07-18).
 # The demos previously aliased `translate as T` / `uniform_scale as S` /
@@ -92,35 +81,5 @@ ignore = []
 "src/modelviewprojection/notebooksrc/**" = ["T201"]
 # command-line dev tools: printing diagnostics to stdout IS their job.
 "tools/**" = ["T201"]
-# The engine modules the Code-the-Classics games share. They are NOT included
-# in the book (no literalinclude), so the 80-col-for-PDF rule that governs the
-# rest of src/ does not apply -- they keep the E501 latitude the games have
-# under ports/**. Everything else (naming, imports, ty) is enforced normally.
-"src/modelviewprojection/pgzero_gl/**" = ["E501"]
-# Measured 2026-09-09, then trimmed to what is actually in use: ten rules
-# (E711, E712, B007, UP035, E722, E741, E731, B008, F841, UP007) suppressed
-# nothing in either port and were deleted at the maintainer's direction, per the
-# open-issues discipline -- a retired ignore must not stay documented as if it
-# were live.  What remains is only what has violations to suppress: E501
-# (codetheclassics only), S311, T201, and E402 (SuperBible only).
-#
-# If a future upstream re-import trips one of the deleted rules, re-add it here
-# with a one-line reason rather than reinstating the whole old list.
-#
-# NOTE the two entries below are scoped per-port rather than one "ports/**".
-# ruff UNIONS every per-file-ignores pattern that matches a file -- a more
-# specific entry cannot subtract a rule a broader one grants -- so retiring E501
-# for the SuperBible ports required the broad entry to stop matching them.
-# Verified empirically (2026-09-09) by appending a 100-char line and watching it
-# pass while both entries were present.
-"ports/codetheclassics/**" = ["E501", "S311", "T201"]
-# The SuperBible ports carry the same list MINUS E501, PLUS E402. The whole port
-# was brought under the 80-column limit on 2026-09-09: six over-long comment
-# paragraphs reflowed (as paragraphs, not single lines), and one 107-character
-# annotation replaced by the `PlanePoints` alias in chapt19/SphereWorld32.
-#
-# E402 (module import after a sys.path insert) is these ports' own: they are run
-# by path and must insert their own directory to find `_common`/`_primitives`.
-"ports/openglsuperbiblev4/**" = ["S311", "T201", "E402"]
 
 [project.scripts]

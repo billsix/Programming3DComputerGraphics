@@ -20,21 +20,10 @@ run() { "$@" || status=1; }
 run ruff check assignments --fix
 run ruff check src --fix
 run ruff check tests --fix
-# The ports (Code the Classics shim + games, OpenGL SuperBible) are formatted
-# too, as of 2026-07-08 -- the old byte-faithful "no ruff on the games" rule
-# was retired along with the structural modernization (see the ctc-* task
-# series); the games stay BEHAVIOUR-faithful only.
-run ruff check ports --fix
 run ruff format assignments
 run ruff format src
 run ruff format tests
-run ruff format ports
 run ty check src
 run ty check tests
-# The engine modules the Code-the-Classics games share live in the package
-# (src/modelviewprojection/pgzero_gl), so `ty check src` above covers them;
-# these are the typed game ports that import them.
-run ty check ports/codetheclassics/vol1
-run ty check ports/codetheclassics/vol2
 
 exit $status

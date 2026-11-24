@@ -1,5 +1,7 @@
 # SuperBible v4 ports — source map & translation guide
 
+> **Historical copy (2026-11-24).** In this repository, the SuperBible v4 Python port moved to `python/` in `github.com/billsix/OpenGLSuperBibleV4Code`; the maintained copy of this guide is `tasks/reference/python-port/translation-guide.md` in `github.com/billsix/OpenGLSuperBibleV4Code`.
+
 **Reference document** — the upstream C++ quarry (`/superbible/`), the settled
 C++→Python translation rules, and the state of the `ports/openglsuperbiblev4/`
 tree. Read this before porting, re-porting, or bulk-editing anything there.

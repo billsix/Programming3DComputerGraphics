@@ -1,5 +1,7 @@
 # Coordinate spaces in the Code-the-Classics games — one flat pixel space, one real projection
 
+> **Historical copy (2026-11-24).** In this repository, the Code the Classics games moved to `github.com/billsix/CodeTheClassics`; the maintained copy of this document is there.
+
 **Reference document** (never archived; update in place). Author: William Emerison Six
 <billsix@gmail.com>, 2026-09-04. Method: five parallel `file:line`-anchored reads of all 10
 games' *game logic* (not the inlined engine), the two surprising findings verified firsthand.

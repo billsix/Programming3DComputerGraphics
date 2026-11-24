@@ -1,7 +1,7 @@
 # Plan: refactor shading helpers to use Vector3D / mathutils
 
 **Status:** complete
-**Completed:** 2026-05-27 (commit `ec7c642`) — Finding 1 done: `_face_normal`
+**Completed:** 2026-05-27 (commit `b65348b`) — Finding 1 done: `_face_normal`
 computes via `mathutils.find_normal` + normalize (bit-equivalent to the old
 formula, max diff 2.2e-16; tuple return kept, callers unchanged; ruff/compile/
 pytest green). Finding 2 (`light_dir_ws` return type): **left as a tuple** (no

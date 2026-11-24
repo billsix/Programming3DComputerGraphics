@@ -14,7 +14,7 @@ green over `assignments`/`src`/`tests`/`ports`, verified in-container against ga
 
 The last 12 `ty` diagnostics were all third-party-stub artifacts (none an mvp-source
 bug; verified none came from the frozen migration by running the same gate against
-`a4168504^`). Fixed by the **right mechanism per case**, not one blunt suppression:
+`3cb93c46^`). Fixed by the **right mechanism per case**, not one blunt suppression:
 
 - **8× `glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)` → `glfw.TRUE`.** Not a
   suppression — the *correct* constant. `glfw.TRUE` is glfw's own int-typed constant
