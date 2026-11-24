@@ -19,7 +19,7 @@ USE_X_WINDOWS ?= $(if $(filter 1,$(MINIMAL_IMAGE)),0,1)
 USE_EPIX ?= $(if $(filter 1,$(MINIMAL_IMAGE)),0,1)
 
 CONTAINER_CMD ?= $(shell command -v podman >/dev/null 2>&1 && echo podman || echo docker)
-CONTAINER_NAME = modelviewprojection
+CONTAINER_NAME = intro3dgraphics
 
 # Release version, read from pyproject.toml (the single source of truth). The
 # `release` target tags v$(VERSION); pushing that tag triggers .github/workflows/
@@ -50,7 +50,7 @@ GNUPG_MOUNT := $(shell if [ -d $(GNUPG_REAL_PATH) ]; then echo "-v $(GNUPG_REAL_
 
 
 
-FILES_TO_MOUNT = -v $(shell pwd):/mvp/:Z \
+FILES_TO_MOUNT = -v $(shell pwd):/intro3dgraphics/:Z \
 		-v ./entrypoint/entrypoint.sh:/entrypoint.sh:Z \
 		-v ./entrypoint/format.sh:/usr/local/bin/format.sh:Z \
 		-v ./entrypoint/jupyter.sh:/usr/local/bin/jupyter.sh:Z \
@@ -132,8 +132,8 @@ SHELL_RUN_FLAGS = \
 		$(EXPOSE_PORT) \
 		$(ELPA_MOUNT)
 
-# In-container repo mount path (matches FILES_TO_MOUNT: -v $(pwd):/mvp/).
-REPO_MOUNT = /mvp
+# In-container repo mount path (matches FILES_TO_MOUNT: -v $(pwd):/intro3dgraphics/).
+REPO_MOUNT = /intro3dgraphics
 
 # shell-exec payload: cd to the repo root (independent of shell.sh's own cd), then
 # run the inline CMD, else the repo-relative SCRIPT. Prefers CMD when both are set.
@@ -169,17 +169,17 @@ jupyter: image ## Run Jupyter Lab in a container (open http://127.0.0.1:8888/lab
 
 # Format/lint/typecheck the source INSIDE the container (the image's pinned ruff +
 # ty).  loadpackages.sh installs the package editable (so ty resolves
-# `modelviewprojection`); then format.sh runs ruff check --fix / ruff format / ty
-# check -- the same pair the shell-exit trap runs.  We must `cd /mvp` HERE:
+# `intro3dgraphics`); then format.sh runs ruff check --fix / ruff format / ty
+# check -- the same pair the shell-exit trap runs.  We must `cd /intro3dgraphics` HERE:
 # format.sh uses relative paths (`ruff check src`), and loadpackages.sh's own
-# `cd /mvp` is subprocess-local so it doesn't carry over to format.sh.
+# `cd /intro3dgraphics` is subprocess-local so it doesn't carry over to format.sh.
 .PHONY: format
 format: image ## (container) ruff + ty over the source (loadpackages.sh + format.sh)
 	$(CONTAINER_CMD) run $(PODMAN_RUN_FLAGS) --rm \
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
 		$(CONTAINER_NAME) \
-		-c 'cd /mvp && loadpackages.sh && format.sh'
+		-c 'cd /intro3dgraphics && loadpackages.sh && format.sh'
 
 
 # CI check: run `format` (which mutates via `ruff --fix`/`ruff format` and fails
@@ -205,7 +205,7 @@ update-pins: image ## (container, network) re-resolve constraints.txt, the image
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
 		$(CONTAINER_NAME) \
-		-c 'source /venv/bin/activate && cd /mvp && \
+		-c 'source /venv/bin/activate && cd /intro3dgraphics && \
 			grep -v wxpython requirements.txt > /tmp/requirements.txt && \
 			uv pip compile /tmp/requirements.txt \
 				entrypoint/image-requirements.in \
@@ -225,7 +225,7 @@ type-check: image ## (container) ty + local-annotation check over the source
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
 		$(CONTAINER_NAME) \
-		-c 'cd /mvp && loadpackages.sh && \
+		-c 'cd /intro3dgraphics && loadpackages.sh && \
 			source /venv/bin/activate; s=0; \
 			ty check src || s=1; \
 			ty check tests || s=1; \
@@ -248,7 +248,7 @@ test: image ## (container) run the pytest suite (glfw present; all failures, not
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
 		$(CONTAINER_NAME) \
-		-c 'source /venv/bin/activate && cd /mvp && pytest'
+		-c 'source /venv/bin/activate && cd /intro3dgraphics && pytest'
 
 
 # Validate the book's doc-region anchors (resolve + no name collisions).  Runs
@@ -263,9 +263,9 @@ check-regions: image ## (container) verify the book's doc-region anchors resolve
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
 		$(CONTAINER_NAME) \
-		-c 'mkdir -p /mvp/book/docs/_gacalc_src && \
-		    cp /opt/gacalc-src/*.py /mvp/book/docs/_gacalc_src/ && \
-		    cd /mvp && python tools/check_doc_regions.py'
+		-c 'mkdir -p /intro3dgraphics/book/docs/_gacalc_src && \
+		    cp /opt/gacalc-src/*.py /intro3dgraphics/book/docs/_gacalc_src/ && \
+		    cd /intro3dgraphics && python tools/check_doc_regions.py'
 
 
 # Refresh the vendored Emacs packages. Forces USE_EMACS=1 and rebuilds the image
@@ -352,7 +352,7 @@ release-tarball: book ## (CI) bundle source + built book -> $(DIST_DIR)/<name>-<
 # site zip) from the Releases page without extracting the source tarball.  The
 # book build (entrypoint.sh, via `docs`) populates output/$(CONTAINER_NAME)/ with
 # the html/ site + .nojekyll, the single book .epub, and the book PDF -- which is
-# named after the project ($(CONTAINER_NAME).pdf) and sits ALONGSIDE ~40 figure
+# named by `latex_documents` in book/docs/conf.py ($(CONTAINER_NAME).pdf) and sits ALONGSIDE ~40 figure
 # PDFs, so the book PDF is named explicitly here, never a *.pdf glob.  Fails
 # loudly if any form is missing rather than shipping a partial asset set.
 .PHONY: release-book-assets

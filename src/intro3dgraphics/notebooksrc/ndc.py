@@ -1,0 +1,238 @@
+# ---
+# jupyter:
+#   jupytext:
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.19.3
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
+# ---
+
+# %% [markdown]
+# (ndclabel)=
+# # NDC
+
+
+# %%
+
+# Copyright (c) 2025-2026 William Emerison Six
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+
+
+# %% [markdown]
+# Drawing in NDC
+# --------------
+#
+# Similar to the Framebuffer code, this is a notebook in which we will
+# only use software to
+# draw pictures of a framebuffer.  We use Normalized Device
+# Coordinates instead of screenspace,
+# and by the end, we will make an animation.
+
+# %%
+import warnings
+from typing import Any
+
+import imageio.v3 as iio
+import IPython.display
+import matplotlib
+import numpy as np
+from gacalc.g2 import Vector, e_1, e_2
+from gacalc.transforms import (
+    InvertibleFunction,
+    compose,
+    scale_non_uniform,
+    translate,
+)
+
+import intro3dgraphics.framebuffer.softwarerendering as sr
+
+# turn warnings into exceptions
+warnings.filterwarnings("error", category=RuntimeWarning)
+matplotlib.rcParams["axes.formatter.use_mathtext"] = True
+
+
+e_1: Vector = e_1
+e_2: Vector = e_2
+zero: Vector = Vector.zero()
+
+
+# %% [markdown]
+# Make Framebuffer
+# ----------------
+#
+# Like in the Framebuffer notebook, we initialize a framebuffer in software.
+
+# %%
+# Show initial random framebuffer
+fake_fb: sr.FrameBuffer = sr.FrameBuffer(width=400, height=300)
+fake_fb.show_framebuffer()
+
+
+# %% [markdown]
+# Clear Framebuffer
+# -----------------
+#
+# We clear it so that we have a blank slate.
+
+# %%
+# Clear to black and show
+fake_fb.clear_framebuffer()
+fake_fb.show_framebuffer()
+
+
+# %% [markdown]
+# Problem 2
+# ---------
+#
+# Make a new picture below where the triangle is translated 0.3 units
+# in NDC to the left
+
+# %% [markdown]
+# Create function from NDC to screenspace
+# ---------------------------------------
+#
+# Create a function to convert from NDC to screen space.  We compose
+# 4 functions to achieve this
+#
+# First, translate x to the right one unit, y up on unit, to make
+# the bottom left of the NDC region be at (0,0)
+#
+# Second, since the NDC square is two units wide, scale by 1/2, to
+# make it have a width of 1, and a height of 1.
+#
+# Third, scale by the width and height of the framebuffer.
+#
+# Fourth, translate -1/2 and -1/2, to make (0,0) of NDC map to
+# the center of the pixel at (0,0)
+#
+# Inspired by "Fundamentals of Computer Graphics, Third Edition",
+# by Shirley and Marshner, page 60
+
+# %%
+ndc_to_screen: InvertibleFunction[Vector] = compose(
+    [
+        translate(b=-0.5 * e_1 + -0.5 * e_2),
+        scale_non_uniform(fake_fb.width, fake_fb.height),
+        scale_non_uniform(0.5, 0.5),
+        translate(b=e_1 + e_2),
+    ]
+)
+
+# %% [markdown]
+# Create NDC data for triangle
+# ----------------------------
+#
+# Create a list of Vectors to represent the three vertices of the triangle.
+
+# %%
+# Example: draw a white triangle
+
+triangle_in_ndc: list[Vector] = [
+    zero,
+    0.2 * e_1,
+    0.2 * e_1 + 0.2 * e_2,
+]
+
+# %% [markdown]
+# Convert the NDC Vectors to Screenspace
+# --------------------------------------
+#
+# For each vector, apply the function
+
+# %%
+triangle_in_screen: list[Vector] = [ndc_to_screen(x) for x in triangle_in_ndc]
+print(triangle_in_screen)
+
+# %%
+fake_fb.clear_framebuffer()
+fake_fb.draw_filled_triangle(
+    triangle_in_screen[0],
+    triangle_in_screen[1],
+    triangle_in_screen[2],
+    color=(255, 255, 255),
+)
+fake_fb.show_framebuffer()
+
+# %% [markdown]
+# Move the Triangle in NDC
+# ------------------------
+#
+# Now, we want to make the triangle move to a different
+# position.  We will use compose to first translate the
+# triangle by 0.5 units of NDC up, and then take the
+# result and convert it from NDC to screenspace
+
+# %%
+move = translate(b=0.5 * e_2)
+
+triangle_in_screen = [
+    compose([ndc_to_screen, move])(x) for x in triangle_in_ndc
+]
+print(triangle_in_screen)
+
+# %%
+fake_fb.clear_framebuffer()
+fake_fb.draw_filled_triangle(*triangle_in_screen, color=(255, 255, 255))
+fake_fb.show_framebuffer()
+
+# %%
+frames: list[Any] = []
+
+sixty_fps_times_2_sec: int = 120
+
+# Create 10 frames with simple animation
+for i in range(sixty_fps_times_2_sec):
+    fake_fb.clear_framebuffer()
+    move: InvertibleFunction[Vector] = translate(
+        b=0.5 * (np.sin(np.pi / 60.0 * float(i))) * e_2
+    )
+
+    triangle_in_screen = [
+        compose([ndc_to_screen, move])(x) for x in triangle_in_ndc
+    ]
+    fake_fb.draw_filled_triangle(*triangle_in_screen, color=(255, 255, 255))
+
+    frames.append(fake_fb.framebuffer)
+
+# %% [markdown]
+# Now that we have the frames, we just need to save them to a
+# video.  The details of how this works is a black box to
+# use, it doesn't really matter for our understanding.
+
+# %%
+frames_np: list[np.ndarray] = [np.array(img) for img in frames]
+# imageio writes the mp4 silently through its ffmpeg backend (no progress bar to
+# corrupt the notebook output captured into LaTeX). macro_block_size=1 keeps the
+# exact 400x300 frame size instead of padding the height up to a multiple of 16.
+iio.imwrite(
+    "animation.mp4",
+    np.stack(frames_np),
+    fps=60,
+    codec="libx264",
+    macro_block_size=1,
+)
+
+IPython.display.Video("animation.mp4", embed=True)
+
+# %%
+
+# %%

@@ -29,9 +29,9 @@ This book provides a math library in Python.  We import them here.
 
 We'll use pytest's approx
 method to test if two floating point values are close enough to the same
-value.  We import a type :class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>`,
-:py:meth:`compose <modelviewprojection.mathutils.compose>`,
-:py:meth:`inverse <modelviewprojection.mathutils.inverse>`
+value.  We import a type :class:`InvertibleFunction <intro3dgraphics.mathutils.InvertibleFunction>`,
+:py:meth:`compose <intro3dgraphics.mathutils.compose>`,
+:py:meth:`inverse <intro3dgraphics.mathutils.inverse>`
 
 Important note.  The links in the previous paragraphs are links to API documentation.
 API documentation is like a guidebook that explains how to use a library.  It tells
@@ -52,7 +52,7 @@ and show you features that you might not realize exists.
    :lineno-match:
    :caption: assignments/demo02/vec1.py
 
-We can do addition on :class:`Vector1 <modelviewprojection.mathutils.Vector1>` using "+", :py:meth:`__add__ <modelviewprojection.mathutils.MultiVectorBase.__add__>`
+We can do addition on :class:`Vector1 <intro3dgraphics.mathutils.Vector1>` using "+", :py:meth:`__add__ <intro3dgraphics.mathutils.MultiVectorBase.__add__>`
 
 
 
@@ -64,7 +64,7 @@ We can do addition on :class:`Vector1 <modelviewprojection.mathutils.Vector1>` u
    :lineno-match:
    :caption: assignments/demo02/vec1.py
 
-We can do subtraction on :class:`Vector1 <modelviewprojection.mathutils.Vector1>` using "-", :py:meth:`__sub__ <modelviewprojection.mathutils.MultiVectorBase.__sub__>`
+We can do subtraction on :class:`Vector1 <intro3dgraphics.mathutils.Vector1>` using "-", :py:meth:`__sub__ <intro3dgraphics.mathutils.MultiVectorBase.__sub__>`
 
 
 .. literalinclude:: ../../assignments/demo02/vec1.py
@@ -75,7 +75,7 @@ We can do subtraction on :class:`Vector1 <modelviewprojection.mathutils.Vector1>
    :lineno-match:
    :caption: assignments/demo02/vec1.py
 
-We can do multiply a scalar by  :class:`Vector1 <modelviewprojection.mathutils.Vector1>` using "*", :py:meth:`__mul__ <modelviewprojection.mathutils.MultiVectorBase.__mul__>`
+We can do multiply a scalar by  :class:`Vector1 <intro3dgraphics.mathutils.Vector1>` using "*", :py:meth:`__mul__ <intro3dgraphics.mathutils.MultiVectorBase.__mul__>`
 
 
 .. literalinclude:: ../../assignments/demo02/vec1.py
@@ -86,7 +86,7 @@ We can do multiply a scalar by  :class:`Vector1 <modelviewprojection.mathutils.V
    :lineno-match:
    :caption: assignments/demo02/vec1.py
 
-We can do negate a  :class:`Vector1 <modelviewprojection.mathutils.Vector1>` using "-", :py:meth:`__neg__ <modelviewprojection.mathutils.MultiVectorBase.__neg__>`
+We can do negate a  :class:`Vector1 <intro3dgraphics.mathutils.Vector1>` using "-", :py:meth:`__neg__ <intro3dgraphics.mathutils.MultiVectorBase.__neg__>`
 
 
 .. literalinclude:: ../../assignments/demo02/vec1.py
@@ -100,11 +100,11 @@ We can do negate a  :class:`Vector1 <modelviewprojection.mathutils.Vector1>` usi
 Translate Implementation
 ------------------------
 
-Next we have a very import function, :py:meth:`translate <modelviewprojection.mathutils.translate>`.  Read
+Next we have a very import function, :py:meth:`translate <intro3dgraphics.mathutils.translate>`.  Read
 the API documentation in the link, it's a very important function.
 
 Translate is a function which :term:`partially binds <Partial Application>` a constant :class:`Vector1` to
-one of the arguments of :py:meth:`__add__ <modelviewprojection.mathutils.MultiVectorBase.__add__>`, thus creating
+one of the arguments of :py:meth:`__add__ <intro3dgraphics.mathutils.MultiVectorBase.__add__>`, thus creating
 a new function of one argument.
 
 In high school math, you'd learn about classes of functions,  such as
@@ -157,7 +157,7 @@ or many times.
 
 :term:`Inverting <Inverse>` such a function is done by negating :inlinetex:`b`, so (:inlinetex:`{T_{b=2}}^{-1} \circ {T_{b=2}}) (x) = ({T_{b=-2}} \circ {T_{b=2}}) (x) = x`
 
-To get the :term:`inverse <Inverse>` in Python, we can call the :py:meth:`inverse <modelviewprojection.mathutils.inverse>` function
+To get the :term:`inverse <Inverse>` in Python, we can call the :py:meth:`inverse <intro3dgraphics.mathutils.inverse>` function
 on our function, without having to worry about how it's implemented.
 
 
@@ -172,7 +172,7 @@ on our function, without having to worry about how it's implemented.
 
 
 What's nice about that is we can look at the implementation of
-:py:meth:`translate <modelviewprojection.mathutils.translate>`
+:py:meth:`translate <intro3dgraphics.mathutils.translate>`
 once, understand how it works internally, and then forget those details and treat
 it as an :term:`invertible <Invertible Function>` BlackBox_.
 

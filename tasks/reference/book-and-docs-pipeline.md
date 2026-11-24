@@ -6,7 +6,7 @@ Sibling doc: **`tasks/reference/book-figures-and-images.md`** owns everything th
 
 ---
 
-mvp *is* a book. The Sphinx pipeline under `book/docs/` is the primary deliverable; the Python package in `src/modelviewprojection/` exists largely to be *quoted* by that book. Breaking the book build, or silently emptying a code listing, is the highest-severity class of regression in this repo. This document is the map of that subsystem.
+mvp *is* a book. The Sphinx pipeline under `book/docs/` is the primary deliverable; the Python package in `src/intro3dgraphics/` exists largely to be *quoted* by that book. Breaking the book build, or silently emptying a code listing, is the highest-severity class of regression in this repo. This document is the map of that subsystem.
 
 ## 1. The Sphinx book build
 
@@ -18,24 +18,24 @@ The whole book builds **inside the Fedora-44 container** (`Dockerfile` → `regi
 
 In order, inside the container:
 
-1. Activate `/venv` (`source /venv/bin/activate`), `cd /mvp`.
+1. Activate `/venv` (`source /venv/bin/activate`), `cd /intro3dgraphics`.
 2. `pytest --exitfirst --disable-warnings || exit` — **the test suite gates the book build**. A failing test aborts before any docs are produced.
-3. **Regenerate the jupytext notebooks** — `plot2d`, `framebuffer`, `ndc` are converted from their `.py` sources in `src/modelviewprojection/notebooksrc/` into `.ipynb`, written to **both** `notebooks/`/`assignments/` **and** `book/docs/` (so nbsphinx/myst-nb can execute+embed them). These `.ipynb` are build artifacts (gitignored — `.gitignore:39`).
-4. `uv pip install --no-deps --no-index --no-build-isolation -e . --python "$(which python)"` — editable install of the package. **The `--python` flag is load-bearing** (matches `loadpackages.sh`): the earlier `--system` form targeted `/usr`, which has no setuptools, so the editable build failed → downstream figure generation silently never ran → "not readable" warnings on a clean tree (invisible incrementally because previously-generated figures persist). Fixed 2026-07-23 (`tasks/archive/2026/07/23/fix-editable-install-system-flag.md`). The install must precede the next step: the ePiX transform figures import `modelviewprojection.mathutils`. (The original symptom was the now-retired `generate_plots_for_book` console script dying at `_static/make` exit 127; see `book-figures-and-images.md` §1.)
+3. **Regenerate the jupytext notebooks** — `plot2d`, `framebuffer`, `ndc` are converted from their `.py` sources in `src/intro3dgraphics/notebooksrc/` into `.ipynb`, written to **both** `notebooks/`/`assignments/` **and** `book/docs/` (so nbsphinx/myst-nb can execute+embed them). These `.ipynb` are build artifacts (gitignored — `.gitignore:39`).
+4. `uv pip install --no-deps --no-index --no-build-isolation -e . --python "$(which python)"` — editable install of the package. **The `--python` flag is load-bearing** (matches `loadpackages.sh`): the earlier `--system` form targeted `/usr`, which has no setuptools, so the editable build failed → downstream figure generation silently never ran → "not readable" warnings on a clean tree (invisible incrementally because previously-generated figures persist). Fixed 2026-07-23 (`tasks/archive/2026/07/23/fix-editable-install-system-flag.md`). The install must precede the next step: the ePiX transform figures import `intro3dgraphics.mathutils`. (The original symptom was the now-retired `generate_plots_for_book` console script dying at `_static/make` exit 127; see `book-figures-and-images.md` §1.)
 5. `python tools/render_epix_figures.py || exit` — **render the book's ePiX math figures** (`book/figures/epix/*.py` → `_static/epix/<name>.{pdf,png}`); gated by `USE_EPIX`, exits 2 cleanly when `elaps` is absent. See `book-figures-and-images.md` §1.
 6. **Populate the docs-only gacalc source** into `book/docs/_gacalc_src/` (see §3).
 7. `python tools/check_doc_regions.py || exit` — **the anchor checker gates the build** (see §2). Runs *after* `_gacalc_src` is populated, because some anchors resolve against gacalc's files.
-8. `cd /mvp/book/docs && make html && make latexpdf && make epub`.
+8. `cd /intro3dgraphics/book/docs && make html && make latexpdf && make epub`.
 9. Copy artifacts to the bind-mounted output tree and `touch .nojekyll` (see below).
 
 ### Output location
 
-`entrypoint.sh` copies into `/output/modelviewprojection/` (`entrypoint.sh:37-45`), which the Makefile bind-mounts from the host `./output/` (`Makefile:34`, `-v ./output/:/output/:Z`):
+`entrypoint.sh` copies into `/output/intro3dgraphics/` (`entrypoint.sh:37-45`), which the Makefile bind-mounts from the host `./output/` (`Makefile:34`, `-v ./output/:/output/:Z`):
 
-- `_build/html/` → `/output/modelviewprojection/html/`
+- `_build/html/` → `/output/intro3dgraphics/html/`
 - `_build/latex/*pdf` → the PDF
 - `_build/epub/*epub` → the EPUB
-- `touch /output/modelviewprojection/.nojekyll` — stops GitHub Pages' Jekyll from mangling Sphinx's underscore-prefixed dirs (`_static`, `_images`).
+- `touch /output/intro3dgraphics/.nojekyll` — stops GitHub Pages' Jekyll from mangling Sphinx's underscore-prefixed dirs (`_static`, `_images`).
 
 `make clean` just does `rm -rf output/*` (`Makefile:94`).
 
@@ -70,14 +70,14 @@ Source files carry paired comment markers:
 A chapter `.rst` selects between them (real example, `book/docs/ch16.rst:51`):
 
 ```rst
-.. literalinclude:: ../../src/modelviewprojection/demos/demo14.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo14.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :lineno-match:
 ```
 
-`:start-after:`/`:end-before:` name the markers; the lines *between* them are rendered (the marker comment lines themselves are excluded). `:lineno-match:` makes the displayed line numbers equal the real line numbers in the source file (so a reader can open the file and land on the same line). Markers live in **hand-written** modules as ordinary comments (`src/modelviewprojection/mathutils.py`, the demos, `tests/test_mathutils.py`, `tests/test_firstclassfunctions.py`, **and `assignments/`** — `assignment1.py` → `programmingproj1.rst`, `demo02/vec1.py` → `mathhomework1.rst`) and, for gacalc, are baked into its generated files (§3).
+`:start-after:`/`:end-before:` name the markers; the lines *between* them are rendered (the marker comment lines themselves are excluded). `:lineno-match:` makes the displayed line numbers equal the real line numbers in the source file (so a reader can open the file and land on the same line). Markers live in **hand-written** modules as ordinary comments (`src/intro3dgraphics/mathutils.py`, the demos, `tests/test_mathutils.py`, `tests/test_firstclassfunctions.py`, **and `assignments/`** — `assignment1.py` → `programmingproj1.rst`, `demo02/vec1.py` → `mathhomework1.rst`) and, for gacalc, are baked into its generated files (§3).
 
 **Editorial rule for repeated listings — "define once, reference otherwise" (Bill).** When several chapters want the same construct, one chapter *defines* it (shows the listing) and the others cross-reference it in prose rather than re-including it. This came out of the ch14 `define vector class` collision: the marker name appeared 3× in one file, Sphinx grabbed the first, and a section whose prose promised X/Y/Z rendered `Vector1D(x: float)` — fixed by splitting the names AND deleting the redundant re-displays in ch06/07/08/18. (`tasks/archive/2026/05/26/ch14-fixes.md`)
 

@@ -3,7 +3,7 @@
 A labelled coordinate-axes stage plus the small drawing primitives the book's 2D
 figures are built from (a filled rectangle, a point marker + label, a vector arrow).
 Figures that illustrate a transformation drive mvp's own taught code
-(``modelviewprojection.mathutils``) to place their geometry, so the picture is produced
+(``intro3dgraphics.mathutils``) to place their geometry, so the picture is produced
 by the exact functions the chapter teaches.
 
 Figure files are jupytext percent notebooks in the style of epix-mirror's

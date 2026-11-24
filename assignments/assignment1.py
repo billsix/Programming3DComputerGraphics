@@ -27,8 +27,8 @@ import glfw
 import numpy as np
 import OpenGL.GL as GL
 
-from modelviewprojection.util.clipping import draw_in_square_viewport
-from modelviewprojection.util.windowing import on_key
+from intro3dgraphics.util.clipping import draw_in_square_viewport
+from intro3dgraphics.util.windowing import on_key
 
 if not glfw.init():
     sys.exit()

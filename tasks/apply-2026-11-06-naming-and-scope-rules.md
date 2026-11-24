@@ -1,4 +1,4 @@
-# Apply the 2026-11-06 naming and scope rules across modelviewprojection
+# Apply the 2026-11-06 naming and scope rules across this repository
 
 **Status:** proposed — needs go-ahead (open questions below)
 **Priority:** 5
@@ -45,7 +45,7 @@ every candidate is either refactored or recorded as left alone with its reason, 
 
 ## Scope
 
-- **In:** `src/modelviewprojection/` (the demos, `mathutils.py`, `cayley/`, `mvpvisualization/`,
+- **In:** `src/intro3dgraphics/` (the demos, `mathutils.py`, `cayley/`, `mvpvisualization/`,
   `graphingcalculator/`, `pgzero_gl/`), `tests/`, `tools/`, `assignments/`, `ports/codetheclassics/`,
   and `ports/openglsuperbiblev4/`.
 - **Out:** the vendored Emacs tree under `entrypoint/`, and the three assignments with a deliberate hole

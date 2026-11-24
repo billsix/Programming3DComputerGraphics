@@ -24,14 +24,14 @@ just exit code).
   rendered. That is a textbook stencil-buffer technique — write the circle (the lens) into
   the stencil buffer, then draw the hidden geometry with a stencil test that passes only
   inside it.
-- **Prior stencil art in this repo:** `src/modelviewprojection/demos/demo24/demo24.py`
+- **Prior stencil art in this repo:** `src/intro3dgraphics/demos/demo24/demo24.py`
   already uses the stencil buffer for planar shadows (so overlapping shadows don't
   double-darken) and shows the necessary plumbing: `glfw.window_hint(glfw.STENCIL_BITS, 8)`
   before window creation, `glClearStencil` + stencil ops in the draw loop. Read it first —
   the new demo is the same plumbing with a different stencil role (mask instead of
   shadow-count).
 - **Where it would land:** demo24 is currently the highest-numbered demo, so the natural
-  slot is a new `src/modelviewprojection/demos/demo25/` (Open question 2).
+  slot is a new `src/intro3dgraphics/demos/demo25/` (Open question 2).
 - **Verification** (per the repo's conventions): run headless under Xvfb, screenshot with
   ImageMagick `import`, and judge pixels — with/without the lens mask should differ visibly;
   a long-running GLFW demo is wrapped in `timeout N` (rc=124 = ran the full duration).

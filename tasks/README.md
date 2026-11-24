@@ -1,4 +1,4 @@
-# Tasks — modelviewprojection
+# Tasks — Introduction to 3D Computer Graphics
 
 Lightweight session task tracker (per the global `~/.claude/CLAUDE.md`
 convention: one `tasks/<slug>.md` per task, check this dir at session start).

@@ -32,7 +32,7 @@ Learn about :term:`modelspace<Modelspace>` :index:`Modelspace`.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/modelviewprojection/demos/demo06.py in Spyder and hit the play button.
+Load src/intro3dgraphics/demos/demo06.py in Spyder and hit the play button.
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -470,7 +470,7 @@ and convert them to NDC.
     \end{bmatrix}
     \]
 
-Modelviewprojection comes with a math library, the 2D version is
+This book's package, ``intro3dgraphics``, comes with a math library, the 2D version is
 named "mathutils.py".  The main class in this module is "Vector",
 which has two components: and x value, and a y value.  To add a vector
 to another one on the right hand side of the '+' symbol, we just add
@@ -481,7 +481,7 @@ the respective components together, and create a new Vector.
 ``Vector`` is the same data structure introduced earlier; it is unchanged here.
 
 In a Python class, we can overload the '+' symbol, to make
-objects addable, by implementing the :py:meth:`__add__ <modelviewprojection.mathutils.MultiVectorBase.__add__>`
+objects addable, by implementing the :py:meth:`__add__ <intro3dgraphics.mathutils.MultiVectorBase.__add__>`
 method.  The definition is just saying pairwise add each component.
 Don't stress about understanding the implementation, look at the
 tests listed after.
@@ -496,7 +496,7 @@ tests listed after.
 
 
 We can also model the opposite procedure, subtraction,
-by implementing the :py:meth:`__sub__ <modelviewprojection.mathutils.MultiVectorBase.__sub__>`
+by implementing the :py:meth:`__sub__ <intro3dgraphics.mathutils.MultiVectorBase.__sub__>`
 method.
 
 .. literalinclude:: _gacalc_src/g2.py
@@ -513,10 +513,10 @@ method.
 
 In our graphics code, instead of using "a+b", we'll use a more descriptive
 name: "translate", which is implemented using the addition symbol.  But a few
-things to note, :py:meth:`translate <modelviewprojection.mathutils.translate>`
+things to note, :py:meth:`translate <intro3dgraphics.mathutils.translate>`
 is a function on the mathutils module, not a method
 on Vector class, and it's wrapped in a class named
-:class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>`.
+:class:`InvertibleFunction <intro3dgraphics.mathutils.InvertibleFunction>`.
 
 
 
@@ -539,7 +539,7 @@ This is because we will be translating many Vectors using the same amount.
 :term:`Invertible functions <Invertible Function>` are stored in pairs, with the "active" function
 being the first one passed to the constructor.  So for translate above,
 the adding of the Vectors will be the function, but
-:class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>`
+:class:`InvertibleFunction <intro3dgraphics.mathutils.InvertibleFunction>`
 holds onto the second function, for later use to be able to undo the function's
 application.
 
@@ -547,7 +547,7 @@ Here is how the ``translate`` function is used.
 We call "translate", a function which takes a translate amount, both in the x
 direction and the y direction, but we have not yet specified what needs to be translated
 by that amount.  "translate" returns an
-:class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>`, which is
+:class:`InvertibleFunction <intro3dgraphics.mathutils.InvertibleFunction>`, which is
 Callable[Vector, Vector].  Callable[Vector, Vector] is a type which
 is a function that takes a Vector as input, and returns a Vector (in this case,
 the output is the input, translated by Vector(2.0, 3.0).
@@ -565,7 +565,7 @@ composing t_inv and t results in no transformation.
 
 
 
-Here's how :class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>` is implemented:
+Here's how :class:`InvertibleFunction <intro3dgraphics.mathutils.InvertibleFunction>` is implemented:
 
 .. literalinclude:: _gacalc_src/functions.py
    :language: python
@@ -590,7 +590,7 @@ Here's how :class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleF
 
 Just as Python allows an object to override the '+' and '-' syntax,
 in Python, any object can be treated as a function, by implementing the
-:py:meth:`__call__ <modelviewprojection.mathutils.InvertibleFunction.__call__>`
+:py:meth:`__call__ <intro3dgraphics.mathutils.InvertibleFunction.__call__>`
 method.
 
 .. literalinclude:: _gacalc_src/functions.py
@@ -610,7 +610,7 @@ method.
    :caption: gacalc/functions.py
 
 We can get the inverse of the procedure by the following
-:py:meth:`inverse <modelviewprojection.mathutils.inverse>`, procedure
+:py:meth:`inverse <intro3dgraphics.mathutils.inverse>`, procedure
 
 .. literalinclude:: _gacalc_src/functions.py
    :language: python
@@ -636,8 +636,8 @@ We can get the inverse of the procedure by the following
 Back to method's on the Vector class.  We can also define scaling of a Vector,
 by implementing multiplication of Vector's by a scalar, meaning a real number
 that scaled the Vector by the same amount in all directions.  We do this
-by implementing the :py:meth:`__mul__ <modelviewprojection.mathutils.MultiVectorBase.__mul__>`
-and :py:meth:`__rmul__ <modelviewprojection.mathutils.MultiVectorBase.__rmul__>` methods, where __rmul__ just means
+by implementing the :py:meth:`__mul__ <intro3dgraphics.mathutils.MultiVectorBase.__mul__>`
+and :py:meth:`__rmul__ <intro3dgraphics.mathutils.MultiVectorBase.__rmul__>` methods, where __rmul__ just means
 that this object is on the right hand side of the multiplication.
 
 .. literalinclude:: _gacalc_src/g2.py
@@ -655,7 +655,7 @@ that this object is on the right hand side of the multiplication.
 Just like we made a top level invertible function called "translate" for addition,
 we are going to do the same for multiplication, and call it "uniform_scale".
 Notice in particular that the scalar is passed as an argument to
-:py:meth:`uniform_scale <modelviewprojection.mathutils.uniform_scale>`,
+:py:meth:`uniform_scale <intro3dgraphics.mathutils.uniform_scale>`,
 but the function for scaling "f", and the inverse of "f" named "f_inv", take a Vector.
 This is because we will be scaling many Vectors using the same scaling factor.
 
@@ -674,24 +674,24 @@ This is because we will be scaling many Vectors using the same scaling factor.
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo06.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo06.py
    :language: python
    :start-after: doc-region-begin instantiate paddles
    :end-before: doc-region-end instantiate paddles
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo06.py
+   :caption: src/intro3dgraphics/demos/demo06.py
 
 
 * paddles are using :term:`modelspace<Modelspace>` coordinates instead of NDC
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo06.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo06.py
    :language: python
    :start-after: doc-region-begin define handle movement of paddles
    :end-before: doc-region-end define handle movement of paddles
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo06.py
+   :caption: src/intro3dgraphics/demos/demo06.py
 
 
 
@@ -704,13 +704,13 @@ Code
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo06.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo06.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo06.py
+   :caption: src/intro3dgraphics/demos/demo06.py
 
 
 
@@ -719,13 +719,13 @@ The Event Loop
 Rendering Paddle 1
 &&&&&&&&&&&&&&&&&&
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo06.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo06.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo06.py
+   :caption: src/intro3dgraphics/demos/demo06.py
 
 
 
@@ -770,13 +770,13 @@ Rendering Paddle 2
 &&&&&&&&&&&&&&&&&&
 
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo06.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo06.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo06.py
+   :caption: src/intro3dgraphics/demos/demo06.py
 
 
 
@@ -815,10 +815,10 @@ not included a picture of that here.  :term:`Scaling` happens relative to
 the :term:`origin <Origin>`, so the picture would be the same, just with different labels
 on the bottom and on the left.
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo06.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo06.py
    :language: python
    :start-after: doc-region-begin flush framebuffer
    :end-before: doc-region-end flush framebuffer
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo06.py
+   :caption: src/intro3dgraphics/demos/demo06.py

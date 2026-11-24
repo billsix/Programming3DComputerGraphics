@@ -15,7 +15,7 @@ content changed.)*
 
 ## What
 
-Add a `rotate_around_axis(matrix_stack, axis, angle)` to `src/modelviewprojection/matrix_stack.py` — equivalent to SuperBible's `m3dRotationMatrix44(angle, x, y, z)` and OpenGL's `glRotatef(angle, x, y, z)`.
+Add a `rotate_around_axis(matrix_stack, axis, angle)` to `src/intro3dgraphics/matrix_stack.py` — equivalent to SuperBible's `m3dRotationMatrix44(angle, x, y, z)` and OpenGL's `glRotatef(angle, x, y, z)`.
 
 Used heavily by `GLFrame::RotateLocal*`/`RotateWorld` in chapt05+. Without it, porting any `GLFrame`-driven demo (`sphereworld`, anything with an FPS camera) requires fighting the source.
 

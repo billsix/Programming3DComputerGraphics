@@ -7,7 +7,7 @@ out of `tasks/archive/2026/11/04/release-standalone-book-assets.md`. No work unt
 **Difficulty:** 3 (a small deploy workflow if yes)
 
 **Update 2026-11-24:** the course is moving to a new repository, `github.com/billsix/Programming3DComputerGraphics` (task
-`tasks/copy-history-without-ports.md`). This repository's Pages URL (`https://billsix.github.io/modelviewprojection/`) stays with this
+`tasks/copy-history-without-ports.md`). This repository's Pages URL (`https://billsix.github.io/intro3dgraphics/`) stays with this
 repository, which is kept unchanged for history and no longer maintained. The maintainer has made no Pages site and does not want one
 yet; when this decision is taken it applies to the new repository (URL `https://billsix.github.io/Programming3DComputerGraphics/`), whose
 README links no Pages site until then.
@@ -16,14 +16,14 @@ README links no Pages site until then.
 
 The book already builds to HTML in CI. **Question: do you want that HTML published as a live website via
 GitHub Pages**, so anyone can read the book online in a browser (no download) at a URL like
-`https://billsix.github.io/modelviewprojection/` — updated automatically? Or is shipping the HTML as a
+`https://billsix.github.io/intro3dgraphics/` — updated automatically? Or is shipping the HTML as a
 downloadable `.zip` on the Release (the plan in the sibling task) enough? Pick an option at the bottom.
 
 ## What GitHub Pages is (plain explanation)
 
 **GitHub Pages is free static-website hosting built into GitHub.** You point it at a folder of HTML/CSS/JS
-(here: the book's `output/modelviewprojection/html/`), and GitHub serves it as a public website at
-`https://<user>.github.io/<repo>/` — for this repo, `https://billsix.github.io/modelviewprojection/`. It's
+(here: the book's `output/intro3dgraphics/html/`), and GitHub serves it as a public website at
+`https://<user>.github.io/<repo>/` — for this repo, `https://billsix.github.io/intro3dgraphics/`. It's
 how a lot of open-source projects host their docs/books for free. No server to run; GitHub rebuilds and
 serves the site whenever a workflow pushes new HTML to it.
 
@@ -54,7 +54,7 @@ serves the site whenever a workflow pushes new HTML to it.
 ## What I need from you
 
 **Pick A, B, C, or D.** If A/B/D, I'll add a small Pages deploy workflow (or step) that publishes
-`output/modelviewprojection/html/`, keeping the "CI is a thin wrapper over make" principle (the build stays
+`output/intro3dgraphics/html/`, keeping the "CI is a thin wrapper over make" principle (the build stays
 a make target; only the Pages upload/deploy is the GitHub-specific YAML). If C, this task closes and the
 `-html.zip` in the sibling task is the whole HTML story.
 
@@ -63,5 +63,5 @@ a make target; only the Pages upload/deploy is the GitHub-specific YAML). If C, 
 - `tasks/archive/2026/11/04/release-standalone-book-assets.md` — the approved standalone-assets work (HTML zip lives there;
   this task decides the online-Pages question).
 - `tasks/github-actions-release-ci.md` — the release workflow a Pages deploy would sit alongside.
-- The book HTML output that would be published: `output/modelviewprojection/html/` (built by `make book`;
+- The book HTML output that would be published: `output/intro3dgraphics/html/` (built by `make book`;
   see `entrypoint/entrypoint.sh`).

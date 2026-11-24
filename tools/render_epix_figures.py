@@ -4,7 +4,7 @@
 Each figure is a jupytext percent-format Python file, written the way epix-mirror's
 own ``notebooks/`` are: it builds a scene with the ``epix`` package and leaves the
 result in a module-level ``fig`` (an ``epix.Figure``). Figures may drive mvp's own
-taught transforms (``modelviewprojection.mathutils``) so a picture is produced by the
+taught transforms (``intro3dgraphics.mathutils``) so a picture is produced by the
 exact functions its chapter teaches. This script runs each file in a **fresh
 interpreter** (libepix keeps global drawing state with no public reset, so figures
 must not share a process), then writes next to each other under

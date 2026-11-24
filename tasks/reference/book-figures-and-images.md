@@ -44,7 +44,7 @@ Mechanics worth knowing before touching any of it:
   `.. figure:: _static/epix/<name>.*` — the wildcard resolves to the PDF for the
   `latex` builder and the PNG for `html`; there is **no SVG** in this path. The
   transform figures (`translation*`, `scale*`, `*rotate*`, `modelspace`) **drive
-  mvp's own taught code** — they import `modelviewprojection.mathutils` over gacalc
+  mvp's own taught code** — they import `intro3dgraphics.mathutils` over gacalc
   `Vector`/`InvertibleFunction`s, so the renderer runs *after* the editable install
   in `entrypoint.sh`; the 13 static coordinate plots use no `mathutils`. The build
   is gated by `USE_EPIX` (a Dockerfile LATE layer pinning `EPIX_COMMIT`, matching
@@ -76,7 +76,7 @@ Mechanics worth knowing before touching any of it:
 load-bearing: the earlier `--system` form targeted `/usr` (no setuptools) → the
 editable build failed → downstream figure generation never ran → "not readable"
 warnings — but only on a **clean** tree, because previously-generated figures
-persist on disk. The editable install now also makes `modelviewprojection.mathutils`
+persist on disk. The editable install now also makes `intro3dgraphics.mathutils`
 importable for `render_epix_figures.py`, so the same failure class would silently
 blank the transform figures. Smoke-test after `git clean -fdx` (or in a fresh
 container), not incrementally. (Historical: the original symptom was the retired
@@ -138,7 +138,7 @@ the point). Use `.. inlinetex::` / the inline role.
 
 - **Every `.ipynb` in the repo is a build artifact** (gitignored;
   `notebooks/` holds only `.keep`). `entrypoint.sh` converts the jupytext
-  py:percent sources in `src/modelviewprojection/notebooksrc/` before each
+  py:percent sources in `src/intro3dgraphics/notebooksrc/` before each
   build — and the destinations are *not* uniform:
   - `plot2d.py` → `assignments/demo02/plot2d.ipynb` + `book/docs/` (not
     `notebooks/`)

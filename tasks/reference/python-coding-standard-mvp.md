@@ -1,6 +1,6 @@
-# Python coding standard — modelviewprojection-specific additions
+# Python coding standard — additions specific to this repository
 
-**Reference document.** modelviewprojection's own rules and worked examples that specialize
+**Reference document.** This repository's own rules and worked examples that specialize
 or extend the shared cross-project Python standard. Read this *together with* the shared doc
 `runClaudeInContainer/tasks/reference/python-coding-standard.md` (canonical:
 github.com/billsix/runClaudeInContainer; mounted at `~/.claude/reference/python-coding-standard.md`):

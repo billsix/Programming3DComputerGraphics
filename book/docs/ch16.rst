@@ -48,26 +48,26 @@ What's the difference between drawing paddle 1 and the square?
 
 Here is paddle 1 code
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo14.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo14.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo14.py
+   :caption: src/intro3dgraphics/demos/demo14.py
 
 
 
 Here is the square's code:
 
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo14.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo14.py
    :language: python
    :start-after: doc-region-begin draw square
    :end-before: doc-region-end draw square
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo14.py
+   :caption: src/intro3dgraphics/demos/demo14.py
 
 
 
@@ -147,7 +147,7 @@ the paddle's :term:`modelspace<Modelspace>` data.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/modelviewprojection/demos/demo16.py in Spyder and hit the play button.
+Load src/intro3dgraphics/demos/demo16.py in Spyder and hit the play button.
 
 
 Move the Paddles using the Keyboard
@@ -185,53 +185,53 @@ a :term:`vector <Vector>` to another vector, through the "modelspace_to_ndc_fn" 
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: ../../src/intro3dgraphics/mathutils.py
    :start-after: doc-region-begin define function stack class
    :end-before: doc-region-end function stack class signature
    :language: python
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: src/intro3dgraphics/mathutils.py
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: ../../src/intro3dgraphics/mathutils.py
    :start-after: doc-region-begin function stack class fields
    :end-before: doc-region-end function stack push signature
    :language: python
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: src/intro3dgraphics/mathutils.py
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: ../../src/intro3dgraphics/mathutils.py
    :start-after: doc-region-begin function stack push body
    :end-before: doc-region-end function stack pop signature
    :language: python
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: src/intro3dgraphics/mathutils.py
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: ../../src/intro3dgraphics/mathutils.py
    :start-after: doc-region-begin function stack pop body
    :end-before: doc-region-end function stack clear signature
    :language: python
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: src/intro3dgraphics/mathutils.py
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: ../../src/intro3dgraphics/mathutils.py
    :start-after: doc-region-begin function stack clear body
    :end-before: doc-region-end function stack compose signature
    :language: python
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: src/intro3dgraphics/mathutils.py
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: ../../src/intro3dgraphics/mathutils.py
    :start-after: doc-region-begin function stack compose body
    :end-before: doc-region-end define function stack class
    :language: python
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: src/intro3dgraphics/mathutils.py
 
 
 Define four functions, which we will compose on the stack.
@@ -253,13 +253,13 @@ Push :term:`identity <Identity>` onto the stack, which will will never pop off o
 
 Event Loop
 ^^^^^^^^^^
-.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo16.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo16.py
+   :caption: src/intro3dgraphics/demos/demo16.py
 
 
 ::
@@ -290,13 +290,13 @@ a new function to the top of the stack.
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo16.py
    :language: python
    :start-after: doc-region-begin stack push camera space to ndc
    :end-before: doc-region-end stack push camera space to ndc
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo16.py
+   :caption: src/intro3dgraphics/demos/demo16.py
 
 
 
@@ -346,13 +346,13 @@ camera space are.
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo16.py
    :language: python
    :start-after: doc-region-begin world space to camera space
    :end-before: doc-region-end world space to camera space
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo16.py
+   :caption: src/intro3dgraphics/demos/demo16.py
 
 
 draw paddle 1
@@ -378,13 +378,13 @@ the current space
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo16.py
    :language: python
    :start-after: doc-region-begin paddle 1 transformations
    :end-before: doc-region-end paddle 1 transformations
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo16.py
+   :caption: src/intro3dgraphics/demos/demo16.py
 
 
 for each of the :term:`modelspace<Modelspace>` coordinates, apply all
@@ -393,13 +393,13 @@ this results in coordinate data in :term:`NDC <Normalized Device Coordinates>` s
 which we can pass to glVertex3f
 
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo16.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo16.py
+   :caption: src/intro3dgraphics/demos/demo16.py
 
 
 draw the square
@@ -425,21 +425,21 @@ remove these 4 transformations from the stack (done below)
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo16.py
    :language: python
    :start-after: doc-region-begin square space to paddle 1 space
    :end-before: doc-region-end square space to paddle 1 space
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo16.py
+   :caption: src/intro3dgraphics/demos/demo16.py
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo16.py
    :language: python
    :start-after: doc-region-begin draw square
    :end-before: doc-region-end draw square
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo16.py
+   :caption: src/intro3dgraphics/demos/demo16.py
 
 
 Now we need to remove fns from the stack so that the
@@ -447,13 +447,13 @@ Now we need to remove fns from the stack so that the
 This will allow us to just add the transformations from
 :term:`world space <World Space>` to paddle2 space on the stack.
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo16.py
    :language: python
    :start-after: doc-region-begin back to world space
    :end-before: doc-region-end back to world space
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo16.py
+   :caption: src/intro3dgraphics/demos/demo16.py
 
 
 since paddle2's :term:`modelspace<Modelspace>` is independent of paddle 1's space, only
@@ -477,23 +477,23 @@ draw paddle 2
     :alt: Demo 12
     :figclass: align-center
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo16.py
    :language: python
    :start-after: doc-region-begin paddle 2 model space to world space
    :end-before: doc-region-end paddle 2 model space to world space
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo16.py
+   :caption: src/intro3dgraphics/demos/demo16.py
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo16.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo16.py
+   :caption: src/intro3dgraphics/demos/demo16.py
 
 
 
@@ -501,25 +501,25 @@ remove all fns from the :term:`function stack <Function Stack>`, as the next fra
 clear makes the list empty, as the list (stack) will be repopulated
 the next iteration of the event loop.
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo16.py
    :language: python
    :start-after: doc-region-begin clear function stack for next iteration of the event loop
    :end-before: doc-region-end clear function stack for next iteration of the event loop
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo16.py
+   :caption: src/intro3dgraphics/demos/demo16.py
 
 
 
 :term:`Swap buffers <Swap Buffers>` and execute another iteration of the :term:`event loop <Event Loop>`
 
-.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
+.. literalinclude:: ../../src/intro3dgraphics/demos/demo16.py
    :language: python
    :start-after: doc-region-begin flush framebuffer
    :end-before: doc-region-end flush framebuffer
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demos/demo16.py
+   :caption: src/intro3dgraphics/demos/demo16.py
 
 Notice in the above code, adding functions to the stack is creating a shared
 context for transformations, and before we call "glVertex3f", we always call

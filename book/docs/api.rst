@@ -4,7 +4,7 @@ API Reference
 Math Utils
 ----------
 
-.. automodule:: modelviewprojection.mathutils
+.. automodule:: intro3dgraphics.mathutils
    :members:
    :undoc-members:
    :show-inheritance:
