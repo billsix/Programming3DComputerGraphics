@@ -1,70 +1,45 @@
-# Stencil-buffer demo — recreate the Ocarina of Time image from the boss-theme video
+# Stencil-buffer example — the Lens-of-Truth reveal from the Ocarina of Time boss-theme video
 
-**Status:** ready — scope decided 2026-08-29 (see Decisions); implementation not started.
-**Priority:** 6
-**Difficulty:** 4
-**Created:** 2026-08-29 (William Emerison Six <billsix@gmail.com> asked for it; drafted by agent)
-
-## BLUF
-
-Build a stencil-buffer demo that recreates an image/effect from The Legend of Zelda: Ocarina
-of Time, as seen in the YouTube video the maintainer pointed at:
-"The Most INSANE Boss Theme Ever Written For A Zelda Game"
-(https://www.youtube.com/watch?v=egayquppRZM). Done = a runnable demo in this repo showing
-the chosen effect, implemented with the stencil buffer, verified rendering (screenshot, not
-just exit code).
-
-## Context
-
-- **The video** is a Zelda boss-*theme* (music) analysis; its footage shows the fight the
-  theme belongs to. That boss theme is Bongo Bongo's — the Shadow Temple boss who is
-  **invisible except when viewed through the Lens of Truth**. The agent's working guess
-  (unconfirmed — Open question 1) is that "the image" to recreate is that Lens-of-Truth
-  look: a circular masked region of the screen inside which an otherwise-hidden object is
-  rendered. That is a textbook stencil-buffer technique — write the circle (the lens) into
-  the stencil buffer, then draw the hidden geometry with a stencil test that passes only
-  inside it.
-- **Prior stencil art in this repo:** `src/intro3dgraphics/demos/demo24/demo24.py`
-  already uses the stencil buffer for planar shadows (so overlapping shadows don't
-  double-darken) and shows the necessary plumbing: `glfw.window_hint(glfw.STENCIL_BITS, 8)`
-  before window creation, `glClearStencil` + stencil ops in the draw loop. Read it first —
-  the new demo is the same plumbing with a different stencil role (mask instead of
-  shadow-count).
-- **Where it would land:** demo24 is currently the highest-numbered demo, so the natural
-  slot is a new `src/intro3dgraphics/demos/demo25/` (Open question 2).
-- **Verification** (per the repo's conventions): run headless under Xvfb, screenshot with
-  ImageMagick `import`, and judge pixels — with/without the lens mask should differ visibly;
-  a long-running GLFW demo is wrapped in `timeout N` (rc=124 = ran the full duration).
-- Copyright note: recreate the *technique/composition* with the repo's own geometry — no
-  ripped Nintendo assets in the repo.
+**Done 2026-11-24**, with the book build still to be run on the host (below). Asked for 2026-08-29 by
+William Emerison Six <billsix@gmail.com> after watching "The Most INSANE Boss Theme Ever Written For A
+Zelda Game" (https://www.youtube.com/watch?v=egayquppRZM), whose boss, Bongo Bongo, is invisible except
+through the Lens of Truth.
 
 ## Decisions (William Emerison Six <billsix@gmail.com>, 2026-08-29)
 
-1. **The effect is the Lens-of-Truth reveal** — a circular stencil mask inside which the
-   otherwise-invisible object (Bongo Bongo) is rendered.
-2. **It lands in the BOOK, not a demo**: a section on the stencil test illustrated with a
-   **screenshot** of the effect. Possible supporting material, maintainer's ideas:
-   - a **recorded video of real gameplay** captured from **Ship of Harkinian**
-     (github.com/HarbourMasters/Shipwright, the OoT PC port — the same family as the
-     Ghostship codebase already documented in the reference set of runClaudeInContainer,
-     github.com/billsix/runClaudeInContainer);
-   - a **frame capture showing the frame being built**, via **RenderDoc** or **apitrace**
-     (apitrace was "the other tool" the maintainer couldn't recall: open-source GL call
-     tracer/replayer; RenderDoc is the interactive single-frame debugger — better for
-     inspecting stencil state, while apitrace suits whole-run traces).
-   The "maybe" items are optional enrichment, not part of "done"; the screenshot in the
-   stencil-test book section is the core deliverable.
+1. The effect is the Lens-of-Truth reveal: a circular stencil mask inside which an otherwise-invisible
+   object is drawn.
+2. It lands in the **book**, as a section on the stencil test with a screenshot, not as a numbered demo.
+   The recorded Ship of Harkinian gameplay (github.com/HarbourMasters/Shipwright) and a RenderDoc or
+   apitrace frame capture are optional enrichment and not part of done; the gameplay capture needs the
+   game assets, a display and a player, so it is the maintainer's to produce.
 
-## Notes for execution
+## What was built (2026-11-24)
 
-- The **Ship of Harkinian gameplay capture is maintainer-gated** (needs the game assets,
-  a display, and someone playing to the Shadow Temple) — treat it as a human step to
-  request when the book section is drafted, not something a sandbox session can produce.
-- A repo-built screenshot alternative: implement the lens effect with the repo's own
-  geometry (the demo24-style stencil plumbing) and screenshot that for the book, keeping
-  Nintendo assets out of the repo; the SoH footage/RenderDoc capture would then illustrate
-  the real-game version alongside it.
+- `src/intro3dgraphics/mvpvisualization/stencillens.py`: a flat program in the demo-era style, placed with
+  the other pedagogical aids because decision 2 rules out a numbered demo. It draws a room (floor and three
+  pillars), then writes a circle into the stencil buffer with colour and depth writes off, then draws a
+  creature built from spheres with `glStencilFunc(GL_EQUAL, 1, 0xFF)`. The keys: arrows move the lens,
+  Page Up and Page Down resize it, `s` switches the stencil test off. The three-step frame sits inside a
+  `doc-region` named `stencil lens frame`. The plumbing (`glfw.STENCIL_BITS`, clear, enable, ops) is the
+  same as `demo24`'s planar shadows, with a different role for the stencil value (mask, not a counter).
+- No Nintendo assets: the creature and room are the repository's own geometry.
+- `book/docs/ch15.rst`: a new subsection "The stencil buffer as a mask", after the stencil-buffer
+  description, with the two screenshots, the three steps and a `literalinclude` of the marked region.
+  Screenshots: `book/docs/_static/screenshots/stencil_lens.png` (lens on) and
+  `stencil_lens_no_mask.png` (stencil test off).
 
-## Open questions
+## Verification
 
-None — resolved 2026-08-29 (see Decisions).
+Headless under Xvfb via `tools/verify_render.sh` (software GL, in the `modelviewprojection` image, since the
+project image would not rebuild here): both renders PASS, five distinct colours each, and the two frames
+differ (lens on: the creature is cut to a circle; test off: the whole creature, 60,000 creature-coloured
+pixels against 19,000 for the smaller lens); both PNGs were viewed. `tools/check_doc_regions.py` reports
+all anchors resolve, with no collisions; `pytest` (55 passed), `ty check src`, the annotation checker and
+`entrypoint/format.sh` are clean.
+
+## Still owed (required before relying on the section)
+
+`make docs` on the host: the figures and the new `literalinclude` in `ch15` have not gone through Sphinx,
+and a real-display run of `stencillens.py` (the lens keys, `s`) has not been done. The sandbox's project
+image does not rebuild; see `tasks/sphinx-docstrings-google-and-rendering.md`.

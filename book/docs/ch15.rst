@@ -98,6 +98,56 @@ the Nintendo_ 64, and comments on hacker_ news about it.
 .. _Nintendo: http://shmuplations.com/mario64/
 .. _hacker: https://news.ycombinator.com/item?id=12558589
 
+The stencil buffer as a mask
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The stencil buffer can act as a stencil in the everyday sense: a cut-out
+that decides where later drawing is allowed.  A game can use this for a
+"lens" that reveals something otherwise invisible.  The program
+``src/intro3dgraphics/mvpvisualization/stencillens.py`` draws a room (a floor and
+three pillars) that is always visible, and a creature standing in the
+middle of it that is only drawn inside a circle.
+
+.. figure:: _static/screenshots/stencil_lens.png
+    :class: no-scale
+    :align: center
+    :alt: The creature is visible only inside a circular lens
+    :figclass: align-center
+
+    The creature is drawn only where the lens circle was written into the
+    stencil buffer.
+
+Each frame has three steps, which are the same three steps whatever shape
+the mask has:
+
+1. Draw the room normally, with the stencil test off.
+2. Draw the circle with colour and depth writes turned off, and with the
+   stencil operation set to ``GL_REPLACE`` against a reference value of 1.  No pixel
+   changes colour; the stencil value under the circle becomes 1.
+3. Set the stencil function to ``GL_EQUAL`` against 1, with every
+   operation set to ``GL_KEEP``, and draw the creature.  A
+   :term:`fragment <Fragment>` of the creature is kept only where the
+   stencil value is 1.
+
+.. literalinclude:: ../../src/intro3dgraphics/mvpvisualization/stencillens.py
+   :language: python
+   :start-after: doc-region-begin stencil lens frame
+   :end-before: doc-region-end stencil lens frame
+   :linenos:
+   :lineno-match:
+   :caption: src/intro3dgraphics/mvpvisualization/stencillens.py
+
+Pressing *s* turns the stencil test off.  The creature is then drawn
+everywhere, which shows what the mask was hiding.
+
+.. figure:: _static/screenshots/stencil_lens_no_mask.png
+    :class: no-scale
+    :align: center
+    :alt: The whole creature, with the stencil test off
+    :figclass: align-center
+
+    The same frame with the stencil test off.
+
 
 Use the :term:`depth buffer <Depth Buffer>` to make further objects hidden
 if nearer objects are drawn in front
