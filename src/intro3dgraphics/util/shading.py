@@ -40,6 +40,10 @@ def _face_normal(
     The cross product of two edges -- computed via
     :func:`intro3dgraphics.mathutils.find_normal` -- then normalized.
 
+    Corners and result are plain tuples because every caller builds
+    ``float32`` vertex buffers from tuples; taking and returning ``Vector``
+    would only move the conversions into the callers.
+
     A triangle in the x-y plane wound counter-clockwise faces +z:
 
     >>> _face_normal((0, 0, 0), (1, 0, 0), (0, 1, 0))

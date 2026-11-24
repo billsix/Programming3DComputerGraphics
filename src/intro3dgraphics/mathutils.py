@@ -47,6 +47,7 @@ import gacalc.g3 as g3
 # gacalc pieces used INTERNALLY by the helpers below (not re-exported -- callers
 # import these from gacalc directly).
 from gacalc.base import MultiVectorBase
+from gacalc.measure import area, signed_area
 from gacalc.transforms import (
     InvertibleFunction,
     Linearity,
@@ -207,11 +208,11 @@ def sine(v1: g2.Vector, v2: g2.Vector) -> float:
     denominator: float = float(abs(v1)) * float(abs(v2))
     if denominator == 0.0:
         return float("nan")
-    # |v1||v2| sin(theta) IS the 2D wedge -- the bivector coefficient of
-    # v1 ^ v2, a.k.a. the 2D cross product / signed area.  The classic
-    # "rotate v1 by 90 degrees, then dot with v2" trick computes exactly
-    # this number; the algebra hands it to us directly.
-    return float((v1 ^ v2).coeff_e_12) / denominator
+    # |v1||v2| sin(theta) IS the signed area of the parallelogram the two
+    # vectors span (the bivector coefficient of v1 ^ v2, a.k.a. the 2D cross
+    # product).  The classic "rotate v1 by 90 degrees, then dot with v2"
+    # trick computes exactly this number; gacalc names it signed_area.
+    return float(signed_area(v1, v2)) / denominator
 
 
 # doc-region-begin define rotate x
@@ -273,8 +274,8 @@ def abs_sin(v1: g3.Vector, v2: g3.Vector) -> float:
     >>> abs_sin(1.0 * g3.Vector.e_1, 5.0 * g3.Vector.e_1)
     0.0
     """
-    # |a x b| == |a ^ b| (the magnitude of the bivector they span)
-    return float(abs(v1 ^ v2)) / (float(abs(v1)) * float(abs(v2)))
+    # |a x b| == |a ^ b|: the area of the parallelogram the vectors span
+    return float(area(v1, v2)) / (float(abs(v1)) * float(abs(v2)))
 
 
 def find_normal(p1: g3.Vector, p2: g3.Vector, p3: g3.Vector) -> g3.Vector:
