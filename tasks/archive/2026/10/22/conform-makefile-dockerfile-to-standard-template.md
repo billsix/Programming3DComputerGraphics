@@ -20,7 +20,7 @@ drift table in git history was measured on a stale branch and was re-measured ag
 
 ## What was done (the three genuine leftovers)
 
-Work commit `6189c16e`:
+Work commit `9215c4d9`:
 
 1. **`MINIMAL_IMAGE`** — the five optional-feature flags (`BUILD_DOCS`, `USE_EMACS`,
    `USE_JUPYTER`, `USE_X_WINDOWS`, `USE_EPIX`) now use the standard idiom

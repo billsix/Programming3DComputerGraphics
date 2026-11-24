@@ -1,5 +1,7 @@
 # mvp tests, gates & verification
 
+> **Historical copy (2026-11-24).** In this repository, the Code the Classics gates (`tools/ctc_*`, `tests/test_ctc_actor_field_collisions.py`) moved to `github.com/billsix/CodeTheClassics` and the SuperBible port to `github.com/billsix/OpenGLSuperBibleV4Code`; the passages about them are historical.
+
 **Reference document** — how modelviewprojection is actually verified: the gate
 chain, the tests that encode contracts, the proof harnesses that past migrations
 built, and the playbooks for type-checking and bulk edits. Not a task; update in

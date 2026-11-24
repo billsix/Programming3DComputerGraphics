@@ -44,7 +44,7 @@ all (crossfades are pure math in the callback).
 **Method** (per Bill): cloned the untouched upstream
 (`raspberrypipress/Code-the-Classics-Vol2`) and pgzero
 (`lordmauve/pgzero`) sources; compared against our port and read
-just_playback's installed source. (NB the in-repo import dc5bb77e was
+just_playback's installed source. (NB the in-repo import c67a4bde was
 already shim-based, but its game LOGIC is byte-identical to upstream —
 verified by diff; only annotations/formatting differ. So the entire
 behavioural delta is the audio framework.)

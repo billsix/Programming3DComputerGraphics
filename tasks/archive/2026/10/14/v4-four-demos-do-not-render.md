@@ -23,7 +23,7 @@ sweep is 96 of 99 (the other three, texfloat, hdrbloom and motionblur, stay with
   directory = the tree root, where `_common.py` lives. The three chapt11 demos wrote
   `os.path.dirname(os.path.dirname(os.path.abspath(__file__)))`, one level short, because they
   also import `_thunderbird_data` from `chapt11/`. They have been like this since the port
-  landed (e1affef3, 2026-04-28) and only ran when the current directory happened to be the tree
+  landed (c5018a2d, 2026-04-28) and only ran when the current directory happened to be the tree
   root (Python puts the script's directory, not the cwd, on `sys.path`; the maintainer's
   `cd ports/openglsuperbiblev4 && python chapt11/vbo/vbo.py` habit put the root on it anyway).
 - `single` reproduces GLUT_SINGLE: `glfw.window_hint(DOUBLEBUFFER, FALSE)`, a timed tick that

@@ -34,7 +34,7 @@ source (no `doc-region` markers under the tree).
   per-window cache mutated in place, left module-level). The 101 apps were then refactored in
   seven parallel batches of chapters, each batch verified with the three checks below before it was
   accepted.
-- The two checks below were one-shot scripts, committed in aca4865d and removed when the task was
+- The two checks below were one-shot scripts, committed in b60d1d44 and removed when the task was
   archived. `tasks/adhoc/superbible-v4-globals-singleton-and-types/strict_annotations.py` reported
   `global`/`nonlocal`, tuple-unpack assignments, unannotated `for`/`with` targets, and unannotated
   params/returns: 1335 findings before, 0 after.

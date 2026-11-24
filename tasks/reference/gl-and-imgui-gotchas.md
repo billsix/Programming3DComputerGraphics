@@ -1,5 +1,7 @@
 # OpenGL / imgui / GLFW gotchas (hard-won)
 
+> **Historical copy (2026-11-24).** In this repository, sections 1 to 6 are shared with the SuperBible v4 Python port, which moved to `github.com/billsix/OpenGLSuperBibleV4Code` (`tasks/reference/python-port/gl-and-imgui-gotchas.md` there has its copy); the sections on the graphing calculators and TeX labels stay here.
+
 **Reference document** — the trap corpus accumulated porting ~100 SuperBible
 demos and building the viz engine: each entry cost a debugging session to find.
 Check here before writing or debugging any GL/imgui/GLFW code in this repo.

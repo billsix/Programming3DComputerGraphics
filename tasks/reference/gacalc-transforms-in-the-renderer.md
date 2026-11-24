@@ -1,5 +1,7 @@
 # gacalc transforms and the renderer's matrices: the bridge, the cost, and the compile-once fast path
 
+> **Historical copy (2026-11-24).** In this repository, the renderer it describes (`pgzero_gl`, the games) moved to `github.com/billsix/CodeTheClassics`; the maintained copy of this document is there.
+
 **What this is:** the standing record of how mvp's Code-the-Classics renderer relates to gacalc's
 transforms (`github.com/billsix/geometricalgebra`, `gacalc.transforms`) — what exists, what it costs, and
 the pattern that makes "gacalc as the single source of truth for the GPU matrix" free. Harvested

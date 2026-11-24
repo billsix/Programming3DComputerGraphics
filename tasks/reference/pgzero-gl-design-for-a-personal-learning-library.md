@@ -1,5 +1,7 @@
 # pgzero_gl — design notes for a personal *learning* library
 
+> **Historical copy (2026-11-24).** In this repository, `pgzero_gl` moved to `github.com/billsix/CodeTheClassics` (top-level package `pgzero_gl`); the maintained copy of this document is there.
+
 **What this is:** a durable design study of the `pgzero_gl` shim (`src/modelviewprojection/pgzero_gl/`,
 18 files ≈ 3,400 lines) and how the 11 Code-the-Classics ports (`ports/codetheclassics/{vol1,vol2}`,
 ≈ 16,300 lines) actually use it — read in depth 2026-09-03 by six parallel readers, every claim below

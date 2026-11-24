@@ -89,7 +89,7 @@ The first src-module-level fan-out (4 subagents) hit a **session rate limit** an
 mid-run, leaving partial edits — most fine, a few broken: an annotated `TypeVar` definition
 (`_C: TypeVar = TypeVar(...)`, which un-generic'd `_RectBase` and cascaded 8 ty errors) and
 `glfw.joystick_present` typed `bool` (it returns `int`). Recovery: fixed those, committed the
-ty-clean partial (168/362, `35d14a0e`), taught the checker to exempt `TypeVar`/`ParamSpec`/
+ty-clean partial (168/362, `17cdb8a1`), taught the checker to exempt `TypeVar`/`ParamSpec`/
 `TypeVarTuple` definitions, then re-ran 3 subagents (warned about those exact mistakes) to finish
 the remaining ~191. Final state verified by the container `ty` gate + the checker, not by agent
 reports.
@@ -97,11 +97,11 @@ reports.
 ## Progress log
 
 - Checker `--include-module` support added + tested; also fixed the checker to skip
-  `global`/`nonlocal`-declared names (can't carry an inline annotation) — committed `c46b144d` +
+  `global`/`nonlocal`-declared names (can't carry an inline annotation) — committed `4718f7a8` +
   the fix folded into the codetheclassics commit.
-- **codetheclassics DONE** (`88263050`): all 11 games, locals + module-level, via 4 subagents;
+- **codetheclassics DONE** (`5297631d`): all 11 games, locals + module-level, via 4 subagents;
   container `make format` ty 8/8, ruff clean, checker `--include-module` zero.
-- **openglsuperbiblev4 DONE** (`91c0ee3c`): all 104 files (97 changed), locals + module-level, via
+- **openglsuperbiblev4 DONE** (`ce305f43`): all 104 files (97 changed), locals + module-level, via
   7 subagents (by chapter). checker `--include-module` zero, ruff clean. **ty count-check: the
   annotations added ZERO new diagnostics and resolved 93 pre-existing ones (194 -> 101).** The 101
   remaining are pre-existing glfw/imgui stub mismatches (follow-up #2).
