@@ -279,3 +279,13 @@ the window.
    :linenos:
    :lineno-match:
    :caption: src/intro3dgraphics/demos/demo03.py
+
+
+Try it yourself
+===============
+
+``assignments/assignment2-screenspace.py`` solves the same problem a second
+way.  Instead of letterboxing the viewport, it hands OpenGL coordinates in
+screen space and leaves the mapping from NDC to screen space to you, with
+``KEEP_ASPECT_RATIO`` switching between stretching and preserving the
+proportions of the picture.

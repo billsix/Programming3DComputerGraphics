@@ -696,3 +696,6 @@ Exercise
 * Run Demo 2.  Resize the window using the GUI controls provided
   by the Operating system. first make it skinny, and then wide.
   Observe at what happens to the rectangles.
+
+* Then try :doc:`programmingproj1`, which draws shapes of your own
+  choosing in NDC.
