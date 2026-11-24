@@ -1,6 +1,6 @@
-# Rename the package `modelviewprojection` to `intro3dgraphics` (and the container, and the other uses of the name)
+# Rename the package `modelviewprojection` to `intro3dgraphics` (and the container, the title, and the other uses of the name)
 
-**Status:** proposed — needs go-ahead and the answers below (filed 2026-11-24)
+**Status:** proposed — needs go-ahead (filed 2026-11-24; every open question answered 2026-11-24)
 **Priority:** 6
 **Difficulty:** 5
 **Created:** 2026-11-24
@@ -12,7 +12,8 @@ change, and a searched list of recommendations for every other use of the name. 
 
 The repository is now `Programming3DComputerGraphics`; the Python package, the image and several paths still say `modelviewprojection`
 (or its nickname `mvp`). Rename the package to **`intro3dgraphics`** (`src/modelviewprojection/` → `src/intro3dgraphics/`, 87 tracked
-files, every import) and the container image to `intro3dgraphics`, in one mechanical sweep proved by the gates. Several uses of the word
+files, every import), the container image to `intro3dgraphics`, and the book's and project's title to **"Introduction to 3D Computer
+Graphics"**, in one sweep proved by the gates. Several uses of the word
 must **not** change (below). Done means: `git grep -i modelviewprojection` outside `tasks/archive` and the files listed under "Leave alone"
 finds nothing, `make image`, `make check-format`, `make type-check`, `make test` and `make docs` pass, and the book builds with the new
 paths.
@@ -32,7 +33,7 @@ Counts are `git grep -I -i modelviewprojection` hits; the totals are 359 in `tas
 | 6 | **Image / container name** | `Makefile:22` `CONTAINER_NAME = modelviewprojection` (the Dockerfile itself carries no image name; its four hits are `~/.bash_history` lines), `tools/verify_render.sh` default `localhost/modelviewprojection`, `.gitignore` `modelviewprojection-*.tar` (`make image-export`) | Rename to `intro3dgraphics`. The four Dockerfile `emacs src/modelviewprojection/mathutils3d.py` history lines name files that no longer exist (`mathutils1d/2d/3d.py`): delete them rather than rename. |
 | 7 | **Container mount path `/mvp`** | `Makefile` (12), `Dockerfile` (4), `entrypoint/*.sh` (`entrypoint.sh`, `shell.sh`, `spyder.sh`, `loadpackages.sh`, `jupyter.sh`, `format.sh`), `tools/verify_render.sh`, `tools/verify_dockerfile_permutations.sh`: 30 occurrences in 9 files | Rename to `/intro3dgraphics` in the same sweep (question 2). Other repositories' scripts that call this image by path (none found; see row 14) would need the same. |
 | 8 | **Build output directory and release names** | `entrypoint/entrypoint.sh` `/output/modelviewprojection/{html,pdf,epub}` and `.nojekyll`; `.github/workflows/release.yml` and `tasks/github-actions-release-ci.md` (`output/modelviewprojection/`, `dist/modelviewprojection-<version>.tar.gz`) | Rename to `intro3dgraphics`; the release workflow and the Makefile `release-*` targets must agree, so change them together and run the workflow's steps locally. |
-| 9 | **The book's and project's display name** | `book/docs/conf.py` `project = "Model View Projection"` (also decides the PDF and EPUB file names), `README.md` title "ModelViewProjection", `pyproject.toml` description, `book/docs/ch01.rst:376` ("the book is called ModelViewProjection :-)"), window titles `"ModelViewProjection Demo N"` (35 strings in 35 files across `src` and `assignments`) | **Decide separately** (question 3). The name is the book's title and the course's theme, not only the package. |
+| 9 | **The book's and project's title** | `book/docs/conf.py` `project = "Model View Projection"` (Sphinx derives the PDF, EPUB and HTML titles and file names from it), `README.md` title "ModelViewProjection", `pyproject.toml` description, `book/docs/ch01.rst:376` ("the book is called ModelViewProjection :-)"), window titles `"ModelViewProjection Demo N"` (35 strings in 35 files across `src` and `assignments`) | **Retitle to "Introduction to 3D Computer Graphics"** (maintainer's decision, question 3). Window titles become `"Introduction to 3D Computer Graphics Demo N"` (say so if a shorter window title is wanted). The ch01 sentence is a joke about the old name and needs rewriting, not replacing. Expect the built PDF and EPUB file names to change; check `release.yml` globs (`dist/*.pdf`, `dist/*.epub`) still match. |
 | 10 | **The nickname `mvp`** | `CLAUDE.md` title "MVP — context for Claude", about 100 mentions in open tasks and reference docs, `book/docs/mvp_dict.pws` (spelling dictionary), a few comments in `src` and `tests` | Replace the nickname for the *repository* ("the course repository", or the new name) in `CLAUDE.md`, `README.md` and open docs; leave the spelling dictionary alone unless the term leaves the book. |
 | 11 | **`src/…/mvpvisualization/` and `modelviewperspectiveprojection.py`** | 48 references in 21 files, plus 14 for the module `modelviewperspectiveprojection` | **Keep** (question 4). "MVP" here is the graphics acronym for the model-view-projection pipeline, which the visualization teaches; it is not the repository name. |
 | 12 | **`MatrixStack.modelviewprojection`** | `ms.get_current_matrix(ms.MatrixStack.modelviewprojection)` in `demo21`, `demo22`, `demo22b` (4 hits) | **Do NOT change.** It is gacalc's enum member naming the OpenGL matrix; a blind replace would break these demos at run time. The codemod must skip it. |
@@ -40,6 +41,8 @@ Counts are `git grep -I -i modelviewprojection` hits; the totals are 359 in `tas
 | 14 | **Other repositories** | `geometricalgebra` (66 mentions, e.g. `CLAUDE.md`, `tasks/reference/design-decisions.md`), `multivariate-math` (`src/crossproduct/_labels.py` docstring), `impo`, `imps`, `hanoi`, `runClaudeInContainer`, `runCrushInContainer`, `dotfiles`, `OpenGLSuperBibleV4Code`, `CodeTheClassics`, `sb7code` | Checked 2026-11-24: **none imports the package or calls the image** (all are comments or history). No coordinated change is needed; do not touch them in this task. |
 
 **Gotchas for the sweep**
+- Row 9 is a different string from the package name (`ModelViewProjection`, `Model View Projection`): handle it with its own list, not the
+  package codemod, and keep `modelviewperspectiveprojection` and `MatrixStack.modelviewprojection` untouched.
 - Replace the *package* name with word boundaries and skip row 12; never run a blanket `sed s/modelviewprojection/…/` over the tree (it would
   also rewrite `tasks/archive`, the `entrypoint/dotfiles` vendored tree and gacalc's enum).
 - Save the codemod under `tasks/adhoc/rename-package-modelviewprojection-to-intro3dgraphics/` (annotated Python, idempotent: a second
@@ -64,15 +67,11 @@ Counts are `git grep -I -i modelviewprojection` hits; the totals are 359 in `tas
 
 ## Open questions
 
-1. Package name: answered 2026-11-24 by the maintainer, `intro3dgraphics`. The container name is answered the same way (the maintainer wrote
-   "the container name in the Dockerfile"; the image name lives in the `Makefile` as `CONTAINER_NAME`, the Dockerfile has none, so row 6 changes
-   that). Confirm that reading with a yes.
-2. Rename the mount path `/mvp` (30 occurrences in 9 files) to `/intro3dgraphics` in the same sweep? Recommend: yes, so no `mvp` path
-   outlives the nickname; the cost is that every script that hard-codes `/mvp` changes in one commit.
-3. The book's and project's display name (row 9): keep "Model View Projection" and the window titles `ModelViewProjection Demo N`
-   for now, or retitle everything? Recommend: keep, and take the book-title decision as its own task; the title names the course's theme
-   (model, view, projection), while the package and container names only name the code.
-4. Keep `mvpvisualization/` and `modelviewperspectiveprojection.py` (row 11)? Recommend: keep.
-5. Version: bump `pyproject.toml` `version` from `0.0.3` (a breaking rename pre-1.0 is a MINOR bump in the maintainer's convention) and start
-   a `CHANGELOG.md`, or leave the version alone because nothing consumes the package? Recommend: leave both alone; nothing pins it (row 14).
-6. Docs that record history (rows 13 and the 359 archive hits): leave them naming the old package? Recommend: yes.
+All answered 2026-11-24 by the maintainer, William Emerison Six <billsix@gmail.com> ("what you recommend except for 3"):
+
+1. Package `intro3dgraphics`; container name = `CONTAINER_NAME` in the `Makefile` (yes).
+2. Rename the mount path `/mvp` to `/intro3dgraphics` in the same sweep (yes).
+3. **Not the recommendation:** the title becomes "Introduction to 3D Computer Graphics" (row 9), instead of keeping "Model View Projection".
+4. Keep `mvpvisualization/` and `modelviewperspectiveprojection.py` (yes).
+5. Leave the version at `0.0.3` and start no `CHANGELOG.md` (yes).
+6. Leave the history-recording docs naming the old package (yes).
