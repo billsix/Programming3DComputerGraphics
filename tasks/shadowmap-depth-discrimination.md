@@ -1,5 +1,7 @@
 # Make shadow-map depth values visually distinguishable (debug view)
 
+> **Port half moved (2026-11-24 sweep).** `ports/openglsuperbiblev4/` and `tasks/ports-ux-pass.md`, which this document cites for the SuperBible v4 port, are now `python/` and `tasks/ports-ux-pass.md` in `github.com/billsix/OpenGLSuperBibleV4Code`; the paths below are from before the move. Decide there which part of this still applies.
+
 **Status:** not-started — logged 2026-05-29 (Bill). Investigate (done below) + design an
 option to visually discriminate close depth values; confirm approach with Bill before building.
 **Priority:** 6

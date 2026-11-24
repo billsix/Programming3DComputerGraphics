@@ -1,5 +1,7 @@
 # Lighting: light types in demo22, a half-angle visualization, and the ports' light markers
 
+> **Port half moved (2026-11-24 sweep).** `ports/openglsuperbiblev4/` and `tasks/ports-ux-pass.md`, which this document cites for the SuperBible v4 port, are now `python/` and `tasks/ports-ux-pass.md` in `github.com/billsix/OpenGLSuperBibleV4Code`; the paths below are from before the move. Decide there which part of this still applies.
+
 **Status:** proposed — needs go-ahead. **Merged 2026-09-08** from three tasks the maintainer filed
 on 2026-08-27 (`demo22-light-types-and-flashlight`, `mvpvis-lighting-demo-half-angle`,
 `port-sb4-directional-far-light`), each of which had already asked in its own Open questions
