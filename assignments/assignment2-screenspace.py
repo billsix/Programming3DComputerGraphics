@@ -66,9 +66,9 @@ from gacalc.transforms import (
 )
 from OpenGL.GLU import gluOrtho2D
 
-import modelviewprojection.util.colorutils as colorutils
-from modelviewprojection.mathutils import rotate
-from modelviewprojection.util.windowing import on_key
+import intro3dgraphics.util.colorutils as colorutils
+from intro3dgraphics.mathutils import rotate
+from intro3dgraphics.util.windowing import on_key
 
 # Which of the two mappings the event loop uses.  Flip it and rerun.
 KEEP_ASPECT_RATIO: bool = False
@@ -82,7 +82,11 @@ glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
 window = glfw.create_window(
-    500, 500, "ModelViewProjection Assignment 2 - Screen Space", None, None
+    500,
+    500,
+    "Introduction to 3D Computer Graphics Assignment 2 - Screen Space",
+    None,
+    None,
 )
 if not window:
     glfw.terminate()

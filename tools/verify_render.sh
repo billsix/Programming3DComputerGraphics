@@ -26,7 +26,7 @@
 # Usage (from the repo root):
 #   tools/verify_render.sh <script> [frames] [png] [hold-keys] [--allow-blank]
 #
-#   tools/verify_render.sh src/modelviewprojection/demos/demo18.py
+#   tools/verify_render.sh src/intro3dgraphics/demos/demo18.py
 #   tools/verify_render.sh assignments/assignment3-strafe.py 10 /tmp/a3.png RIGHT,LEFT_SHIFT
 #   tools/verify_render.sh assignments/assignment2-screenspace.py 6 "" "" --allow-blank
 #
@@ -44,7 +44,7 @@ ALLOW_BLANK="${5:-}"
 
 REPO="$(git rev-parse --show-toplevel)"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-IMAGE="${CONTAINER_NAME:-localhost/modelviewprojection}"
+IMAGE="${CONTAINER_NAME:-localhost/intro3dgraphics}"
 # NOT $DISPLAY: in the sandbox that is :0, the host passthrough, which the
 # container cannot authenticate to. Override with PROBE_DISPLAY if needed.
 DISPLAY_NUM="${PROBE_DISPLAY:-:99}"
@@ -54,9 +54,9 @@ DISPLAY_NUM="${PROBE_DISPLAY:-:99}"
 run_args=(--rm --cgroups=disabled
           -e "DISPLAY=${DISPLAY_NUM}"
           -v /tmp/.X11-unix:/tmp/.X11-unix
-          -v "${REPO}":/mvp:Z)
+          -v "${REPO}":/intro3dgraphics:Z)
 
-probe_args=("/mvp/${SCRIPT}" "${FRAMES}")
+probe_args=("/intro3dgraphics/${SCRIPT}" "${FRAMES}")
 if [ -n "${PNG}" ]; then
     # the PNG is written from inside the container, so its directory is mounted
     mkdir -p "$(dirname "${PNG}")"
@@ -71,5 +71,5 @@ fi
 podman run "${run_args[@]}" \
     -v "${HERE}/render_probe.py":/tmp/render_probe.py:Z \
     --entrypoint /bin/bash "${IMAGE}" -c \
-    "source /venv/bin/activate && cd /mvp && PYTHONPATH=/mvp/src \
+    "source /venv/bin/activate && cd /intro3dgraphics && PYTHONPATH=/intro3dgraphics/src \
      python /tmp/render_probe.py ${probe_args[*]}"

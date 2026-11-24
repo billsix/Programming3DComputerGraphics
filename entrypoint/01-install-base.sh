@@ -29,7 +29,6 @@ status=0
 dnf upgrade -y || status=1
 
 dnf install -y \
-    gcc-g++ \
     git \
     glib \
     glib2-devel \
@@ -41,7 +40,6 @@ dnf install -y \
     python3-openimageio \
     python3-pillow \
     python3-pyopengl \
-    python3-devel \
     python3-pytest \
     python3-pytest-lsp \
     python3-sympy \

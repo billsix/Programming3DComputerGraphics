@@ -8,11 +8,11 @@ their real paths). Companion to `tasks/reference/notable-subsystems.md` and `sup
 ## Two lighting worlds (verified distinct)
 
 ### 1. Curriculum demos — GL 3.3 core, shader-based, share `util/shading.py`
-`src/modelviewprojection/util/shading.py` holds the shared lighting/geometry helpers (`_face_normal`,
+`src/intro3dgraphics/util/shading.py` holds the shared lighting/geometry helpers (`_face_normal`,
 light-direction) used by the lighting-era demos.
-- **demo22** (`src/modelviewprojection/demos/demo22/demo22.py`) — a **directional light + Lambert**
+- **demo22** (`src/intro3dgraphics/demos/demo22/demo22.py`) — a **directional light + Lambert**
   shading, plus a shadow-map and a visible light marker. The curriculum's Lambert demo.
-- **demo23** (`src/modelviewprojection/demos/demo23/`) — Lambert **+ Blinn-Phong specular via the
+- **demo23** (`src/intro3dgraphics/demos/demo23/`) — Lambert **+ Blinn-Phong specular via the
   half-vector**: `litjet.frag:47` ("Blinn-Phong: use the half-vector between view and light"),
   `l = normalize(lightDirWS)` (`:41`), `n = normalize(v_normal_ws)` (`:40`). This is the demo to reuse
   for any half-angle-vector visualization.
@@ -37,7 +37,7 @@ chapter**. The light *type* is read off the 4th component of the light position:
 > *folded into* the `tasks/ports-ux-pass.md` umbrella, where it is still Phase 3 item #40, unstarted.
 > Verified 2026-09-08: `grep -rn light_marker ports/` returns nothing and
 > `ports/openglsuperbiblev4/_common.py` has no `draw_light_marker`. **The marker that does exist is
-> demo22's** — a cone + bulb (`src/modelviewprojection/demos/demo22/demo22.py:1049`, `:1076`, placed
+> demo22's** — a cone + bulb (`src/intro3dgraphics/demos/demo22/demo22.py:1049`, `:1076`, placed
 > at `:1483`), which is what "demo22-style marker" refers to and what the ports would copy.
 
 ### 3. `mvpvisualization` / Cayley engine — NO lighting at all (verified)

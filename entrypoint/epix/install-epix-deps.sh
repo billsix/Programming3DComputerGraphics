@@ -3,9 +3,10 @@
 # install-epix-deps.sh -- the Fedora packages ePiX needs on top of what mvp's
 # BUILD_DOCS block already installs. Run before install-epix.sh.
 #
-# mvp's main Dockerfile RUN already provides the build toolchain (meson, ninja,
-# gcc-g++/g++/gcc, git under BUILD_DOCS) and ImageMagick + a base texlive, so this
-# only adds the pieces specific to the ePiX render chain. The list mirrors
+# The main Dockerfile RUNs already provide the build toolchain (meson, ninja, git
+# and, under BUILD_DOCS, g++/gcc) and ImageMagick + a base texlive, so this adds the
+# pieces specific to ePiX: python3-devel (Python.h, for the nanobind extension of its
+# Python front-end) and the render chain. The list mirrors
 # epix-mirror's own entrypoint/02-install-render.sh (the figure-rendering
 # toolchain: latex -> dvips -> ghostscript -> eps/pdf; convert for png), plus
 # gcc-c++ to guarantee the g++ the `epix` driver compiles each figure with.
@@ -18,6 +19,7 @@ dnf install -y \
     gcc-c++ \
     ghostscript \
     ImageMagick \
+    python3-devel \
     texlive-collection-basic \
     texlive-collection-latexrecommended \
     texlive-collection-pictures \

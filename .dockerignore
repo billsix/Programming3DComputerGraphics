@@ -11,7 +11,7 @@
 # install-melpa-packages.el, helm.el, preferences.el) is still copied to /root.
 entrypoint/dotfiles/.emacs.d/elpa
 
-# build artifacts / caches -- excluded so `COPY . /mvp` bakes only a clean source
+# build artifacts / caches -- excluded so `COPY . /intro3dgraphics` bakes only a clean source
 # tree (the source is baked so a pulled image runs standalone; see the Dockerfile
 # and tasks/reference/container-source-and-mounts.md).
 .git

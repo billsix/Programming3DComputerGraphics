@@ -1,5 +1,5 @@
-ModelViewProjection
-===================
+Introduction to 3D Computer Graphics
+====================================
 
 The book is built from `book/docs/` (see below); no website for it is published yet.
 
@@ -43,7 +43,7 @@ python -m venv venv
 source venv/bin/activate          # Windows: venv\Scripts\activate.bat
 python -m pip install --upgrade pip setuptools
 python -m pip install -e .
-python src/modelviewprojection/demos/demo05.py
+python src/intro3dgraphics/demos/demo05.py
 ```
 
 (On Windows, use the Visual Studio 2019 Developer Command Prompt for the venv steps.)
@@ -98,7 +98,7 @@ Project structure
 
 | Path | What |
 | --- | --- |
-| `src/modelviewprojection/` | The package: `mathutils.py` (gacalc-backed graphics math; not a re-export façade), `demos/`, `util/`, `framebuffer/`, `mvpvisualization/`, `graphingcalculator/` (standalone `f(x)` / `f(x,y)` graphers). The matrix stack, Cayley-graph engine and GL toolkit come from gacalc (`gacalc.gl`, `gacalc.cayley`) |
+| `src/intro3dgraphics/` | The package: `mathutils.py` (gacalc-backed graphics math; not a re-export façade), `demos/`, `util/`, `framebuffer/`, `mvpvisualization/`, `graphingcalculator/` (standalone `f(x)` / `f(x,y)` graphers). The matrix stack, Cayley-graph engine and GL toolkit come from gacalc (`gacalc.gl`, `gacalc.cayley`) |
 | `book/docs/` | The Sphinx book (chapters `ch01`–`ch21`) |
 | `assignments/` | Student assignments (standalone exercises; lint/format-gated by `format.sh`) |
 | `tasks/` | Active work (one file per task); completed work under `tasks/archive/<YYYY>/<MM>/<DD>/` |

@@ -49,7 +49,7 @@ from gacalc.transforms import (
     uniform_scale,
 )
 
-from modelviewprojection.mathutils import (
+from intro3dgraphics.mathutils import (
     fn_stack,
     perspective,
     rotate,

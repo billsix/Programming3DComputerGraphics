@@ -8,7 +8,7 @@
 ## Goal
 
 For each of the seven Cayley-graph teaching visualizations in
-`src/modelviewprojection/mvpvisualization/`, lay out **what would most help a
+`src/intro3dgraphics/mvpvisualization/`, lay out **what would most help a
 student see and internalize** the one idea that demo embodies. The Cayley-graph
 framing is the constant throughout: **nodes = coordinate spaces, directed edges =
 invertible placement functions, "world→camera" = walking the placement arrows

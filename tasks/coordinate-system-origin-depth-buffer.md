@@ -20,7 +20,7 @@ scene geometry) rather than drawing always-on-top.
 
 ## Context (investigation 2026-08-27)
 
-- Target is the static explorer `src/modelviewprojection/mvpvisualization/coordinatesystems.py`
+- Target is the static explorer `src/intro3dgraphics/mvpvisualization/coordinatesystems.py`
   (`tasks/reference/notable-subsystems.md §2c` — "the odd one out — no timeline").
 - The big `mvpvisualization-pedagogy-plan.md §1` covers `coordinatesystems.py` improvements (focus-path
   overlay, per-space axes) but **not** this depth-test change — so this is a small standalone bugfix-style

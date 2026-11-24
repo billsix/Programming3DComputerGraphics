@@ -41,7 +41,7 @@ import pytest
 _DEMO22B_DIR: Path = (
     Path(__file__).resolve().parent.parent
     / "src"
-    / "modelviewprojection"
+    / "intro3dgraphics"
     / "demos"
     / "demo22b"
 )

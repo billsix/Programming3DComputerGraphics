@@ -9,7 +9,7 @@ sources later, add in a task for this particular one").
 
 ## What changed in the included code (the prose still tells the old story)
 
-`src/modelviewprojection/mathutils.py`, 2026-07-09 (the plane_rotation
+`src/intro3dgraphics/mathutils.py`, 2026-07-09 (the plane_rotation
 adoption + Bill's inline/typing/wedge follow-ups — details in
 `tasks/archive/2026/07/09/plane-rotation-mathutils-adoption.md`):
 

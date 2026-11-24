@@ -41,9 +41,7 @@ certifi==2026.10.23
     #   httpx
     #   requests
 cffi==2.1.1
-    # via
-    #   argon2-cffi-bindings
-    #   miniaudio
+    # via argon2-cffi-bindings
 charset-normalizer==3.5.2
     # via requests
 click==8.5.1
@@ -243,8 +241,6 @@ mdit-py-plugins==0.7.0
     #   myst-parser
 mdurl==0.1.2
     # via markdown-it-py
-miniaudio==1.71
-    # via -r /tmp/requirements.txt
 mistune==3.4.0
     # via nbconvert
 mpmath==1.3.0
@@ -295,9 +291,6 @@ numpy==2.5.4
     #   gacalc
     #   imageio
     #   matplotlib
-    #   openexr
-openexr==3.5.4
-    # via -r /tmp/requirements.txt
 packaging==26.3
     # via
     #   ipykernel

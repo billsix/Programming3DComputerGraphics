@@ -50,8 +50,8 @@ import OpenGL.GL as GL
 from gacalc.g3 import Vector, e_1, e_2, e_3
 from gacalc.transforms import compose, inverse, translate
 
-import modelviewprojection.util.colorutils as colorutils
-from modelviewprojection.mathutils import (
+import intro3dgraphics.util.colorutils as colorutils
+from intro3dgraphics.mathutils import (
     fn_stack,
     perspective,
     push_transformation,
@@ -59,8 +59,8 @@ from modelviewprojection.mathutils import (
     rotate_y,
     rotate_z,
 )
-from modelviewprojection.util.clipping import draw_in_square_viewport
-from modelviewprojection.util.windowing import on_key
+from intro3dgraphics.util.clipping import draw_in_square_viewport
+from intro3dgraphics.util.windowing import on_key
 
 if not glfw.init():
     sys.exit()
@@ -69,7 +69,11 @@ glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
 window = glfw.create_window(
-    500, 500, "ModelViewProjection Assignment 3 - Strafing", None, None
+    500,
+    500,
+    "Introduction to 3D Computer Graphics Assignment 3 - Strafing",
+    None,
+    None,
 )
 if not window:
     glfw.terminate()

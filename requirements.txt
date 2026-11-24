@@ -13,9 +13,6 @@ ImageIO==2.38.1
 imageio-ffmpeg==0.8.1
 imgui-bundle[glfw]==1.93.0
 isort==9.0.2
-# single-device audio backend (decode + PlaybackDevice); replaced
-# just_playback 2026-07-09 -- see tasks/archive/2026/07/09/leadingedge-audio-clunk-and-freeze.md
-miniaudio==1.71
 jupyter==1.1.1
 jupytext==1.19.6
 mathjax==0.1.2
@@ -24,9 +21,6 @@ myst-nb==1.4.0
 nbsphinx==0.9.8
 Pillow==13.0.0
 numpy==2.5.4
-# OpenEXR reader for the SuperBible texfloat port (chapt18/texfloat). It keeps
-# the images' HDR float values; imageio's pyav backend clamps them to [0, 1].
-OpenEXR==3.5.4
 # glTF 2.0 reader/writer. Used by demo22b (src/.../demos/demo22b/), which
 # round-trips the demo22 scene through a .glb. Pure-Python, no native deps.
 pygltflib==1.16.5

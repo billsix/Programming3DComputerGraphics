@@ -15,7 +15,7 @@ those three helpers now serve only mvp's own code and book.
 
 ## BLUF
 
-`src/modelviewprojection/mathutils.py` keeps the graphics-specific math that gacalc deliberately
+`src/intro3dgraphics/mathutils.py` keeps the graphics-specific math that gacalc deliberately
 does not carry. Three of its helpers compute quantities gacalc now has **named** forms for, and one
 of them still speaks tuples at a boundary where both sides hold vectors. Decide, per helper,
 whether to re-express it in the shared vocabulary — which ties the book's own words to the library —
@@ -91,7 +91,7 @@ need `.x`/`.y`/`.z` or unpacking. *Recommend: measure first; if the conversions 
 alone and say so in the docstring.*
 
 **Vocabulary note:** the original task called the type `Vector3D` and the file
-`src/modelviewprojection/shading.py`. Both are pre-migration names — the type is
+`src/intro3dgraphics/shading.py`. Both are pre-migration names — the type is
 `gacalc.g3.Vector` (mvp's own `Vector3D` was deleted 2026-07-09; gacalc dropped the dimension
 suffix in 0.0.16) and the file moved to `util/shading.py` in the 2026-06-03 restructure.
 

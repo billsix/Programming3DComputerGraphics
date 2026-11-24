@@ -31,9 +31,9 @@ Makefile targets (all container-driven, `CONTAINER_CMD`-portable):
 
 - **`make book`** — non-interactive book build (the existing `html` target uses `-it`, unusable in
   CI). Runs the image's default entrypoint, which builds HTML + PDF + EPUB into
-  `output/modelviewprojection/` (it also runs the test suite first — an intentional release gate).
+  `output/intro3dgraphics/` (it also runs the test suite first — an intentional release gate).
 - **`make release-tarball`** — depends on `book`; bundles `git archive HEAD` (tracked source) plus
-  `output/modelviewprojection/` into `dist/modelviewprojection-<version>.tar.gz` via a staging dir,
+  `output/intro3dgraphics/` into `dist/modelviewprojection-<version>.tar.gz` via a staging dir,
   so the tarball has both the source and the built book under one prefix. `RELEASE_VERSION` defaults
   to `git describe --tags --always --dirty`.
 - **`make image-push`** — tags the built image `$(IMAGE_REF):$(RELEASE_VERSION)` and `:latest`
@@ -96,7 +96,7 @@ to verify:
 - **Registry = `ghcr.io/billsix/modelviewprojection`** (Open Q3 of the Phase 1 task: "ideally on
   GitHub itself"). Overridable via `IMAGE_REF=`. Change if you want a different registry/name.
 - **Release tarball layout:** `modelviewprojection-<version>/` containing the tracked source
-  (`git archive`) plus `book-output/` (= `output/modelviewprojection/`, the HTML dir + PDF +
+  (`git archive`) plus `book-output/` (= `output/intro3dgraphics/`, the HTML dir + PDF +
   EPUB). Chose `git archive` for source so only tracked files ship (no `output/`, tars, venvs).
 - **`GITHUB_TOKEN`** (the workflow's built-in token) for the ghcr login, not a PAT — it has
   `packages: write` on the repo's own package. Switch to a PAT only if pushing elsewhere.

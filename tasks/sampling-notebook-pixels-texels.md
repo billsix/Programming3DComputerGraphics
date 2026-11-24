@@ -30,7 +30,7 @@ scaling, with virtual pixels and texels.
 
 ## Plan (draft — after questions)
 
-- [ ] Add `src/modelviewprojection/notebooksrc/<sampling>.py`, building the 4 stages; wire into the
+- [ ] Add `src/intro3dgraphics/notebooksrc/<sampling>.py`, building the 4 stages; wire into the
       toctree at the chapter neighborhood chosen in Q1.
 
 ## Open questions

@@ -43,7 +43,7 @@ So strand C is **not** "refine an existing marker convention" — the marker doe
 is corrected in the same pass as this merge.
 
 **What *does* exist** is demo22's own marker — a cone + bulb built by `_build_marker_cone` /
-`_build_marker_sphere` (`src/modelviewprojection/demos/demo22/demo22.py:1049`, `:1076`) and placed
+`_build_marker_sphere` (`src/intro3dgraphics/demos/demo22/demo22.py:1049`, `:1076`) and placed
 at `light_dir * light_radius` (`:1483-1489`). That is the reference implementation to copy from,
 and it is *the* reason the ports' marker was specified as "demo22-style".
 
@@ -67,7 +67,7 @@ From `tasks/reference/lighting-and-shading.md`, which anchors every claim at `fi
   `demos/demo23/litjet.frag:47`, with `l = normalize(lightDirWS)` (`:41`) and
   `n = normalize(v_normal_ws)` (`:40`). Strand B reuses this rather than deriving it.
 - **The Cayley engine has no lighting mechanism** — a grep for `glLight`/Lambert/diffuse/specular/
-  Blinn across `src/modelviewprojection/cayley/` and `mvpvisualization/` returns nothing. So strand
+  Blinn across `src/intro3dgraphics/cayley/` and `mvpvisualization/` returns nothing. So strand
   B is a net-new engine capability, not an extension.
 
 Adjacent and deliberately *not* merged in: **`axis-cylinder-cone-lighting.md`** (deferred, P8) —

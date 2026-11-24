@@ -38,9 +38,13 @@ html_theme_options = {
 
 # -- Project information -----------------------------------------------------
 
-project = "Model View Projection"
+project = "Introduction to 3D Computer Graphics"
 copyright = "2020-2025, William Emerison Six"
 author = "William Emerison Six"
+
+# The PDF's file name is fixed here: `make release-book-assets` copies output/<CONTAINER_NAME>/<CONTAINER_NAME>.pdf. Without this,
+# Sphinx names the PDF after the project title.
+latex_documents = [("index", "intro3dgraphics.tex", project, author, "manual")]
 
 # The full version, including alpha/beta/rc tags
 release = "0.0.2"

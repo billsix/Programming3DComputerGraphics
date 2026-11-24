@@ -7,9 +7,9 @@
 
 The `geometricalgebra` project (github.com/billsix/geometricalgebra) just did a "make the book's
 autodoc render everything well" pass — full **napoleon-Google** docstrings + several Sphinx/LaTeX
-rendering fixes. This book (`modelviewprojection`) has the **same** kind of Sphinx book (napoleon
+rendering fixes. This book (`intro3dgraphics`) has the **same** kind of Sphinx book (napoleon
 on, autodoc over the package, lualatex PDF), and its package is **not** Google-style yet
-(`src/modelviewprojection/mathutils.py` has 0 `Args:`/`Returns:`) and its `conf.py` lacks the
+(`src/intro3dgraphics/mathutils.py` has 0 `Args:`/`Returns:`) and its `conf.py` lacks the
 autodoc-typehints fix — so the same work likely applies here. "Done" = this book's package
 docstrings are full-Google and `make docs` renders clean (0 substitution warnings, no undefined
 cross-refs, no dropped glyphs). Assess against an actual build first (below).
@@ -58,5 +58,5 @@ gacalc's worked example lives in that repo (github.com/billsix/geometricalgebra)
 ## Open questions
 
 1. Confirm the maintainer wants the full-Google depth here too (gacalc chose it), and whether the
-   demos (`src/modelviewprojection/demos/*`) are in scope or just the library modules
+   demos (`src/intro3dgraphics/demos/*`) are in scope or just the library modules
    (`mathutils` and whatever `api.rst` renders).
