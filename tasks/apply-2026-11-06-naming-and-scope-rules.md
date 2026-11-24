@@ -1,9 +1,8 @@
 # Apply the 2026-11-06 naming and scope rules across this repository
 
-**Status:** proposed — needs go-ahead (open questions below)
+**Status:** in progress — survey done and coarsely triaged 2026-11-24; one small batch applied; the per-file triage and the remaining refactors are not done
 **Priority:** 5
 **Difficulty:** 7
-**Deferred** (William Emerison Six <billsix@gmail.com>, 2026-11-14): left out of the unattended batch run that day; the maintainer wants to be present to calibrate the triage. The open questions below are still open.
 **Created:** 2026-11-06 (William Emerison Six <billsix@gmail.com>): asked for the geometricalgebra survey
 task ("search through all of geometricalgebra and see if there is programming advice that we added that
 should be applied to the codebase, to refactor it"), then "add a similar task to every other python
@@ -95,11 +94,37 @@ every candidate is either refactored or recorded as left alone with its reason, 
    wording; feed that back to the shared standard (github.com/billsix/runClaudeInContainer, mirrored in
    github.com/billsix/runCrushInContainer).
 
-## Open questions
+## Decisions (William Emerison Six <billsix@gmail.com>, 2026-11-24)
 
-1. **Survey first, or survey and apply?** (a) Run the discovery and triage, then stop and show the
-   maintainer the worklog before any refactor, or (b) apply the clear cases straight away and bring only
-   the judgment calls. Recommended: follow whatever the maintainer decides for the geometricalgebra
-   survey (its open question 1); if this task runs first, (a) for the first module, then (b).
-2. **A one-caller helper that a test imports:** counts as having a second caller and stays at module
-   level? Recommended: yes (the same call as the geometricalgebra task's open question 2).
+- Question 1: survey first, then use discretion and apply.
+- Question 2 (a one-caller helper that a test imports stays at module level): taken as covered by
+  "use discretion"; the recommendation (yes) was applied. The discovery script already skips any helper
+  whose name appears in `tests/`.
+- Scope changed by the repository move: `ports/` and `pgzero_gl` no longer live here, so the survey
+  covers `src/intro3dgraphics/`, `tests/`, `tools/` and `assignments/` (minus the three holes).
+
+## Progress (2026-11-24)
+
+- **Survey:** `tasks/adhoc/apply-2026-11-06-naming-and-scope-rules/discover.py` wrote
+  `data/candidates.txt`: 716 leads (340 `ONCE`, 282 `TWICE`, 35 `FAR`, 59 `ONE_CALLER`). It also counts
+  single-assignment locals the body shows on purpose, so most leads are noise until read.
+- **Coarse triage by file (not yet per candidate):** the largest groups sit in the demos and
+  their helpers (`demo22b/export_scene.py` 109, `demo22` 76, `demo24` 74, `demo22a` 45, `demo22b` 40,
+  `demo23` 38) and in `mvpvisualization/modelviewperspectiveprojection.py` (48): left alone for now
+  because the book includes them by `doc-region` marker and their locals feed GL calls the book prose
+  names. `mathutils.py` (18) is public, book-documented API with teaching comments: left alone.
+  `tools/` (about 90) and `tests/` (about 35) need a read of each lead before touching.
+- **Applied:** `src/intro3dgraphics/util/axes.py`, `draw_unit_axes`: the four size bindings moved from
+  the top of the function to the polygon-mode block that precedes their first use (rule 3). Gates
+  (doctests and `pytest` 55 passed, `ty`, annotation checker, `format.sh`) were clean in the
+  `modelviewprojection` image.
+
+## What remains
+
+1. Read the `tools/` and `tests/` leads one by one and apply rules 1–3 where the binding is neither a
+   loop accumulator, a doctest-visible name, nor an assertion target.
+2. Decide the demo leads against the `doc-region` rule, one demo at a time, running `make check-regions`.
+3. `ONE_CALLER` (rule 4) candidates in `util/axes.py` (`_draw_solid_*` called only from
+   `draw_unit_axes`): nest them, or leave them module-level because `draw_unit_axes` runs every frame.
+   Not decided.
+4. Record any sharper rule wording back in the shared standard.
