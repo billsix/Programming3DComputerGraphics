@@ -18,7 +18,7 @@ the label/toctree work is done and archived at
 ## The pipeline, end to end
 
 1. **Sources** are jupytext **percent-format** Python files:
-   `src/intro3dgraphics/notebooksrc/{plot2d,framebuffer,ndc}.py`. They use `# %%` for
+   `src/intro3dgraphics/notebooksrc/{plot2d,framebuffer,ndc,sampling}.py`. They use `# %%` for
    code cells and `# %% [markdown]` for markdown cells. They're editable as plain scripts
    (Spyder) or as notebooks (JupyterLab, via the jupytext viewer).
 2. **`entrypoint.sh` converts each to `.ipynb`** with `jupytext --to notebook … --output
@@ -29,7 +29,7 @@ the label/toctree work is done and archived at
    `_build/jupyter_execute/*.svg` etc. (a MyST-NB artifact — see the handler note below).
    `nb_execution_timeout = 600` (conf.py).
 4. **Inclusion in the book:** each notebook is a page listed in the `index.rst` toctree
-   (`plot2d`, `framebuffer`, `ndc`). A notebook that is generated but **not** in a toctree
+   (`plot2d`, `framebuffer`, `ndc`, `sampling`). A notebook that is generated but **not** in a toctree
    builds an orphaned page and warns "document isn't included in any toctree".
 
 ## Which extension renders `.ipynb`: myst_nb, NOT nbsphinx (and both are enabled)

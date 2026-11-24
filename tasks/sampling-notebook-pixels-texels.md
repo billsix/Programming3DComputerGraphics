@@ -1,40 +1,41 @@
 # Notebook: the image-sampling problem (virtual pixels & texels)
 
-**Status:** proposed — needs go-ahead
-**Priority:** 6
-**Difficulty:** 3
-**Started:** 2026-08-27 (William Emerison Six <billsix@gmail.com>)
-**Needs:** the maintainer's answers to the Open questions below (book location; PIL/numpy vs GL;
-relation to existing texturing demos).
+**Done 2026-11-24**, with the book build still to be run on the host (below). Started 2026-08-27
+(William Emerison Six <billsix@gmail.com>). The maintainer's idea, verbatim: *"Make a notebook example
+which shows the problem of sampling for images, with virtual pixels, and virtual texels, have them at
+first be an image scaling, with one to one, then have a scaling non-one to one. Then have a rotation,
+then have a rotation and a scaling."*
 
-*(Was `**Status:** blocked` until 2026-09-08. Re-filed: `blocked` is for a concrete, **testable**
-gate outside our control, with a `Recheck:` someone can run — a decision the maintainer owes is the
-`proposed — needs go-ahead` state. `/recheck-blocked` had nothing to run for this one.)*
+## Decisions (William Emerison Six <billsix@gmail.com>, 2026-11-24, "your discretion")
 
-## Goal
+1. **Toctree position:** right after `ndc` in `book/docs/index.rst`, with the other detour notebooks
+   (`framebuffer`, `ndc`). No chapter teaches texturing (`grep -il texture book/docs/ch*.rst` is empty;
+   `demo22a` has no chapter), so there is no later neighborhood to join.
+2. **Pure numpy and matplotlib**, like the framebuffer notebook, with no OpenGL. The sampling problem
+   needs only the pixel-to-texel map, which is the book's own idea: the inverse of an invertible function.
+3. **Relation to `demo22a`:** none in the text. The closing paragraph names bilinear filtering and
+   mipmaps as the fixes real texture units use, starting from the same inverse map.
 
-Maintainer's idea, verbatim: *"Make a notebook example which shows the problem of sampling for images,
-with virtual pixels, and virtual texels, have them at first be an image scaling, with one to one, then
-have a scaling non-one to one. Then have a rotation, then have a rotation and a scaling."*
+## What was built
 
-A notebook building up the image-sampling problem: 1:1 scaling → non-1:1 scaling → rotation → rotation +
-scaling, with virtual pixels and texels.
+- `src/intro3dgraphics/notebooksrc/sampling.py` (jupytext percent format): an 8x8 texel texture and a
+  `sample` function that inverts `texel_to_pixel` at each pixel center and takes the texel containing the
+  result (nearest sampling), counting how many pixels chose each texel. Five figures, each showing the
+  texture, the picture and the per-texel counts:
+  1 scale 1 (every texel chosen once), 2a scale 2.5 (4 to 9 pixels per texel), 2b scale 0.4 (55 of 64
+  texels never chosen), 3 rotation by 30 degrees (8 texels never chosen), 4 rotation 30 degrees with
+  scale 1.7 (up to 4 per texel).
+- The prose was drafted by the agent in neutral voice; the maintainer may want to rework it.
+- Wired into `book/docs/index.rst` and `entrypoint/entrypoint.sh` (the two `jupytext --to notebook`
+  lines, as for `ndc`), and listed in `tasks/reference/notebook-sphinx-integration.md`.
 
-## Context (investigation 2026-08-27)
+## Verification
 
-- No existing task covers sampling/texel/mipmap; nothing archived on it.
-- How to add a notebook (reference): `tasks/reference/book-figures-and-images.md §3` +
-  `tasks/reference/notebook-sphinx-integration.md` — jupytext `py:percent` file in `notebooksrc/`, wired
-  into `index.rst` toctree; the `.ipynb` is a gitignored build artifact. Existing notebooks:
-  `notebooksrc/{framebuffer,ndc,plot2d}.py`. demo22/22a already teach texturing.
+In the `modelviewprojection` image: `entrypoint/format.sh`, `ty check src` and the annotation checker are
+clean; the notebook converts with `jupytext` and executes under `jupyter nbconvert --execute` with 9 code
+cells, 5 figures and 0 errors; the stage-3 figure was viewed.
 
-## Plan (draft — after questions)
+## Still owed
 
-- [ ] Add `src/intro3dgraphics/notebooksrc/<sampling>.py`, building the 4 stages; wire into the
-      toctree at the chapter neighborhood chosen in Q1.
-
-## Open questions
-
-1. **Where in the book / toctree** does it go (which chapter neighborhood)?
-2. **Pure PIL/numpy** (like the framebuffer notebook) or **GL-textured**?
-3. **Relationship to the existing texturing demos** (demo22a)?
+`make docs` on the host to confirm the page builds into the book and renders in light and dark furo (the
+sandbox's project image does not rebuild; see `tasks/sphinx-docstrings-google-and-rendering.md`).

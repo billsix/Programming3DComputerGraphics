@@ -15,6 +15,9 @@ jupytext --to notebook src/intro3dgraphics/notebooksrc/framebuffer.py --output b
 jupytext --to notebook src/intro3dgraphics/notebooksrc/ndc.py --output notebooks/ndc.ipynb
 jupytext --to notebook src/intro3dgraphics/notebooksrc/ndc.py --output book/docs/ndc.ipynb
 
+jupytext --to notebook src/intro3dgraphics/notebooksrc/sampling.py --output notebooks/sampling.ipynb
+jupytext --to notebook src/intro3dgraphics/notebooksrc/sampling.py --output book/docs/sampling.ipynb
+
 # Install into the ACTIVE venv (which has setuptools/wheel, seeded by the
 # Dockerfile), not --system: --system targets /usr, which has no setuptools, so
 # the editable build fails.  The package must be importable for the ePiX figures,

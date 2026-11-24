@@ -27,6 +27,7 @@ Introduction to 3D Computer Graphics
    ch02
    framebuffer
    ndc
+   sampling
    programmingproj1
    ch03
    ch04
