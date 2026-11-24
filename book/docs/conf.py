@@ -116,6 +116,11 @@ autodoc_default_options = {
     "exclude-members": "__weakref__",
 }
 
+# The types live in the Google "Args:"/"Returns:" prose; rendering the
+# annotations too turns each one into a cross-reference Sphinx cannot resolve
+# (undefined hyperrefs in the PDF).
+autodoc_typehints = "none"
+
 glossary_sort = True
 
 imgconverter_converters = {
