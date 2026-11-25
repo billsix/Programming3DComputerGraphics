@@ -47,6 +47,7 @@ import gacalc.g3 as g3
 # gacalc pieces used INTERNALLY by the helpers below (not re-exported -- callers
 # import these from gacalc directly).
 from gacalc.base import MultiVectorBase
+from gacalc.measure import area, signed_area
 from gacalc.transforms import (
     InvertibleFunction,
     Linearity,
@@ -136,6 +137,14 @@ def rotate_around(
 
     >>> [round(float(c), 6) for c in rotate(math.pi / 2)(2.0 * g2.Vector.e_1)]
     [0.0, 2.0]
+
+    Args:
+        angle_in_radians: How far to turn, counter-clockwise, in radians.
+        center: The point that stays fixed.
+
+    Returns:
+        The rotation about ``center`` as an invertible function on
+        ``g2.Vector``.
     """
     # doc-region-begin rotate around body
     return compose(
@@ -170,6 +179,14 @@ def cosine(v1: MultiVectorBase, v2: MultiVectorBase) -> float:
     >>> import math
     >>> math.isnan(cosine(0.0 * g2.Vector.e_1, 1.0 * g2.Vector.e_1))
     True
+
+    Args:
+        v1: The first vector, of any dimension.
+        v2: The second vector, of the same dimension as ``v1``.
+
+    Returns:
+        The cosine of the angle between them, or NaN when either has zero
+        length.
     """
     # gacalc's dot product returns a (scalar) multivector; read off its value.
     denominator: float = float(abs(v1)) * float(abs(v2))
@@ -203,15 +220,23 @@ def sine(v1: g2.Vector, v2: g2.Vector) -> float:
     >>> import math
     >>> math.isnan(sine(0.0 * g2.Vector.e_1, 1.0 * g2.Vector.e_2))
     True
+
+    Args:
+        v1: The vector the angle starts from.
+        v2: The vector the angle ends at.
+
+    Returns:
+        The signed sine of the angle from ``v1`` to ``v2``, or NaN when
+        either has zero length.
     """
     denominator: float = float(abs(v1)) * float(abs(v2))
     if denominator == 0.0:
         return float("nan")
-    # |v1||v2| sin(theta) IS the 2D wedge -- the bivector coefficient of
-    # v1 ^ v2, a.k.a. the 2D cross product / signed area.  The classic
-    # "rotate v1 by 90 degrees, then dot with v2" trick computes exactly
-    # this number; the algebra hands it to us directly.
-    return float((v1 ^ v2).coeff_e_12) / denominator
+    # |v1||v2| sin(theta) IS the signed area of the parallelogram the two
+    # vectors span (the bivector coefficient of v1 ^ v2, a.k.a. the 2D cross
+    # product).  The classic "rotate v1 by 90 degrees, then dot with v2"
+    # trick computes exactly this number; gacalc names it signed_area.
+    return float(signed_area(v1, v2)) / denominator
 
 
 # doc-region-begin define rotate x
@@ -272,9 +297,19 @@ def abs_sin(v1: g3.Vector, v2: g3.Vector) -> float:
 
     >>> abs_sin(1.0 * g3.Vector.e_1, 5.0 * g3.Vector.e_1)
     0.0
+
+    Args:
+        v1: The first vector.
+        v2: The second vector.
+
+    Returns:
+        The unsigned sine of the angle between them.
+
+    Raises:
+        ZeroDivisionError: If either vector has zero length.
     """
-    # |a x b| == |a ^ b| (the magnitude of the bivector they span)
-    return float(abs(v1 ^ v2)) / (float(abs(v1)) * float(abs(v2)))
+    # |a x b| == |a ^ b|: the area of the parallelogram the vectors span
+    return float(area(v1, v2)) / (float(abs(v1)) * float(abs(v2)))
 
 
 def find_normal(p1: g3.Vector, p2: g3.Vector, p3: g3.Vector) -> g3.Vector:
@@ -320,6 +355,15 @@ def find_normal(p1: g3.Vector, p2: g3.Vector, p3: g3.Vector) -> g3.Vector:
     ... )
     >>> float(abs(big))
     4.0
+
+    Args:
+        p1: The first corner of the triangle.
+        p2: The second corner, counter-clockwise from ``p1``.
+        p3: The third corner, counter-clockwise from ``p2``.
+
+    Returns:
+        The normal vector, not normalized; its length is twice the
+        triangle's area.
     """
     # the cross product of the two edge vectors, under its GA definition: gacalc
     # 0.0.18's g3.Vector.cross is exactly (edge1 ^ edge2).dual() -- the dual of
@@ -365,6 +409,18 @@ def plane_equation(
     ... )
     >>> float(normal.dot(p).scalar_part()) + d
     0.0
+
+    Args:
+        p1: The first of three points on the plane.
+        p2: The second point, counter-clockwise from ``p1``.
+        p3: The third point, counter-clockwise from ``p2``.
+
+    Returns:
+        The pair ``(normal, d)``: the unit normal and the signed offset.
+
+    Raises:
+        ZeroDivisionError: If the three points are collinear, so no
+            plane is defined.
     """
     n: g3.Vector = find_normal(p1, p2, p3)
     inv_len: float = 1.0 / float(abs(n))
@@ -409,6 +465,14 @@ def distance_to_plane(
 
     The sign is the useful part: it says which side of the plane a point is on,
     which is how a clipper decides to keep, cut, or discard a vertex.
+
+    Args:
+        point: The point to measure from.
+        plane: The ``(normal, d)`` pair from :func:`plane_equation`.
+
+    Returns:
+        The signed perpendicular distance; positive on the side the normal
+        points toward.
     """
     normal, d = plane
     return float(normal.dot(point).scalar_part()) + d
@@ -453,6 +517,17 @@ def ortho(
     ... )
     >>> xyz(inverse(to_ndc)(to_ndc(point)))
     [3.0, 4.0, -5.0]
+
+    Args:
+        left: The x coordinate of the left face of the viewable prism.
+        right: The x coordinate of the right face.
+        bottom: The y coordinate of the bottom face.
+        top: The y coordinate of the top face.
+        near: The z coordinate of the near face.
+        far: The z coordinate of the far face.
+
+    Returns:
+        An invertible, affine function from camera space to NDC.
     """
     # doc-region-begin ortho body
     midpoint: g3.Vector = g3.Vector(
@@ -537,6 +612,17 @@ def perspective(
     ... )
     >>> xyz(inverse(to_ndc)(to_ndc(point)))
     [3.0, 4.0, -5.0]
+
+    Args:
+        field_of_view: The vertical angle of the frustum, in degrees.
+        aspect_ratio: The frustum's width divided by its height.
+        near_z: The z coordinate of the near plane (negative, in front of
+            the camera).
+        far_z: The z coordinate of the far plane (negative, beyond
+            ``near_z``).
+
+    Returns:
+        An invertible, non-linear function from camera space to NDC.
     """
     # doc-region-begin perspective body
     # field_of_view is the angle of y; aspect_ratio is x_width / y_width.
@@ -600,6 +686,13 @@ def cs_to_ndc_space_fn(vector: g3.Vector) -> InvertibleFunction[g3.Vector]:
     ... )
     >>> [round(float(c), 6) for c in to_ndc(-10.0 * g3.Vector.e_3)]
     [0.0, 0.0, 0.980198]
+
+    Args:
+        vector: Not used; the result is the same for every vector.
+
+    Returns:
+        The perspective transform with a 45 degree field of view, an
+        aspect ratio of 1, a near plane at -0.1 and a far plane at -1000.
     """
     # doc-region-begin camera space to ndc body
     return perspective(
@@ -645,6 +738,9 @@ class FunctionStack(typing.Generic[V]):
         >>> stack.push(translate(b=1.0 * g3.Vector.e_1))
         >>> len(stack.stack)
         1
+
+        Args:
+            o: The transformation to push.
         """
         # doc-region-begin function stack push body
         self.stack.append(o)
@@ -658,6 +754,12 @@ class FunctionStack(typing.Generic[V]):
         >>> popped: InvertibleFunction[g3.Vector] = stack.pop()
         >>> len(stack.stack)
         0
+
+        Returns:
+            The transformation that was on top.
+
+        Raises:
+            IndexError: If the stack is empty.
         """
         # doc-region-begin function stack pop body
         return self.stack.pop()
@@ -701,6 +803,10 @@ class FunctionStack(typing.Generic[V]):
         ... )
         >>> [round(float(c), 6) for c in composed(1.0 * g3.Vector.e_1)]
         [3.0, 0.0, 0.0]
+
+        Returns:
+            The composition of every pushed transformation; the identity for
+            an empty stack.
         """
         # doc-region-begin function stack compose body
         return compose(self.stack)
@@ -753,6 +859,12 @@ def push_transformation(
     ... except ValueError:
     ...     len(stack.stack)
     0
+
+    Args:
+        f: The transformation to push onto the global ``fn_stack``.
+
+    Yields:
+        The global ``fn_stack``, with ``f`` on top.
     """
     try:
         fn_stack.push(f)

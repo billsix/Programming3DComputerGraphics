@@ -249,3 +249,10 @@ by the vector's offset from the center.
 N.B.  In the code, I name the vertices by their space.  I.e. "modelSpace" instead of "vector_relative_to_modelspace".
 I do this to emphasize that you should view the :term:`transformation <Transformation>` as happening to the "graph paper", instead of to each
 of the points.  This will be explained more clearly later.
+
+
+Try it yourself
+===============
+
+:doc:`mathhomework1` has you build and invert these functions yourself,
+as ``m*x + b``.

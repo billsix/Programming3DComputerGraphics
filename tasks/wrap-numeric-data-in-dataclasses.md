@@ -59,13 +59,13 @@ gates + renders still pass, and the skipped cases are noted with why.
 
 ## Open questions
 
-1. **Include `ports/`?** They deliberately mirror upstream, so restyling their data tables diverges
+1. **ANSWERED 2026-11-24 (William Emerison Six <billsix@gmail.com>): no ports remain** — `ports/` moved to other repositories, so only `src/` and the demos are in scope. ~~**Include `ports/`?**~~ They deliberately mirror upstream, so restyling their data tables diverges
    them from the checked-against source. Recommendation: **limit to `src/` (and demos)**; touch a
    port only if a data blob is mvp-original (not from upstream) — confirm, or say to include ports
    wholesale.
-2. **Shared common structures vs single-use?** The request allows both. Recommendation: introduce a
+2. **Still open.** **Shared common structures vs single-use?** The request allows both. Recommendation: introduce a
    shared value object (e.g. `Rgb`, `Vertex`) only at the 2–3-real-consumer bar; single-use
    dataclasses otherwise — avoids a premature "types" module.
-3. **Colour specifically:** promote the graphers' `Color = tuple[float, float, float]` alias to a
+3. **Still open.** **Colour specifically:** promote the graphers' `Color = tuple[float, float, float]` alias to a
    small `Rgb` dataclass (with named `r`/`g`/`b`), or leave the tuple alias (it already reads
    fine)? Recommendation: leave tuples unless a site reads unclearly.

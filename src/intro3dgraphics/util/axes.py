@@ -78,15 +78,15 @@ def draw_unit_axes(scale: float = 1.0) -> None:
     *scale* multiplies all geometry proportionally -- pass <1.0 for a
     smaller gizmo that fits inside a nested local frame.
     """
-    rod_radius: float = 0.05 * scale
-    cone_radius: float = 0.12 * scale
-    rod_length: float = 0.85 * scale
-    cone_length: float = 0.15 * scale
-
     # Force solid fill for the gizmo geometry regardless of the caller's
     # polygon mode (demo19e renders the rest of its scene as wireframe).
     GL.glPushAttrib(GL.GL_POLYGON_BIT)
     GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
+
+    rod_radius: float = 0.05 * scale
+    cone_radius: float = 0.12 * scale
+    rod_length: float = 0.85 * scale
+    cone_length: float = 0.15 * scale
 
     # +X axis -- red, rotate +90 about Y so the +Z-aligned cylinder
     # points along +X

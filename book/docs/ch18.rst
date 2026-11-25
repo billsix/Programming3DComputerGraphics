@@ -286,3 +286,11 @@ Right calculation based off of Top and :term:`aspect ratio <Aspect Ratio>`
    :linenos:
    :lineno-match:
    :caption: src/intro3dgraphics/demos/demo18.py
+
+
+Try it yourself
+===============
+
+``assignments/assignment3-strafe.py`` is this demo's scene and pipeline with
+the strafing removed.  Add it back, so the camera moves sideways relative to
+the direction it faces.
