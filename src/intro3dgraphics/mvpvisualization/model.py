@@ -137,10 +137,6 @@ state: dict[str, typing.Any] = {
 win_state: cayley_gl.WindowState = cayley_gl.WindowState()
 
 
-def jump(start: float) -> None:
-    state["time"] = start
-
-
 def _toggle_pause() -> None:
     state["paused"] = not state["paused"]
 
@@ -212,23 +208,27 @@ def on_key(
         _toggle_graph()
 
 
-def graph_panel(t: float) -> None:
-    if not win_state.show_graph:
-        return
-    imgui.set_next_window_size(
-        imgui.ImVec2(460, 360), imgui.Cond_.first_use_ever
-    )
-    imgui.set_next_window_bg_alpha(0.7)
-    imgui.begin("Cayley Graph", True)
-    imgui.set_next_item_open(True, imgui.Cond_.once)
-    if imgui.tree_node("From World Space, Against Arrows, Read Bottom Up"):
-        for grp in animation.frame_tree(t):
-            cayley_gl.render_tree(grp, jump)
-        imgui.tree_pop()
-    imgui.end()
-
-
 def frame(w: int, h: int) -> None:
+
+    def graph_panel(t: float) -> None:
+
+        def jump(start: float) -> None:
+            state["time"] = start
+
+        if not win_state.show_graph:
+            return
+        imgui.set_next_window_size(
+            imgui.ImVec2(460, 360), imgui.Cond_.first_use_ever
+        )
+        imgui.set_next_window_bg_alpha(0.7)
+        imgui.begin("Cayley Graph", True)
+        imgui.set_next_item_open(True, imgui.Cond_.once)
+        if imgui.tree_node("From World Space, Against Arrows, Read Bottom Up"):
+            for grp in animation.frame_tree(t):
+                cayley_gl.render_tree(grp, jump)
+            imgui.tree_pop()
+        imgui.end()
+
     if not state["paused"]:
         state["time"] = min(
             animation.timeline.duration, state["time"] + state["speed"] / 60.0

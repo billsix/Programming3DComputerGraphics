@@ -93,7 +93,6 @@ def init_fonts_and_markdown() -> None:
 
 def impl_glfw_init() -> "GLFWWindow":
     width, height = 500, 500
-    window_name: str = "Introduction to 3D Computer Graphics Demo 21 "
 
     if not glfw.init():
         print("Could not initialize OpenGL context")
@@ -108,7 +107,12 @@ def impl_glfw_init() -> "GLFWWindow":
 
     # Create a windowed mode window and its OpenGL context
     window: "GLFWWindow" = glfw.create_window(
-        int(width), int(height), window_name, None, None
+        int(width),
+        int(height),
+        # window_name: the title bar text
+        "Introduction to 3D Computer Graphics Demo 21 ",
+        None,
+        None,
     )
     glfw.make_context_current(window)
 

@@ -25,8 +25,8 @@ from gacalc.gl import grapher3d
 
 
 def _ripple(x: float, y: float) -> float:
-    r: float = math.sqrt(x * x + y * y)
-    return 2.0 * math.sin(r)
+    # r: the distance from the origin
+    return 2.0 * math.sin(math.sqrt(x * x + y * y))
 
 
 SURFACES: list[grapher3d.Surface] = [

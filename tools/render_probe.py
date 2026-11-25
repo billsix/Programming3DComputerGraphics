@@ -95,11 +95,15 @@ def _end_frame(window) -> None:
     # shows a demo's control panel.
     if state["frames"] == args.frames:
         width, height = glfw.get_framebuffer_size(window)
-        raw = GL.glReadPixels(
-            0, 0, width, height, GL.GL_RGB, GL.GL_UNSIGNED_BYTE
-        )
+        # The pixel bytes: the back buffer as packed RGB, bottom row first.
         state["image"] = Image.frombytes(
-            "RGB", (width, height), bytes(raw)
+            "RGB",
+            (width, height),
+            bytes(
+                GL.glReadPixels(
+                    0, 0, width, height, GL.GL_RGB, GL.GL_UNSIGNED_BYTE
+                )
+            ),
         ).transpose(Image.FLIP_TOP_BOTTOM)
 
 

@@ -185,10 +185,6 @@ state: dict[str, typing.Any] = {
 win_state: cayley_gl.WindowState = cayley_gl.WindowState()
 
 
-def jump(start: float) -> None:
-    state["time"] = start
-
-
 def apply_camera() -> None:
     camera_edge.steps[0].fn = translate(
         b=Vector(cam_pos["x"], cam_pos["y"], cam_pos["z"])
@@ -309,28 +305,32 @@ def on_key(
             _toggle_ndc()
 
 
-def graph_panel(t: float) -> None:
-    if not win_state.show_graph:
-        return
-    imgui.set_next_window_size(
-        imgui.ImVec2(470, 480), imgui.Cond_.first_use_ever
-    )
-    imgui.set_next_window_bg_alpha(0.7)
-    imgui.begin("Cayley Graph", True)
-    imgui.set_next_item_open(True, imgui.Cond_.once)
-    if imgui.tree_node("From World Space, Against Arrows, Read Bottom Up"):
-        for grp in animation.frame_tree(t):
-            cayley_gl.render_tree(grp, jump)
-        imgui.tree_pop()
-    imgui.set_next_item_open(True, imgui.Cond_.once)
-    if imgui.tree_node("Towards NDC, With Arrows, Top Down Reading"):
-        for grp in animation.ndc_tree(t):
-            cayley_gl.render_tree(grp, jump)
-        imgui.tree_pop()
-    imgui.end()
-
-
 def frame(w: int, h: int) -> None:
+
+    def graph_panel(t: float) -> None:
+
+        def jump(start: float) -> None:
+            state["time"] = start
+
+        if not win_state.show_graph:
+            return
+        imgui.set_next_window_size(
+            imgui.ImVec2(470, 480), imgui.Cond_.first_use_ever
+        )
+        imgui.set_next_window_bg_alpha(0.7)
+        imgui.begin("Cayley Graph", True)
+        imgui.set_next_item_open(True, imgui.Cond_.once)
+        if imgui.tree_node("From World Space, Against Arrows, Read Bottom Up"):
+            for grp in animation.frame_tree(t):
+                cayley_gl.render_tree(grp, jump)
+            imgui.tree_pop()
+        imgui.set_next_item_open(True, imgui.Cond_.once)
+        if imgui.tree_node("Towards NDC, With Arrows, Top Down Reading"):
+            for grp in animation.ndc_tree(t):
+                cayley_gl.render_tree(grp, jump)
+            imgui.tree_pop()
+        imgui.end()
+
     if not state["paused"]:
         state["time"] = min(
             animation.timeline.duration, state["time"] + state["speed"] / 60.0
@@ -342,8 +342,6 @@ def frame(w: int, h: int) -> None:
         w, h, half_extent=1.0 if state["ndc"] else 15.0
     )
     GL.glDisable(GL.GL_DEPTH_TEST)  # flat 2D -> painter order
-    lw: float = state["line_width"]
-    morph: np.ndarray = cayleyscene.to_matrix(animation.inverse_transform(t))
 
     # persistent reference: the ±1 NDC square + the world graph paper
     # (un-morphed)
@@ -351,6 +349,8 @@ def frame(w: int, h: int) -> None:
     standard_objects.draw_cube()
     ms.set_current_matrix(ms.MatrixStack.model, GROUND_ROT)
     standard_objects.draw_ground()
+
+    morph: np.ndarray = cayleyscene.to_matrix(animation.inverse_transform(t))
 
     # the virtual camera, drawn as an object: its graph paper + axis + the view
     # volume (±10 prism), which the squash scales by 1/10 onto the NDC square.
@@ -363,7 +363,7 @@ def frame(w: int, h: int) -> None:
         ms.set_current_matrix(ms.MatrixStack.model, base)
         standard_objects.draw_axis()
         ms.set_current_matrix(ms.MatrixStack.model, base)
-        standard_objects.draw_rect_prism(t, lw, w, h)
+        standard_objects.draw_rect_prism(t, state["line_width"], w, h)
 
     # world axis: bright before paddle1 builds, grayed after
     ms.set_current_matrix(ms.MatrixStack.model, morph)

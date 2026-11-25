@@ -256,15 +256,6 @@ GL.glDepthFunc(GL.GL_LEQUAL)
 # ---------------------------------------------------------------------------
 
 
-def compile_shader_program() -> int:
-    with open(os.path.join(pwd, "block.vert")) as f:
-        vs: int = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
-    with open(os.path.join(pwd, "block.frag")) as f:
-        fs: int = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
-    # validate=False -- see _compile_inline below for the macOS reason.
-    return shaders.compileProgram(vs, fs, validate=False)
-
-
 # This file has four shader pipelines side-by-side, plus an FBO + two
 # textures used for shadow mapping.  Group each pipeline's program
 # handle and uniform locations into one dataclass per pipeline -- only
@@ -291,6 +282,15 @@ class MainPipeline:
 
 
 def _build_main_pipeline() -> MainPipeline:
+
+    def compile_shader_program() -> int:
+        with open(os.path.join(pwd, "block.vert")) as f:
+            vs: int = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
+        with open(os.path.join(pwd, "block.frag")) as f:
+            fs: int = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
+        # validate=False -- see _compile_inline below for the macOS reason.
+        return shaders.compileProgram(vs, fs, validate=False)
+
     prog: int = compile_shader_program()
     return MainPipeline(
         program=prog,
@@ -650,59 +650,6 @@ _SCALE_BIAS: np.ndarray = np.array(
 )
 
 
-def _light_proj_view(
-    light_dir: tuple[float, float, float],
-) -> tuple[np.ndarray, np.ndarray]:
-    """Build an orthographic light-space projection-view pair big
-    enough to cover the cube + floor footprint from any light angle.
-    Returns (proj, view) as 4x4 numpy arrays in matrix_stack's
-    row-major convention."""
-    # Light position: 100 units along light_dir from origin.
-    lx, ly, lz = (c * 100.0 for c in light_dir)
-    # lookat from light_pos to origin, world up = +Y.
-    eye: np.ndarray = np.array([lx, ly, lz], dtype=np.float32)
-    center: np.ndarray = np.array([0.0, 0.0, 0.0], dtype=np.float32)
-    up: np.ndarray = np.array([0.0, 1.0, 0.0], dtype=np.float32)
-
-    f: np.ndarray = center - eye
-    f /= np.linalg.norm(f)
-    upn: np.ndarray = up - f * np.dot(f, up)
-    if np.linalg.norm(upn) < 1e-6:
-        upn = np.array([0.0, 0.0, 1.0], dtype=np.float32)
-    upn /= np.linalg.norm(upn)
-    # the side vector, via gacalc's cross product (the dual of the wedge):
-    # round-trip the float32 arrays through g3.Vector -- iteration yields the
-    # coordinates back in (e_1, e_2, e_3) order.  f and upn are unit and
-    # orthogonal, so s comes out unit as well.
-    s: np.ndarray = np.array(
-        list(cross(Vector(*map(float, f)), Vector(*map(float, upn)))),
-        dtype=np.float32,
-    )
-
-    view: np.ndarray = np.identity(4, dtype=np.float32)
-    view[0, :3] = s
-    view[1, :3] = upn
-    view[2, :3] = -f
-    view[0, 3] = -np.dot(s, eye)
-    view[1, 3] = -np.dot(upn, eye)
-    view[2, 3] = np.dot(f, eye)
-
-    # Orthographic frustum sized to envelop the cube (50 across) +
-    # floor (200 across).  Generous near/far so the cube is never
-    # near-plane-clipped from the light's POV.
-    left, right = -120.0, 120.0
-    bottom, top = -120.0, 120.0
-    near, far = 1.0, 300.0
-    proj: np.ndarray = np.identity(4, dtype=np.float32)
-    proj[0, 0] = 2.0 / (right - left)
-    proj[1, 1] = 2.0 / (top - bottom)
-    proj[2, 2] = -2.0 / (far - near)
-    proj[0, 3] = -(right + left) / (right - left)
-    proj[1, 3] = -(top + bottom) / (top - bottom)
-    proj[2, 3] = -(far + near) / (far - near)
-    return proj, view
-
-
 def render_shadow_map(
     stage: int, light_dir: tuple[float, float, float]
 ) -> np.ndarray:
@@ -715,6 +662,59 @@ def render_shadow_map(
     we render the floor too -- it's effectively free and means the
     debug-view depth visualization shows the floor's depth as
     well, which makes the scene legible."""
+
+    def _light_proj_view(
+        light_dir: tuple[float, float, float],
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Build an orthographic light-space projection-view pair big
+        enough to cover the cube + floor footprint from any light angle.
+        Returns (proj, view) as 4x4 numpy arrays in matrix_stack's
+        row-major convention."""
+        # Light position: 100 units along light_dir from origin.
+        lx, ly, lz = (c * 100.0 for c in light_dir)
+        # lookat from light_pos to origin, world up = +Y.
+        eye: np.ndarray = np.array([lx, ly, lz], dtype=np.float32)
+        center: np.ndarray = np.array([0.0, 0.0, 0.0], dtype=np.float32)
+        up: np.ndarray = np.array([0.0, 1.0, 0.0], dtype=np.float32)
+
+        f: np.ndarray = center - eye
+        f /= np.linalg.norm(f)
+        upn: np.ndarray = up - f * np.dot(f, up)
+        if np.linalg.norm(upn) < 1e-6:
+            upn = np.array([0.0, 0.0, 1.0], dtype=np.float32)
+        upn /= np.linalg.norm(upn)
+        # the side vector, via gacalc's cross product (the dual of the wedge):
+        # round-trip the float32 arrays through g3.Vector -- iteration yields
+        # the coordinates back in (e_1, e_2, e_3) order.  f and upn are unit
+        # and orthogonal, so s comes out unit as well.
+        s: np.ndarray = np.array(
+            list(cross(Vector(*map(float, f)), Vector(*map(float, upn)))),
+            dtype=np.float32,
+        )
+
+        view: np.ndarray = np.identity(4, dtype=np.float32)
+        view[0, :3] = s
+        view[1, :3] = upn
+        view[2, :3] = -f
+        view[0, 3] = -np.dot(s, eye)
+        view[1, 3] = -np.dot(upn, eye)
+        view[2, 3] = np.dot(f, eye)
+
+        # Orthographic frustum sized to envelop the cube (50 across) +
+        # floor (200 across).  Generous near/far so the cube is never
+        # near-plane-clipped from the light's POV.
+        left, right = -120.0, 120.0
+        bottom, top = -120.0, 120.0
+        near, far = 1.0, 300.0
+        proj: np.ndarray = np.identity(4, dtype=np.float32)
+        proj[0, 0] = 2.0 / (right - left)
+        proj[1, 1] = 2.0 / (top - bottom)
+        proj[2, 2] = -2.0 / (far - near)
+        proj[0, 3] = -(right + left) / (right - left)
+        proj[1, 3] = -(top + bottom) / (top - bottom)
+        proj[2, 3] = -(far + near) / (far - near)
+        return proj, view
+
     light_proj, light_view = _light_proj_view(light_dir)
 
     GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, shadow_res.fbo)
@@ -739,9 +739,13 @@ def render_shadow_map(
         vao: int = cube_solid_vao,
         count: int = cube_solid_count,
     ) -> None:
-        model: np.ndarray = ms.get_current_matrix(ms.MatrixStack.model)
+        # model: the current model matrix, as float32
         mvp: np.ndarray = (
-            light_proj @ light_view @ np.asarray(model, dtype=np.float32)
+            light_proj
+            @ light_view
+            @ np.asarray(
+                ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
+            )
         )
         GL.glUniformMatrix4fv(
             shadow_depth.u_light_mvp,
@@ -775,12 +779,10 @@ def set_uniforms() -> None:
     program's ``shadowMatrix`` uniform with ``shadow_matrix * model``
     so the vertex shader can transform fragment positions into the
     light's clip-space and sample the shadow texture."""
-    mvp_loc: int = block_shadow.u_mvp if _using_shadow_map else main.u_mvp
-    model_loc: int = block_shadow.u_model if _using_shadow_map else main.u_model
-
     model: np.ndarray = ms.get_current_matrix(ms.MatrixStack.model)
     GL.glUniformMatrix4fv(
-        mvp_loc,
+        # mvp_loc: the model-view-projection uniform of the active program
+        block_shadow.u_mvp if _using_shadow_map else main.u_mvp,
         1,
         GL.GL_TRUE,
         np.ascontiguousarray(
@@ -789,7 +791,8 @@ def set_uniforms() -> None:
         ),
     )
     GL.glUniformMatrix4fv(
-        model_loc,
+        # model_loc: the model uniform of the active program
+        block_shadow.u_model if _using_shadow_map else main.u_model,
         1,
         GL.GL_TRUE,
         np.ascontiguousarray(model, dtype=np.float32),
@@ -800,12 +803,15 @@ def set_uniforms() -> None:
         # model space to shadow-map UV space.  Pre-multiply by the
         # current model matrix here so the shader gets a single
         # ready-to-use matrix.
-        sm: np.ndarray = _shadow_pv_scaled @ np.asarray(model, dtype=np.float32)
         GL.glUniformMatrix4fv(
             block_shadow.u_shadow,
             1,
             GL.GL_TRUE,
-            np.ascontiguousarray(sm, dtype=np.float32),
+            # sm: the shadow matrix times the model matrix
+            np.ascontiguousarray(
+                _shadow_pv_scaled @ np.asarray(model, dtype=np.float32),
+                dtype=np.float32,
+            ),
         )
 
 
@@ -935,26 +941,32 @@ def make_vao(attribs: list[AttribSpec]) -> int:
     return vao
 
 
-def _interleaved_attribs(vbo: int) -> list[AttribSpec]:
-    """The standard pos3/normal3/uv2 attribute layout used by every
-    mesh in this demo.  Pinned to attribute slots 0/1/2 to match the
-    block.vert / shadow_depth / block_shadow shaders."""
-    return [
-        AttribSpec(vbo=vbo, location=0, size=3, layout=(_STRIDE, 0)),  # pos
-        AttribSpec(vbo=vbo, location=1, size=3, layout=(_STRIDE, 12)),  # normal
-        AttribSpec(vbo=vbo, location=2, size=2, layout=(_STRIDE, 24)),  # uv
-    ]
-
-
 def _make_interleaved_mesh(vertex_data: np.ndarray) -> tuple[int, int, int]:
     """Convenience: build a VBO + VAO for the standard interleaved
     layout in one step.  Returns (vao, vbo, vertex_count) -- same
     shape as the previous all-in-one ``make_vao``, used by the five
     mesh sites below."""
+
+    def _interleaved_attribs(vbo: int) -> list[AttribSpec]:
+        """The standard pos3/normal3/uv2 attribute layout used by every
+        mesh in this demo.  Pinned to attribute slots 0/1/2 to match the
+        block.vert / shadow_depth / block_shadow shaders."""
+        return [
+            AttribSpec(vbo=vbo, location=0, size=3, layout=(_STRIDE, 0)),  # pos
+            AttribSpec(
+                vbo=vbo, location=1, size=3, layout=(_STRIDE, 12)
+            ),  # normal
+            AttribSpec(vbo=vbo, location=2, size=2, layout=(_STRIDE, 24)),  # uv
+        ]
+
     vertex_data = np.ascontiguousarray(vertex_data, dtype=np.float32)
     vbo: int = make_vbo(vertex_data)
-    vao: int = make_vao(_interleaved_attribs(vbo))
-    return vao, vbo, vertex_data.size // _FLOATS_PER_VERTEX
+    # vao: the vertex array that reads the interleaved attributes from vbo
+    return (
+        make_vao(_interleaved_attribs(vbo)),
+        vbo,
+        vertex_data.size // _FLOATS_PER_VERTEX,
+    )
 
 
 # Mesh geometry comes from the glb now (demo22 builds it inline; see

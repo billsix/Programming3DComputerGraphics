@@ -91,6 +91,27 @@ rule, not its opposite (William Emerison Six <billsix@gmail.com>, 2026-10-12). T
 `mathutils.ortho`/`perspective` are `InvertibleFunction(func=…, inverse=…)` callback wrappers
 — named only because that API takes callables, not extracted phases.
 
+## One-caller helpers are nested; what stays at module level (2026-11-25)
+
+The shared "What earns an extraction" rule nests a helper that has one caller inside that caller, and mvp
+applies it to the demos, the `mvpvisualization/` programs, `util/` and `tools/`: `jump` and `graph_panel` sit
+inside `frame`, the `_draw_solid_*` helpers inside `draw_unit_axes`, and so on. In
+`mvpvisualization/modelviewperspectiveprojection.py` the nesting cascades: once `grid_matrix` and `graph_panel`
+are inside `frame`, `_place`, `_warp` and `_epilogue_ndc_to_fb` have one caller too, so `frame` holds the whole
+framebuffer-morph section. A helper stays at module level when it:
+
+- carries a doctest (`doctest` does not collect a nested function);
+- is named by another file or a test (an import or attribute access), such as the `build_*` mesh builders and
+  `read_glb` in `demo22b/export_scene.py`, `make_vao`/`make_vbo` in `demo22`/`demo22b`, `_region_is_empty` and
+  `_dead_marker_report` in `tools/check_doc_regions.py`;
+- is public, book-documented API (`mathutils`).
+
+Most of the big demo files (`demo22*`, `demo23`, `demo24`, the `mvpvisualization/` programs) carry no `doc-region`
+marker and no `literalinclude` names them, so refactoring their locals does not change published text; check a
+file with `make check-regions` and by looking for markers before assuming otherwise. Indenting a helper can
+push comment and docstring lines past the 80-column limit, and `ruff format` does not reflow prose: reflow each
+paragraph whole.
+
 ## OpenGL / PyOpenGL typing and matrix conventions
 
 A GL concern for annotation specifically: **a GL enum is a PyOpenGL `Constant`, not an

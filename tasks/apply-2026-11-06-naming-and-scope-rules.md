@@ -1,130 +1,110 @@
 # Apply the 2026-11-06 naming and scope rules across this repository
 
-**Status:** in progress — survey done and coarsely triaged 2026-11-24; one small batch applied; the per-file triage and the remaining refactors are not done
-**Priority:** 5
-**Difficulty:** 7
+**Status:** done 2026-11-25 (work committed; the archive move and the one-shot script removal are owed, see "Owed")
 **Created:** 2026-11-06 (William Emerison Six <billsix@gmail.com>): asked for the geometricalgebra survey
 task ("search through all of geometricalgebra and see if there is programming advice that we added that
 should be applied to the codebase, to refactor it"), then "add a similar task to every other python
 project in opt".
 
-## BLUF
+## What this did
 
-Five naming and scope rules were added to the shared Python standard on 2026-11-06, while refactoring
-geometricalgebra. This task searches this project's Python for places that break them, records every
-candidate in a worklog, and refactors the ones that should change, with no change in behaviour. Done =
-every candidate is either refactored or recorded as left alone with its reason, and the gates pass
-(containerized `make test`, `make type-check`, `make format`, and `make check-regions`; the CtC gates for any touched game).
+Five rules entered the shared Python standard on 2026-11-06 (github.com/billsix/runClaudeInContainer,
+`tasks/reference/python-coding-standard.md`: "Inline a value used once, and name it in a comment instead of a
+binding" and "What earns an extraction"). The task surveyed this repository's Python for breaks of them, then
+refactored without changing behaviour:
 
-## Context (read first)
+1. inline a binding used once, with a comment above the expression naming it;
+2. a binding used twice does not automatically earn a name (check whether one expression absorbs the uses);
+3. declare a name at the point of use;
+4. nest a helper with one caller inside that caller;
+5. when nesting, shadow deliberately and check that the helper never needs the outer value.
 
-- **The rules**, in the shared `python-coding-standard.md` (github.com/billsix/runClaudeInContainer
-  `tasks/reference/`; mounted at `~/.claude/reference/`), sections "Inline a value used once, and name
-  it in a comment instead of a binding" and "What earns an extraction"; the language-agnostic summary is
-  `code-style-conventions.md`, "Names: inline what is used once, declare at the point of use, nest and
-  shadow":
-  1. **Inline a binding used once**, even one that exists to explain the expression; put a comment above
-     the inlined subexpression that describes it and gives it its name.
-  2. **Two uses do not automatically earn a name**: check whether one expression absorbs them (e.g.
-     `getattr(obj, name, fallback)` or `d.get(key, default)` in place of a `None` check plus ternary), or
-     whether a cheap expression can be repeated. Keep the name when repeating the expression reads worse
-     or recomputes something expensive.
-  3. **Declare a name at the point of use**, not many lines earlier.
-  4. **Nest a helper with one caller inside that caller.**
-  5. **When nesting, shadow deliberately**: the helper's parameter takes the caller's name when it means
-     the same thing, and the shadowing is verified (the helper never needs the outer value; none of its
-     other names hide an enclosing binding).
-- **The worked example to imitate:** github.com/billsix/geometricalgebra
-  `tasks/reference/python-coding-standard-gacalc.md`, "Inline once, declare at use, nest and shadow"
-  (the 2026-11-06 refactor of `Frame.to_invertible_function`). The same survey for that project is its
-  `tasks/apply-2026-11-06-naming-and-scope-rules.md`.
-- **Rules that compete with these, and win:** an externally-defined name (a framework override, a
-  callback signature, a dunder) is never renamed; "annotate every binding" still applies to every name
-  that survives; a public parameter name is part of the API and is out of scope.
+Scope: `src/intro3dgraphics/`, `tests/`, `tools/`, `assignments/` (minus the three files with a deliberate
+exercise hole). `ports/` and `pgzero_gl` had moved to other repositories, so they were out.
 
-## Scope
+## Decisions, in order
 
-- **In:** `src/intro3dgraphics/` (the demos, `mathutils.py`, `cayley/`, `mvpvisualization/`,
-  `graphingcalculator/`, `pgzero_gl/`), `tests/`, `tools/`, `assignments/`, `ports/codetheclassics/`,
-  and `ports/openglsuperbiblev4/`.
-- **Out:** the vendored Emacs tree under `entrypoint/`, and the three assignments with a deliberate hole
-  (`assignments/assignment2-screenspace.py`, `assignments/assignment3-strafe.py`,
-  `assignments/demo02/vec1.py`): leave those files alone.
+All decisions by William Emerison Six <billsix@gmail.com> unless marked as the agent's.
 
-## Project constraints (these override the rules where they conflict)
+- **2026-11-24: survey first, then use discretion and apply.** A one-caller helper that a test imports stays at
+  module level (the discovery script skips any helper whose name appears in `tests/`).
+- **2026-11-24: survey.** `discover.py` walked the in-scope files with `ast` and wrote a worklog of 716 leads
+  (340 single-use, 282 double-use, 35 declared far from first use, 59 one-caller). Most leads were noise: it also
+  flags single assignments that are deliberate.
+- **2026-11-24: first batch.** `draw_unit_axes` in `util/axes.py`: the four size bindings moved down to the block
+  that first uses them (rule 3). The agent left the big demo files alone, on the stated ground that the book
+  includes them by `doc-region` marker. **That ground was false** (found 2026-11-25, below).
+- **2026-11-25: `tools/` and `tests/`.** Inlined `raw`, `scratch`, `background`, `text`, `occurrences`,
+  `begin_needle`, `end_needle`, `stripped`, `is_marker`, `tree` and moved `root` down, across the four `tools/`
+  files. Every `tests/` lead was left alone: each is a named test input, expected value or case table, and the name
+  is what the reader scans for in an assertion.
+- **2026-11-25: the 2026-11-24 coarse triage was wrong.** `classify_regions.py` showed that `demo22`, `demo22a`,
+  `demo22b`, `export_scene.py`, `demo23`, `demo24` and the `mvpvisualization/` programs have no `doc-region` marker
+  and no `literalinclude` names them. Only 6 of the 722 leads sit inside a published region (5 in `mathutils.py`,
+  1 in `assignments/assignment1.py`), so nearly all leads were fair game.
+- **2026-11-25: inline batch** (`apply_inlines.py`, exact-text edits, idempotent): single-use locals in `demo22`,
+  `demo22b`, `export_scene.py`, `grapher3d.py`, the `mvpvisualization/` programs, `sampling.py`, `nbplotutils.py`
+  and `wxapp.py`; then `mvp_loc`, `model_loc`, `sm`, `step`, `window_name`, `fmt`, `internal`, `lw`; then `mode` in
+  `export_scene.read_glb`.
+- **2026-11-25: `FAR` leads.** `morph` (twice), `inv` and `hbox` moved to the block that first uses them.
+- **2026-11-25: `TWICE` leads (about 290):** triaged by category and left alone. They are GL handles, widgets, loop
+  state, the cos/sin pair of one angle, and an `epi` result whose `None` gates a block; no
+  `x if x is not None else y` or `getattr` shape remained to collapse.
+- **2026-11-25: shared-standard wording.** The maintainer asked for the sharper wording to go into the shared
+  standard. The agent added "A name that documents what it holds keeps its binding" (test inputs and case tables,
+  tables of rows and named corners, slices of a packed array named for their layout, side-effecting calls, a value
+  computed before a later statement changes its inputs) to the three byte-identical copies in
+  runClaudeInContainer and runCrushInContainer. It left out a one-caller sentence it had drafted, because that
+  contradicted the standard (next entry).
+- **2026-11-25: one-caller helpers.** The agent first left all 61 at module level, citing "the rule nests only a
+  helper that closes over the caller's parameters". That misread the standard, whose "What earns an extraction"
+  nests every one-caller helper (the global `CLAUDE.md` states only the closes-over condition, so the two disagree).
+  **The maintainer decided to nest per the standard.**
+- **2026-11-25: nesting mechanics** (`nest_one_caller.py`, idempotent): moves a helper, with its decorators and the
+  comment lines above it, to the start of its caller's body; cascades (a helper becomes single-caller once its
+  sibling nests). It skips a helper with a doctest (`doctest` does not collect a nested function), one named by an
+  import or attribute access in another file (`git grep -w`), one with a triple-quoted string other than a
+  docstring, and one that reads a name its caller rebinds. The deeper indent put 18 comment and docstring lines over
+  80 columns; they were reflowed as whole paragraphs, not one line at a time.
+- **2026-11-25: the cascade in `modelviewperspectiveprojection.py`** put `_place`, `_warp`,
+  `_epilogue_ndc_to_fb`, `grid_matrix` and `graph_panel` inside `frame`, which is now long. **The maintainer chose
+  to keep it.**
+- **2026-11-25: verification outside the agent's gates.** The maintainer ran `demo22b` on the host and in the
+  container, and `wxapp.py` on the host. `wxapp.py` failed in the container on its backend (parked, not part of this
+  task; see "Owed").
 
-- **The demos are deliberately procedural, with module-level globals, so students read top to
-  bottom** (`CLAUDE.md`, "mistake-driven development"). The rules apply to function locals and nested
-  helpers; do not turn module-level globals into locals, and do not introduce classes or abstractions.
-  A module-level name that a later chapter or the book refers to stays.
-- **The book includes code by `doc-region` marker** (`CLAUDE.md`, "The book includes code by MARKER").
-  Before editing, check whether the text is inside a published region; a refactor that moves marked
-  code moves its markers, and a binding the book's prose names stays. Run `make check-regions`.
-- **The Code-the-Classics ports are behaviour-faithful** (`tasks/reference/code-the-classics-tightening.md`):
-  same RNG, update and draw order. Verify each touched game with `tools/ctc_verify_game.sh` (frame
-  pixel identity) and the state-trace tools (`tasks/reference/tests-and-gates.md`).
-- mvp's own additions doc: `tasks/reference/python-coding-standard-mvp.md` (line length 80, the wx
-  boundary, book-shorthand naming, mvp's inner-function precedents). Read it before triage; where it
-  records a precedent that conflicts with these rules, raise it as a question rather than overriding it.
+## Result
 
-## Plan
+- **Applied:** the inlines, moves and nestings in the decisions above; the nesting batch touched 17 files.
+  Behaviour is unchanged.
+- **Left alone, with the reason:** tests (named inputs and tables); `TWICE` leads (handles, widgets, loop state,
+  trig pairs); data tables and named corners (`faces`, `corners`, `edges`, `uvs`, `p00`..`p11`); packed-array slices
+  (`positions`, `normals`, `texcoords`); the `vs`/`fs` shader pairs (the file handle closes before
+  `compileProgram`); `wxapp.py` `dt` (`last_time` is overwritten between its definition and use, so inlining
+  changes the result), `vbo` and `mask`; `demo21.py` `font_loader` and `_default_vao`; the accumulators declared
+  before their loop (`out`, `errors`); `mathutils.py` (public, book-documented API with teaching comments).
+- **Not nested:** helpers with a doctest (`mathutils.find_normal`, `mathutils.ortho`,
+  `check_local_annotations.iter_py`, `check_local_annotations.display_path`), and helpers that other files or the
+  tests use (the `build_*` mesh builders and `read_glb` in `export_scene.py`, `make_vao` and `make_vbo` in
+  `demo22`/`demo22b`, `_region_is_empty` and `_dead_marker_report` in `check_doc_regions.py`).
 
-1. **Discover with a script, not by reading every file.** Write
-   `tasks/adhoc/apply-2026-11-06-naming-and-scope-rules/discover.py`, an `ast` walk over the in-scope paths (repo-relative paths, derived
-   from the script's own location) that reports:
-   - a local assigned once and loaded once (rule 1), with the line distance between the two (rule 3);
-   - a local assigned once and loaded exactly twice, flagged for a look (rule 2);
-   - a local whose first load is far from its assignment, e.g. more than 10 lines (rule 3);
-   - a module-level or enclosing-scope function called from exactly one function and not imported by a
-     test (rule 4);
-   - a nested function whose parameter names differ from an enclosing local holding the same kind of
-     value, as a lead for rule 5 (a judgment call, so a lead only).
-   Write the results to `tasks/adhoc/apply-2026-11-06-naming-and-scope-rules/data/candidates.txt` (a committed snapshot worklog). If the
-   geometricalgebra survey has already produced its `discover.py`, copy it and adjust the paths rather
-   than rewriting it.
-2. **Triage the worklog** into: refactor; leave alone (with the reason, e.g. a loop accumulator, a
-   binding a doctest or notebook shows the reader, a name a test asserts on, a public parameter, an
-   annotation that carries information the inline form would lose, or a project constraint above); and
-   ask the maintainer. Record the counts here.
-3. **Refactor in small batches, one module (or a few related ones) at a time**, matching the worked
-   example: inline with a naming comment, absorb double uses, move declarations down, nest one-caller
-   helpers and verify the shadowing. Run ruff and `ty` after each batch.
-4. **Gates:** containerized `make test`, `make type-check`, `make format`, and `make check-regions`; the CtC gates for any touched game.
-5. Record what was changed, what was left alone and why, and any rule the survey showed needs a sharper
-   wording; feed that back to the shared standard (github.com/billsix/runClaudeInContainer, mirrored in
-   github.com/billsix/runCrushInContainer).
+## Verification
 
-## Decisions (William Emerison Six <billsix@gmail.com>, 2026-11-24)
+Containerized, with the image already built (`make -o image <target>`): `format`, `type-check`, `check-regions` and
+`test` (55 passed) exit 0 after every batch. `tools/verify_render.sh` (5 frames, Xvfb) passed for `demo19e`,
+`demo21`, `demo22`, `demo24` and the `mvpvisualization/` programs. `render_probe.py` cannot run `demo22b` (its
+sibling `import export_scene` fails under the probe, which predates this task); the maintainer checked it by hand.
+The menubar helpers `_focus` and `rebuild_framebuffer` run on a click and were not exercised by the agent.
 
-- Question 1: survey first, then use discretion and apply.
-- Question 2 (a one-caller helper that a test imports stays at module level): taken as covered by
-  "use discretion"; the recommendation (yes) was applied. The discovery script already skips any helper
-  whose name appears in `tests/`.
-- Scope changed by the repository move: `ports/` and `pgzero_gl` no longer live here, so the survey
-  covers `src/intro3dgraphics/`, `tests/`, `tools/` and `assignments/` (minus the three holes).
+## Owed
 
-## Progress (2026-11-24)
-
-- **Survey:** `tasks/adhoc/apply-2026-11-06-naming-and-scope-rules/discover.py` wrote
-  `data/candidates.txt`: 716 leads (340 `ONCE`, 282 `TWICE`, 35 `FAR`, 59 `ONE_CALLER`). It also counts
-  single-assignment locals the body shows on purpose, so most leads are noise until read.
-- **Coarse triage by file (not yet per candidate):** the largest groups sit in the demos and
-  their helpers (`demo22b/export_scene.py` 109, `demo22` 76, `demo24` 74, `demo22a` 45, `demo22b` 40,
-  `demo23` 38) and in `mvpvisualization/modelviewperspectiveprojection.py` (48): left alone for now
-  because the book includes them by `doc-region` marker and their locals feed GL calls the book prose
-  names. `mathutils.py` (18) is public, book-documented API with teaching comments: left alone.
-  `tools/` (about 90) and `tests/` (about 35) need a read of each lead before touching.
-- **Applied:** `src/intro3dgraphics/util/axes.py`, `draw_unit_axes`: the four size bindings moved from
-  the top of the function to the polygon-mode block that precedes their first use (rule 3). Gates
-  (doctests and `pytest` 55 passed, `ty`, annotation checker, `format.sh`) were clean in the
-  `modelviewprojection` image.
-
-## What remains
-
-1. Read the `tools/` and `tests/` leads one by one and apply rules 1–3 where the binding is neither a
-   loop accumulator, a doctest-visible name, nor an assertion target.
-2. Decide the demo leads against the `doc-region` rule, one demo at a time, running `make check-regions`.
-3. `ONE_CALLER` (rule 4) candidates in `util/axes.py` (`_draw_solid_*` called only from
-   `draw_unit_axes`): nest them, or leave them module-level because `draw_unit_axes` runs every frame.
-   Not decided.
-4. Record any sharper rule wording back in the shared standard.
+1. **Archive** (the agent, once the commit holding this done-record exists): `git mv` this file to
+   `tasks/archive/2026/11/25/`, and `git rm` the one-shot scripts and data under
+   `tasks/adhoc/apply-2026-11-06-naming-and-scope-rules/` (`discover.py`, `classify_regions.py`,
+   `apply_inlines.py`, `data/`). Do the removal in a separate commit after the work commit, so the scripts stay in
+   history.
+2. **Promotion question** (the maintainer): `discover.py` and `nest_one_caller.py` could serve other Python
+   repositories after their paths are made configurable; the other scripts are mvp-specific.
+3. **Shared-standard edits**: staged, not committed, in runClaudeInContainer and runCrushInContainer.
+4. **wx in the container**: parked on the work stack (`WAYLAND_DISPLAY` makes PyOpenGL pick EGL while the wx
+   canvas wants GLX; `GDK_BACKEND=x11` ran under Xvfb).

@@ -110,8 +110,10 @@ class GLPanel(wxgl.GLCanvas):
         GL.glShaderSource(shader, source)
         GL.glCompileShader(shader)
         if not GL.glGetShaderiv(shader, GL.GL_COMPILE_STATUS):
-            error: str = GL.glGetShaderInfoLog(shader).decode()
-            raise RuntimeError(f"Shader compile error: {error}")
+            raise RuntimeError(
+                f"Shader compile error: "
+                f"{GL.glGetShaderInfoLog(shader).decode()}"
+            )
         return shader
 
     def InitGL(self) -> None:
@@ -124,8 +126,10 @@ class GLPanel(wxgl.GLCanvas):
         GL.glAttachShader(self.program, fs)
         GL.glLinkProgram(self.program)
         if not GL.glGetProgramiv(self.program, GL.GL_LINK_STATUS):
-            error: str = GL.glGetProgramInfoLog(self.program).decode()
-            raise RuntimeError(f"Program link error: {error}")
+            raise RuntimeError(
+                f"Program link error: "
+                f"{GL.glGetProgramInfoLog(self.program).decode()}"
+            )
         GL.glDeleteShader(vs)
         GL.glDeleteShader(fs)
 
@@ -190,8 +194,10 @@ class GLPanel(wxgl.GLCanvas):
         GL.glClear(mask)
 
         GL.glUseProgram(self.program)
-        angle_loc: int = GL.glGetUniformLocation(self.program, "angle")
-        GL.glUniform1f(angle_loc, self.angle)
+        # angle_loc: where the shader's ``angle`` uniform lives
+        GL.glUniform1f(
+            GL.glGetUniformLocation(self.program, "angle"), self.angle
+        )
 
         GL.glBindVertexArray(self.vao)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, 3)
@@ -226,7 +232,6 @@ class MainFrame(wx.Frame):
 
         # --- Layout with canvas and controls ---
         vbox: wx.BoxSizer = wx.BoxSizer(wx.VERTICAL)
-        hbox: wx.BoxSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         self.canvas = GLPanel(panel)
         vbox.Add(self.canvas, 1, wx.EXPAND | wx.ALL, 5)
@@ -238,6 +243,8 @@ class MainFrame(wx.Frame):
         self.slider = wx.Slider(
             panel, value=60, minValue=0, maxValue=360, style=wx.SL_HORIZONTAL
         )
+
+        hbox: wx.BoxSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         hbox.Add(btn1, 1, wx.ALL, 5)
         hbox.Add(btn2, 1, wx.ALL, 5)

@@ -340,49 +340,6 @@ def scene_meshes() -> list[MeshSpec]:
     ]
 
 
-def _light_direction(az_deg: float, el_deg: float) -> np.ndarray:
-    """Unit direction *toward* the light (mirrors util.shading.light_dir_ws).
-
-    Inlined so this module depends only on numpy/pygltflib/imageio.  Azimuth
-    sweeps x -> z, elevation lifts toward +y.
-    """
-    az: float = math.radians(az_deg)
-    el: float = math.radians(el_deg)
-    return np.array(
-        [
-            math.cos(el) * math.cos(az),
-            math.sin(el),
-            math.cos(el) * math.sin(az),
-        ],
-        dtype=np.float32,
-    )
-
-
-def _light_node_matrix(direction: np.ndarray) -> list[float]:
-    """A node matrix whose +Z axis is ``direction`` (column-major 16-tuple).
-
-    glTF directional lights shine along the node's local -Z, so a light that
-    shines *from* ``direction`` (demo22's "direction toward the light") has
-    the node's +Z pointing that way.  An orthonormal basis is built with Z =
-    direction; reading the +Z column back recovers the direction exactly.
-    """
-    z: np.ndarray = direction / np.linalg.norm(direction)
-    up: np.ndarray = (
-        np.array([0.0, 1.0, 0.0], dtype=np.float32)
-        if abs(float(z[1])) < 0.9999
-        else np.array([0.0, 0.0, 1.0], dtype=np.float32)
-    )
-    x: np.ndarray = np.cross(up, z)
-    x = x / np.linalg.norm(x)
-    y: np.ndarray = np.cross(z, x)
-    matrix: np.ndarray = np.identity(4, dtype=np.float32)
-    matrix[:3, 0] = x
-    matrix[:3, 1] = y
-    matrix[:3, 2] = z
-    # glTF matrices are column-major 16-tuples.
-    return [float(v) for v in matrix.flatten(order="F")]
-
-
 # ---------------------------------------------------------------------------
 # Writer
 # ---------------------------------------------------------------------------
@@ -410,16 +367,6 @@ class _BufferBuilder:
         return b"".join(self._chunks)
 
 
-def _png_bytes(pixels: np.ndarray) -> bytes:
-    """Encode an image array as PNG bytes (lossless, so pixels survive)."""
-    return bytes(iio.imwrite("<bytes>", pixels, extension=".png"))
-
-
-def _demo22_texture_dir() -> Path:
-    """demo22's directory, the source of the four ``.tga`` textures."""
-    return Path(__file__).resolve().parent.parent / "demo22"
-
-
 def write_glb(
     path: str | Path,
     *,
@@ -433,6 +380,57 @@ def write_glb(
     light at ``az_deg`` / ``el_deg``.  glTF only permits PNG/JPEG images, so
     the TGA textures are converted; the conversion is lossless.
     """
+
+    def _demo22_texture_dir() -> Path:
+        """demo22's directory, the source of the four ``.tga`` textures."""
+        return Path(__file__).resolve().parent.parent / "demo22"
+
+    def _png_bytes(pixels: np.ndarray) -> bytes:
+        """Encode an image array as PNG bytes (lossless, so pixels survive)."""
+        return bytes(iio.imwrite("<bytes>", pixels, extension=".png"))
+
+    def _light_node_matrix(direction: np.ndarray) -> list[float]:
+        """A node matrix whose +Z axis is ``direction`` (column-major 16-tuple).
+
+        glTF directional lights shine along the node's local -Z, so a light that
+        shines *from* ``direction`` (demo22's "direction toward the light") has
+        the node's +Z pointing that way.  An orthonormal basis is built with Z =
+        direction; reading the +Z column back recovers the direction exactly.
+        """
+        z: np.ndarray = direction / np.linalg.norm(direction)
+        up: np.ndarray = (
+            np.array([0.0, 1.0, 0.0], dtype=np.float32)
+            if abs(float(z[1])) < 0.9999
+            else np.array([0.0, 0.0, 1.0], dtype=np.float32)
+        )
+        x: np.ndarray = np.cross(up, z)
+        x = x / np.linalg.norm(x)
+        y: np.ndarray = np.cross(z, x)
+        matrix: np.ndarray = np.identity(4, dtype=np.float32)
+        matrix[:3, 0] = x
+        matrix[:3, 1] = y
+        matrix[:3, 2] = z
+        # glTF matrices are column-major 16-tuples.
+        return [float(v) for v in matrix.flatten(order="F")]
+
+    def _light_direction(az_deg: float, el_deg: float) -> np.ndarray:
+        """Unit direction *toward* the light.
+
+        Mirrors util.shading.light_dir_ws, inlined so this module depends only
+        on numpy/pygltflib/imageio.  Azimuth sweeps x -> z, elevation lifts
+        toward +y.
+        """
+        az: float = math.radians(az_deg)
+        el: float = math.radians(el_deg)
+        return np.array(
+            [
+                math.cos(el) * math.cos(az),
+                math.sin(el),
+                math.cos(el) * math.sin(az),
+            ],
+            dtype=np.float32,
+        )
+
     meshes: list[MeshSpec] = scene_meshes()
     buffer: _BufferBuilder = _BufferBuilder()
 
@@ -443,8 +441,10 @@ def write_glb(
 
     def add_stream(values: np.ndarray, kind: str, want_bounds: bool) -> int:
         """Add a vertex stream as a bufferView + accessor; return its index."""
-        packed: np.ndarray = np.ascontiguousarray(values, dtype="<f4")
-        offset, length = buffer.add(packed.tobytes())
+        # packed: the stream as contiguous little-endian float32
+        offset, length = buffer.add(
+            np.ascontiguousarray(values, dtype="<f4").tobytes()
+        )
         buffer_views.append(
             BufferView(
                 buffer=0,
@@ -512,8 +512,10 @@ def write_glb(
     textures: list[Texture] = []
     texture_dir: Path = _demo22_texture_dir()
     for name, filename in _TEXTURE_FILES:
-        pixels: np.ndarray = np.asarray(iio.imread(texture_dir / filename))
-        offset, length = buffer.add(_png_bytes(pixels))
+        # pixels: the texture file decoded to an array
+        offset, length = buffer.add(
+            _png_bytes(np.asarray(iio.imread(texture_dir / filename)))
+        )
         buffer_views.append(
             BufferView(buffer=0, byteOffset=offset, byteLength=length)
         )
@@ -612,42 +614,44 @@ class LoadedScene:
     light_el_deg: float = DEFAULT_LIGHT_EL_DEG
 
 
-def _decode_accessor(
-    gltf: GLTF2, blob: bytes, accessor_index: int
-) -> np.ndarray:
-    """Decode a FLOAT accessor into a ``(count, ncomp)`` float32 array.
-
-    Honours the bufferView byteStride and the accessor byteOffset, so it reads
-    both tightly packed and interleaved data (this writer packs tightly).
-    """
-    accessor: Any = gltf.accessors[accessor_index]
-    ncomp: int = _TYPE_COUNT[accessor.type]
-    view: Any = gltf.bufferViews[accessor.bufferView]
-    dtype: np.dtype = np.dtype("<f4")
-    start: int = (view.byteOffset or 0) + (accessor.byteOffset or 0)
-    stride: int = view.byteStride or (dtype.itemsize * ncomp)
-    if stride == dtype.itemsize * ncomp:
-        flat: np.ndarray = np.frombuffer(
-            blob, dtype=dtype, count=accessor.count * ncomp, offset=start
-        )
-        return flat.reshape(accessor.count, ncomp).astype(np.float32)
-    rows: list[np.ndarray] = [
-        np.frombuffer(blob, dtype=dtype, count=ncomp, offset=start + i * stride)
-        for i in range(accessor.count)
-    ]
-    return np.vstack(rows).astype(np.float32)
-
-
-def _direction_to_az_el(direction: np.ndarray) -> tuple[float, float]:
-    """Inverse of :func:`_light_direction`: a unit direction -> (az, el) deg."""
-    x, y, z = (float(c) for c in direction)
-    elevation: float = math.degrees(math.asin(max(-1.0, min(1.0, y))))
-    azimuth: float = math.degrees(math.atan2(z, x)) % 360.0
-    return azimuth, elevation
-
-
 def read_glb(path: str | Path) -> LoadedScene:
     """Load a ``.glb`` written by :func:`write_glb` back into a LoadedScene."""
+
+    def _direction_to_az_el(direction: np.ndarray) -> tuple[float, float]:
+        """Inverse of :func:`_light_direction`: direction -> (az, el) deg."""
+        x, y, z = (float(c) for c in direction)
+        elevation: float = math.degrees(math.asin(max(-1.0, min(1.0, y))))
+        azimuth: float = math.degrees(math.atan2(z, x)) % 360.0
+        return azimuth, elevation
+
+    def _decode_accessor(
+        gltf: GLTF2, blob: bytes, accessor_index: int
+    ) -> np.ndarray:
+        """Decode a FLOAT accessor into a ``(count, ncomp)`` float32 array.
+
+        Honours the bufferView byteStride and the accessor byteOffset, so it
+        reads both tightly packed and interleaved data (this writer packs
+        tightly).
+        """
+        accessor: Any = gltf.accessors[accessor_index]
+        ncomp: int = _TYPE_COUNT[accessor.type]
+        view: Any = gltf.bufferViews[accessor.bufferView]
+        dtype: np.dtype = np.dtype("<f4")
+        start: int = (view.byteOffset or 0) + (accessor.byteOffset or 0)
+        stride: int = view.byteStride or (dtype.itemsize * ncomp)
+        if stride == dtype.itemsize * ncomp:
+            flat: np.ndarray = np.frombuffer(
+                blob, dtype=dtype, count=accessor.count * ncomp, offset=start
+            )
+            return flat.reshape(accessor.count, ncomp).astype(np.float32)
+        rows: list[np.ndarray] = [
+            np.frombuffer(
+                blob, dtype=dtype, count=ncomp, offset=start + i * stride
+            )
+            for i in range(accessor.count)
+        ]
+        return np.vstack(rows).astype(np.float32)
+
     gltf: GLTF2 = GLTF2().load(str(path))
     blob: bytes = gltf.binary_blob()
 
@@ -669,18 +673,22 @@ def read_glb(path: str | Path) -> LoadedScene:
             .astype(np.float32)
             .reshape(-1)
         )
-        mode: int = (
-            primitive.mode if primitive.mode is not None else MODE_TRIANGLES
+        # mode: the primitive's draw mode, triangles when the file omits it
+        # (an explicit None test, because mode 0 is a real mode: points)
+        meshes[mesh_name] = (
+            primitive.mode if primitive.mode is not None else MODE_TRIANGLES,
+            interleaved,
         )
-        meshes[mesh_name] = (mode, interleaved)
 
     images: dict[str, np.ndarray] = {}
     for image_index, image in enumerate(gltf.images):
         image_name: str = image.name or f"image_{image_index}"
         view: Any = gltf.bufferViews[image.bufferView]
         start: int = view.byteOffset or 0
-        png: bytes = blob[start : start + view.byteLength]
-        images[image_name] = np.asarray(iio.imread(png, extension=".png"))
+        # png: the image's bytes, a slice of the binary chunk
+        images[image_name] = np.asarray(
+            iio.imread(blob[start : start + view.byteLength], extension=".png")
+        )
 
     light_az: float = DEFAULT_LIGHT_AZ_DEG
     light_el: float = DEFAULT_LIGHT_EL_DEG
@@ -707,8 +715,11 @@ def _summarize(path: str) -> None:
     print(f"wrote {path}")
     for name, (mode, data) in loaded.meshes.items():
         kind: str = "LINES" if mode == MODE_LINES else "TRIANGLES"
-        verts: int = data.size // FLOATS_PER_VERTEX
-        print(f"  mesh {name:<12} {kind:<10} {verts:>5} verts")
+        # verts: the mesh's vertex count
+        print(
+            f"  mesh {name:<12} {kind:<10} "
+            f"{data.size // FLOATS_PER_VERTEX:>5} verts"
+        )
     for name, pixels in loaded.images.items():
         print(f"  image {name:<8} {pixels.shape}")
     print(

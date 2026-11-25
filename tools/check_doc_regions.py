@@ -75,94 +75,8 @@ _END_MARKER: re.Pattern[str] = re.compile(
 )
 
 
-def _unresolved_anchor_errors() -> list[str]:
-    """Every book anchor whose begin/end marker is absent from its target."""
-    errors: list[str] = []
-    rst_path: pathlib.Path
-    for rst_path in sorted(_BOOK_DIR.rglob("*.rst")):
-        text: str = rst_path.read_text()
-        for directive in _LITERALINCLUDE.finditer(text):
-            target: pathlib.Path = (
-                rst_path.parent / directive.group("target")
-            ).resolve()
-            options: str = directive.group("options")
-            start = _START_AFTER.search(options)
-            end = _END_BEFORE.search(options)
-            if start is None and end is None:
-                continue  # a plain literalinclude, not a doc-region one
-            if not target.exists():
-                errors.append(
-                    f"{rst_path.relative_to(_REPO_ROOT)}: target file "
-                    f"{directive.group('target')} does not exist"
-                )
-                continue
-            source: str = target.read_text()
-            # Sphinx matches a line CONTAINING the anchor text; mirror that.
-            if start is not None and (
-                f"doc-region-begin {start.group('name')}" not in source
-            ):
-                errors.append(
-                    f"{rst_path.relative_to(_REPO_ROOT)}: no "
-                    f"'doc-region-begin {start.group('name')}' in "
-                    f"{directive.group('target')}"
-                )
-            if end is not None and (
-                f"doc-region-end {end.group('name')}" not in source
-            ):
-                errors.append(
-                    f"{rst_path.relative_to(_REPO_ROOT)}: no "
-                    f"'doc-region-end {end.group('name')}' in "
-                    f"{directive.group('target')}"
-                )
-    return errors
 
 
-def _name_collision_errors() -> list[str]:
-    """Every anchor in one file that another anchor can shadow: an **exact
-    duplicate** (two regions with the same name -- a query always selects the
-    first) or a **prefix** of another name (a query for the shorter can match
-    the longer's line, since Sphinx matches the first *containing* line).
-
-    Checked for begin- and end-markers separately, since ``:start-after:`` and
-    ``:end-before:`` select on their own marker kind.
-    """
-    errors: list[str] = []
-    source_path: pathlib.Path
-    for source_path in sorted(_REPO_ROOT.rglob("*.py")):
-        if _BOOK_DIR in source_path.parents:
-            continue
-        text: str = source_path.read_text()
-        marker: re.Pattern[str]
-        kind: str
-        for marker, kind in ((_BEGIN_MARKER, "begin"), (_END_MARKER, "end")):
-            # raw list keeps repeats, so exact duplicates are visible (a set
-            # would collapse them and hide the collision)
-            occurrences: list[str] = [
-                m.group("name") for m in marker.finditer(text)
-            ]
-            counts: collections.Counter[str] = collections.Counter(occurrences)
-            name: str
-            count: int
-            for name, count in sorted(counts.items()):
-                if count > 1:
-                    errors.append(
-                        f"{source_path.relative_to(_REPO_ROOT)}: "
-                        f"doc-region-{kind} '{name}' appears {count} times -- "
-                        f"a query always selects the first"
-                    )
-            names: list[str] = sorted(counts)
-            shorter: str
-            longer: str
-            for shorter in names:
-                for longer in names:
-                    if shorter != longer and longer.startswith(shorter):
-                        errors.append(
-                            f"{source_path.relative_to(_REPO_ROOT)}: "
-                            f"doc-region-{kind} '{shorter}' is a prefix of "
-                            f"'{longer}' -- a :start-after:/:end-before: query "
-                            f"for the shorter can match the longer's line"
-                        )
-    return errors
 
 
 def _region_is_empty(source: str, start_name: str, end_name: str) -> bool:
@@ -179,14 +93,13 @@ def _region_is_empty(source: str, start_name: str, end_name: str) -> bool:
     double-report here).
     """
     lines: list[str] = source.splitlines()
-    begin_needle: str = f"doc-region-begin {start_name}"
-    end_needle: str = f"doc-region-end {end_name}"
 
     begin_idx: int | None = None
     index: int
     line: str
     for index, line in enumerate(lines):
-        if begin_needle in line:
+        # the begin needle: the line containing ``doc-region-begin <start_name>``
+        if f"doc-region-begin {start_name}" in line:
             begin_idx = index
             break
     if begin_idx is None:
@@ -194,7 +107,8 @@ def _region_is_empty(source: str, start_name: str, end_name: str) -> bool:
 
     end_idx: int | None = None
     for index in range(begin_idx + 1, len(lines)):
-        if end_needle in lines[index]:
+        # the end needle: the line containing ``doc-region-end <end_name>``
+        if f"doc-region-end {end_name}" in lines[index]:
             end_idx = index
             break
     if end_idx is None:
@@ -202,11 +116,10 @@ def _region_is_empty(source: str, start_name: str, end_name: str) -> bool:
 
     between: str
     for between in lines[begin_idx + 1 : end_idx]:
-        stripped: str = between.strip()
-        is_marker: bool = (
+        # a content line is non-blank and not itself a doc-region marker
+        if between.strip() and not (
             "doc-region-begin" in between or "doc-region-end" in between
-        )
-        if stripped and not is_marker:
+        ):
             return False  # a real content line -> not empty
     return True
 
@@ -220,8 +133,8 @@ def _empty_region_errors() -> list[str]:
     errors: list[str] = []
     rst_path: pathlib.Path
     for rst_path in sorted(_BOOK_DIR.rglob("*.rst")):
-        text: str = rst_path.read_text()
-        for directive in _LITERALINCLUDE.finditer(text):
+        # the rst file's full text
+        for directive in _LITERALINCLUDE.finditer(rst_path.read_text()):
             options: str = directive.group("options")
             start = _START_AFTER.search(options)
             end = _END_BEFORE.search(options)
@@ -249,27 +162,6 @@ def _empty_region_errors() -> list[str]:
     return errors
 
 
-def _referenced_anchors() -> set[tuple[pathlib.Path, str, str]]:
-    """Every ``(resolved_target, name, kind)`` a book ``literalinclude``
-    references -- ``kind`` is ``'begin'`` (from a ``:start-after:``) or
-    ``'end'`` (from an ``:end-before:``), matched to its own marker kind the
-    way the collision check does.
-    """
-    referenced: set[tuple[pathlib.Path, str, str]] = set()
-    rst_path: pathlib.Path
-    for rst_path in sorted(_BOOK_DIR.rglob("*.rst")):
-        text: str = rst_path.read_text()
-        for directive in _LITERALINCLUDE.finditer(text):
-            target: pathlib.Path = (
-                rst_path.parent / directive.group("target")
-            ).resolve()
-            options: str = directive.group("options")
-            reference: re.Match[str]
-            for reference in _START_AFTER.finditer(options):
-                referenced.add((target, reference.group("name"), "begin"))
-            for reference in _END_BEFORE.finditer(options):
-                referenced.add((target, reference.group("name"), "end"))
-    return referenced
 
 
 def _dead_marker_report() -> list[str]:
@@ -283,6 +175,29 @@ def _dead_marker_report() -> list[str]:
     otherwise-invisible dead set visible (the checker validates book->code, so
     a marker no chapter includes is silent).
     """
+
+    def _referenced_anchors() -> set[tuple[pathlib.Path, str, str]]:
+        """Every ``(resolved_target, name, kind)`` a book ``literalinclude``
+        references -- ``kind`` is ``'begin'`` (from a ``:start-after:``) or
+        ``'end'`` (from an ``:end-before:``), matched to its own marker kind the
+        way the collision check does.
+        """
+        referenced: set[tuple[pathlib.Path, str, str]] = set()
+        rst_path: pathlib.Path
+        for rst_path in sorted(_BOOK_DIR.rglob("*.rst")):
+            # the rst file's full text
+            for directive in _LITERALINCLUDE.finditer(rst_path.read_text()):
+                target: pathlib.Path = (
+                    rst_path.parent / directive.group("target")
+                ).resolve()
+                options: str = directive.group("options")
+                reference: re.Match[str]
+                for reference in _START_AFTER.finditer(options):
+                    referenced.add((target, reference.group("name"), "begin"))
+                for reference in _END_BEFORE.finditer(options):
+                    referenced.add((target, reference.group("name"), "end"))
+        return referenced
+
     referenced: set[tuple[pathlib.Path, str, str]] = _referenced_anchors()
     report: list[str] = []
     source_path: pathlib.Path
@@ -307,6 +222,96 @@ def _dead_marker_report() -> list[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
+
+
+    def _name_collision_errors() -> list[str]:
+        """Every anchor in one file that another anchor can shadow: an **exact
+        duplicate** (two regions with the same name -- a query always selects the
+        first) or a **prefix** of another name (a query for the shorter can match
+        the longer's line, since Sphinx matches the first *containing* line).
+
+        Checked for begin- and end-markers separately, since ``:start-after:`` and
+        ``:end-before:`` select on their own marker kind.
+        """
+        errors: list[str] = []
+        source_path: pathlib.Path
+        for source_path in sorted(_REPO_ROOT.rglob("*.py")):
+            if _BOOK_DIR in source_path.parents:
+                continue
+            text: str = source_path.read_text()
+            marker: re.Pattern[str]
+            kind: str
+            for marker, kind in ((_BEGIN_MARKER, "begin"), (_END_MARKER, "end")):
+                # a Counter keeps repeats, so exact duplicates are visible (a set
+                # would collapse them and hide the collision); it counts each
+                # marker name found in the file
+                counts: collections.Counter[str] = collections.Counter(
+                    m.group("name") for m in marker.finditer(text)
+                )
+                name: str
+                count: int
+                for name, count in sorted(counts.items()):
+                    if count > 1:
+                        errors.append(
+                            f"{source_path.relative_to(_REPO_ROOT)}: "
+                            f"doc-region-{kind} '{name}' appears {count} times -- "
+                            f"a query always selects the first"
+                        )
+                names: list[str] = sorted(counts)
+                shorter: str
+                longer: str
+                for shorter in names:
+                    for longer in names:
+                        if shorter != longer and longer.startswith(shorter):
+                            errors.append(
+                                f"{source_path.relative_to(_REPO_ROOT)}: "
+                                f"doc-region-{kind} '{shorter}' is a prefix of "
+                                f"'{longer}' -- a :start-after:/:end-before: query "
+                                f"for the shorter can match the longer's line"
+                            )
+        return errors
+
+    def _unresolved_anchor_errors() -> list[str]:
+        """Every book anchor whose begin/end marker is absent from its target."""
+        errors: list[str] = []
+        rst_path: pathlib.Path
+        for rst_path in sorted(_BOOK_DIR.rglob("*.rst")):
+            # the rst file's full text
+            for directive in _LITERALINCLUDE.finditer(rst_path.read_text()):
+                target: pathlib.Path = (
+                    rst_path.parent / directive.group("target")
+                ).resolve()
+                options: str = directive.group("options")
+                start = _START_AFTER.search(options)
+                end = _END_BEFORE.search(options)
+                if start is None and end is None:
+                    continue  # a plain literalinclude, not a doc-region one
+                if not target.exists():
+                    errors.append(
+                        f"{rst_path.relative_to(_REPO_ROOT)}: target file "
+                        f"{directive.group('target')} does not exist"
+                    )
+                    continue
+                source: str = target.read_text()
+                # Sphinx matches a line CONTAINING the anchor text; mirror that.
+                if start is not None and (
+                    f"doc-region-begin {start.group('name')}" not in source
+                ):
+                    errors.append(
+                        f"{rst_path.relative_to(_REPO_ROOT)}: no "
+                        f"'doc-region-begin {start.group('name')}' in "
+                        f"{directive.group('target')}"
+                    )
+                if end is not None and (
+                    f"doc-region-end {end.group('name')}" not in source
+                ):
+                    errors.append(
+                        f"{rst_path.relative_to(_REPO_ROOT)}: no "
+                        f"'doc-region-end {end.group('name')}' in "
+                        f"{directive.group('target')}"
+                    )
+        return errors
+
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
         description="Validate the book's doc-region anchors."
     )

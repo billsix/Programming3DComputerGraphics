@@ -110,26 +110,6 @@ FOCUS: list[tuple[str, Space | None]] = [
 ]
 
 
-def sync_steps() -> None:
-    """Rewrite the mutable steps in place from the live ``params`` (structure
-    stays immutable; only each step's function changes)."""
-    paddle1_edge.steps[0].fn = translate(
-        b=Vector(params["p1x"], params["p1y"], 0.0)
-    )
-    paddle1_edge.steps[1].fn = rotate_z(params["p1rot"])
-    square_edge.steps[1].fn = rotate_z(params["around"])
-    square_edge.steps[3].fn = rotate_z(params["sqrot"])
-    paddle2_edge.steps[0].fn = translate(
-        b=Vector(params["p2x"], params["p2y"], 0.0)
-    )
-    paddle2_edge.steps[1].fn = rotate_z(params["p2rot"])
-
-
-def frame_of(space: Space) -> np.ndarray:
-    """4x4 placing ``space``-local coords into world (along the arrows)."""
-    return cayleyscene.to_matrix(graph.path(space, Space.world).function())
-
-
 # This file is a program, not a module: from here on it acquires resources (a
 # window, a GL context) and then runs its own loop.  A tool that imports it to
 # inspect it stops here instead of opening a window.
@@ -154,11 +134,11 @@ state: dict[str, typing.Any] = {
 win_state: cayley_gl.WindowState = cayley_gl.WindowState()
 
 
-def _focus(node: Space | None) -> None:
-    state["center_on"] = node
-
-
 def imgui_menubar() -> None:
+
+    def _focus(node: Space | None) -> None:
+        state["center_on"] = node
+
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
@@ -235,6 +215,27 @@ def on_key(
 
 
 def frame(w: int, h: int) -> None:
+
+    def frame_of(space: Space) -> np.ndarray:
+        """4x4 placing ``space``-local coords into world (along the arrows)."""
+        return cayleyscene.to_matrix(graph.path(space, Space.world).function())
+
+    def sync_steps() -> None:
+        """Rewrite the mutable steps in place from the live ``params``.
+
+        The structure stays immutable; only each step's function changes.
+        """
+        paddle1_edge.steps[0].fn = translate(
+            b=Vector(params["p1x"], params["p1y"], 0.0)
+        )
+        paddle1_edge.steps[1].fn = rotate_z(params["p1rot"])
+        square_edge.steps[1].fn = rotate_z(params["around"])
+        square_edge.steps[3].fn = rotate_z(params["sqrot"])
+        paddle2_edge.steps[0].fn = translate(
+            b=Vector(params["p2x"], params["p2y"], 0.0)
+        )
+        paddle2_edge.steps[1].fn = rotate_z(params["p2rot"])
+
     sync_steps()
 
     state["mouse"] = cayley_gl.orbit_input(

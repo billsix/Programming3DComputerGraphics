@@ -112,44 +112,6 @@ for row in range(TEXELS_ACROSS):
 OUTSIDE: tuple[float, float, float] = (0.85, 0.85, 0.85)
 
 
-def sample(
-    texel_to_pixel: InvertibleFunction[Vector], pixels_across: int
-) -> tuple[np.ndarray, np.ndarray]:
-    """Draw ``texture`` through ``texel_to_pixel`` with nearest sampling.
-
-    Args:
-        texel_to_pixel: Takes a point in texel space to pixel space.
-        pixels_across: Width and height of the picture, in pixels.
-
-    Returns:
-        The picture, indexed ``[row, column, rgb]``, and how many pixels
-        sampled each texel, indexed ``[row, column]``.
-    """
-    picture: np.ndarray = np.zeros((pixels_across, pixels_across, 3))
-    hits: np.ndarray = np.zeros((TEXELS_ACROSS, TEXELS_ACROSS), dtype=int)
-    for pixel_row in range(pixels_across):
-        for pixel_column in range(pixels_across):
-            # a pixel is the point at its center
-            pixel_center: Vector = Vector(
-                coeff_e_1=pixel_column + 0.5, coeff_e_2=pixel_row + 0.5
-            )
-            u, v = inverse(texel_to_pixel)(pixel_center)
-            # the texel whose cell contains the point
-            texel_column: int = math.floor(float(u))
-            texel_row: int = math.floor(float(v))
-            if (
-                0 <= texel_column < TEXELS_ACROSS
-                and 0 <= texel_row < TEXELS_ACROSS
-            ):
-                picture[pixel_row, pixel_column] = texture[
-                    texel_row, texel_column
-                ]
-                hits[texel_row, texel_column] += 1
-            else:
-                picture[pixel_row, pixel_column] = OUTSIDE
-    return picture, hits
-
-
 # %% [markdown]
 # `show` draws three panels: the texture, the picture a viewer would see,
 # and the number of pixels that sampled each texel.  Zeros in the right-hand
@@ -167,6 +129,44 @@ def show(
         texel_to_pixel: Takes a point in texel space to pixel space.
         pixels_across: Width and height of the picture, in pixels.
     """
+
+    def sample(
+        texel_to_pixel: InvertibleFunction[Vector], pixels_across: int
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Draw ``texture`` through ``texel_to_pixel`` with nearest sampling.
+
+        Args:
+            texel_to_pixel: Takes a point in texel space to pixel space.
+            pixels_across: Width and height of the picture, in pixels.
+
+        Returns:
+            The picture, indexed ``[row, column, rgb]``, and how many pixels
+            sampled each texel, indexed ``[row, column]``.
+        """
+        picture: np.ndarray = np.zeros((pixels_across, pixels_across, 3))
+        hits: np.ndarray = np.zeros((TEXELS_ACROSS, TEXELS_ACROSS), dtype=int)
+        for pixel_row in range(pixels_across):
+            for pixel_column in range(pixels_across):
+                # a pixel is the point at its center
+                pixel_center: Vector = Vector(
+                    coeff_e_1=pixel_column + 0.5, coeff_e_2=pixel_row + 0.5
+                )
+                u, v = inverse(texel_to_pixel)(pixel_center)
+                # the texel whose cell contains the point
+                texel_column: int = math.floor(float(u))
+                texel_row: int = math.floor(float(v))
+                if (
+                    0 <= texel_column < TEXELS_ACROSS
+                    and 0 <= texel_row < TEXELS_ACROSS
+                ):
+                    picture[pixel_row, pixel_column] = texture[
+                        texel_row, texel_column
+                    ]
+                    hits[texel_row, texel_column] += 1
+                else:
+                    picture[pixel_row, pixel_column] = OUTSIDE
+        return picture, hits
+
     picture, hits = sample(texel_to_pixel, pixels_across)
     figure, (texture_axes, picture_axes, hits_axes) = plt.subplots(
         1, 3, figsize=(11, 3.8)
@@ -191,9 +191,9 @@ def show(
             )
     figure.colorbar(hits_image, ax=hits_axes, fraction=0.046)
     plt.show()
-    unused: int = int((hits == 0).sum())
     print(
-        f"texels never chosen: {unused}; most pixels on one texel: {hits.max()}"
+        f"texels never chosen: {int((hits == 0).sum())}; "
+        f"most pixels on one texel: {hits.max()}"
     )
 
 

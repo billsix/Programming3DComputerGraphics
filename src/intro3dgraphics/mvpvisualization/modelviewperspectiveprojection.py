@@ -273,142 +273,6 @@ grid: dict[str, int] = {
 }
 
 
-def rebuild_framebuffer() -> None:
-    """Re-upload the pixel grid and re-derive the frustum aspect after the
-    configured pixel W/H changed -- one number drives both the grid and the
-    demo's own perspective squash."""
-    verts: np.ndarray = _grid_vertices()
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, grid["vbo"])
-    GL.glBufferData(
-        GL.GL_ARRAY_BUFFER,
-        _p.glfloat_size * verts.size,
-        verts,
-        GL.GL_DYNAMIC_DRAW,
-    )
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
-    grid["n"] = verts.size // _p.floats_per_vertex
-    fr: cayley_gl.Frustum | None = standard_objects.frustum
-    assert fr is not None  # this scene always has a perspective frustum
-    fr.aspect_ratio = state["fb_w"] / state["fb_h"]
-    standard_objects.rebuild_frustum()
-
-
-# --- framebuffer morph, as gacalc InvertibleFunctions ----------------------
-# Per CLAUDE.md: express transformations with gacalc, animate with `.at()`,
-# reverse with `inverse()`; realize to a 4x4 only for GL upload
-# (`cayleyscene.to_matrix`).  The grid mesh is the centred prism (+-hw,+-hh).
-def _warp(hw: float, hh: float) -> InvertibleFunction:
-    """Centred prism -> NDC square: the aspect scale (x by 1/hw, y by 1/hh)."""
-    return scale_non_uniform(1.0 / hw, 1.0 / hh, 1.0)
-
-
-def _place(hw: float, hh: float) -> InvertibleFunction:
-    """Centre -> framebuffer bottom-left origin (offset by a half-extent)."""
-    return translate(b=Vector(hw, hh, 0.0))
-
-
-def _flatten() -> InvertibleFunction:
-    """Prism -> flat (z to 0).  Forward-only (a z-scale of 0 is not invertible);
-    used only to animate the prologue extrude via ``.at()``."""
-    return scale_non_uniform(1.0, 1.0, 0.0)
-
-
-def _epilogue_ndc_to_fb(t: float) -> InvertibleFunction:
-    """The epilogue's NDC -> framebuffer transform (the viewport map): scale the
-    NDC square out to the prism by the half-extents, then translate to the
-    bottom-left origin -- two phases, animated LINEARLY.  Used for BOTH the
-    grid and the scene, so they follow one curve and stay coincident.
-
-    We build the NDC->framebuffer scale directly (``scale_non_uniform(hw, hh,
-    1)`` -- the half-extents) rather than ``inverse(_warp).at(t)`` on
-    purpose: gacalc's ``inverse(f).at(t) == inverse(f.at(t))`` is a RECIPROCAL
-    curve (an ease-in), which is asymmetric with the linear forward prologue.
-    Linear matches the prologue and reads as the plain scale-then-translate
-    viewport transform.  (Still gacalc + realized via ``to_matrix`` at the GL
-    boundary; ``inverse()`` is used elsewhere -- the center-on frame.)"""
-    hw: float = state["fb_w"] / 2.0
-    hh: float = state["fb_h"] / 2.0
-    epi: float = PROLOGUE_DUR + DEMO_DUR
-    r_scale: float = cayleyscene.interp(t, epi, EPILOGUE_WARP)
-    r_trans: float = cayleyscene.interp(
-        t, epi + EPILOGUE_WARP, EPILOGUE_TRANSLATE
-    )
-    return compose(
-        [
-            _place(hw, hh).at(r_trans),
-            scale_non_uniform(hw, hh, 1.0).at(r_scale),
-        ]
-    )
-
-
-def grid_matrix(t: float) -> tuple[np.ndarray, bool]:
-    """Model matrix + visibility for the framebuffer grid at global time ``t``.
-    Prologue: translate-to-centre -> warp x,y to the NDC square -> extrude z to
-    the NDC cube.  Demo: held at the NDC cube (A3).  Epilogue: NDC -> prism ->
-    framebuffer bottom-left.  Always visible, so the bool is always ``True``.
-    Built from gacalc functions (``.at()`` animates, ``inverse()`` reverses);
-    realized to a matrix only here, for GL upload."""
-    hw: float = state["fb_w"] / 2.0
-    hh: float = state["fb_h"] / 2.0
-    if t < PROLOGUE_DUR:
-        # bottom-left flat -> centre -> warp to NDC square -> extrude to cube.
-        # _place.at(1-tau): starts at the bottom-left offset, fades to centred.
-        # _flatten.at(1-ez): starts flat (z*0), fades to the full prism (z*1).
-        tau: float = cayleyscene.interp(t, PROLOGUE_HOLD, MORPH_DUR)
-        warp: float = cayleyscene.interp(
-            t, PROLOGUE_HOLD + MORPH_DUR, MORPH_DUR
-        )
-        ez: float = cayleyscene.interp(
-            t, PROLOGUE_HOLD + 2.0 * MORPH_DUR, MORPH_DUR
-        )
-        f: InvertibleFunction = compose(
-            [
-                _warp(hw, hh).at(warp),
-                _place(hw, hh).at(1.0 - tau),
-                _flatten().at(1.0 - ez),
-            ]
-        )
-        return cayleyscene.to_matrix(f), True
-    epi: float = PROLOGUE_DUR + DEMO_DUR
-    if t >= epi:
-        # Reverse the viewport transform onto the grid: _warp puts the (prism)
-        # mesh at NDC, then the SAME ndc->framebuffer transform the scene uses
-        # is applied, so the grid outline and squashed scene stay coincident
-        # (they would drift apart under different interpolation curves).
-        f = compose([_epilogue_ndc_to_fb(t), _warp(hw, hh)])
-        return cayleyscene.to_matrix(f), True
-    # A3: during the demo the framebuffer STAYS on screen, held at the NDC cube
-    # (coincident with the reference cube) rather than disappearing.
-    return cayleyscene.to_matrix(_warp(hw, hh)), True
-
-
-def scene_epilogue_transform(t: float) -> np.ndarray | None:
-    """NDC->framebuffer for the demo's OWN geometry during the epilogue: the
-    INVERSE of the framebuffer->NDC viewport transform.  ``inverse(_warp)``
-    scales NDC->prism and ``_place`` translates to the bottom-left origin, so
-    the squashed scene lands inside the framebuffer prism where the pixels are.
-    Applied to the view, so it acts AFTER the shader squash.  The reference NDC
-    cube is left at +-1 for contrast.  ``None`` outside the epilogue."""
-    epi: float = PROLOGUE_DUR + DEMO_DUR
-    if t < epi:
-        return None
-    return cayleyscene.to_matrix(_epilogue_ndc_to_fb(t))
-
-
-def draw_grid(m: np.ndarray) -> None:
-    p: _p.Pipeline = standard_objects.cube_pipeline
-    GL.glUseProgram(p.program)
-    GL.glBindVertexArray(grid["vao"])
-    GL.glUniform3f(p.u_color, 0.2, 0.8, 1.0)  # cyan, distinct from the cube
-    ms.set_current_matrix(ms.MatrixStack.model, m)
-    _p.set_uniforms(p.u_m, p.u_v, p.u_p)
-    GL.glDrawArrays(GL.GL_LINES, 0, grid["n"])
-
-
-def jump(start: float) -> None:
-    state["time"] = start
-
-
 def _toggle_pause() -> None:
     state["paused"] = not state["paused"]
 
@@ -419,10 +283,6 @@ def _restart() -> None:
 
 def _toggle_graph() -> None:
     win_state.show_graph = not win_state.show_graph
-
-
-def _focus(node: Space | str | None) -> None:
-    state["center_on"] = node
 
 
 # camera moves in cameraspace (px/pz adjusted by the heading rot_y), shared by
@@ -452,6 +312,29 @@ def _cam_right() -> None:  # +X cameraspace
 
 
 def imgui_menubar() -> None:
+
+    def _focus(node: Space | str | None) -> None:
+        state["center_on"] = node
+
+    def rebuild_framebuffer() -> None:
+        """Re-upload the pixel grid and re-derive the frustum aspect after the
+        configured pixel W/H changed -- one number drives both the grid and the
+        demo's own perspective squash."""
+        verts: np.ndarray = _grid_vertices()
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, grid["vbo"])
+        GL.glBufferData(
+            GL.GL_ARRAY_BUFFER,
+            _p.glfloat_size * verts.size,
+            verts,
+            GL.GL_DYNAMIC_DRAW,
+        )
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
+        grid["n"] = verts.size // _p.floats_per_vertex
+        fr: cayley_gl.Frustum | None = standard_objects.frustum
+        assert fr is not None  # this scene always has a perspective frustum
+        fr.aspect_ratio = state["fb_w"] / state["fb_h"]
+        standard_objects.rebuild_frustum()
+
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
@@ -547,10 +430,10 @@ def imgui_menubar() -> None:
         imgui.separator()
         # Read-only, and spelled out: which way round the ratio goes is easy to
         # forget, so show it as width/height, both fraction and value.
-        aspect: float = state["fb_w"] / state["fb_h"]
         imgui.menu_item("aspect = width / height", "", False, False)
         imgui.menu_item(
-            f"       = {state['fb_w']} / {state['fb_h']} = {aspect:.3f}",
+            f"       = {state['fb_w']} / {state['fb_h']} = "
+            f"{state['fb_w'] / state['fb_h']:.3f}",
             "",
             False,
             False,
@@ -619,85 +502,220 @@ def on_key(
             _toggle_graph()
 
 
-def _bracket_button(
-    label: str, start: float, dur: float, t: float
-) -> cayleyscene.GuiButton:
-    """A graph-panel jump-button for a prologue/epilogue warp step.  ``start``
-    is in GLOBAL time, so its jump target needs no offset (unlike the scene's
-    own steps, which live in demo-local time)."""
-    return cayleyscene.GuiButton(label, start, start <= t < start + dur)
-
-
-def prologue_group(t: float) -> cayleyscene.GuiGroup:
-    return cayleyscene.GuiGroup(
-        "Framebuffer -> NDC (prologue)",
-        [
-            _bracket_button("Translate to center", PROLOGUE_HOLD, MORPH_DUR, t),
-            _bracket_button(
-                "Warp to NDC square (/W /H)",
-                PROLOGUE_HOLD + MORPH_DUR,
-                MORPH_DUR,
-                t,
-            ),
-            _bracket_button(
-                "Extrude in Z (+-1)",
-                PROLOGUE_HOLD + 2.0 * MORPH_DUR,
-                MORPH_DUR,
-                t,
-            ),
-        ],
-    )
-
-
-def epilogue_group(t: float) -> cayleyscene.GuiGroup:
-    start: float = PROLOGUE_DUR + DEMO_DUR
-    return cayleyscene.GuiGroup(
-        "NDC -> Framebuffer (epilogue)",
-        [
-            _bracket_button("NDC -> Prism (*W *H)", start, EPILOGUE_WARP, t),
-            _bracket_button(
-                "Center -> bottom-left",
-                start + EPILOGUE_WARP,
-                EPILOGUE_TRANSLATE,
-                t,
-            ),
-        ],
-    )
-
-
-def graph_panel(t: float) -> None:
-    if not win_state.show_graph:
-        return
-    demo_t: float = max(0.0, min(DEMO_DUR, t - PROLOGUE_DUR))
-
-    # The scene's timeline is demo-local; the panel runs in global time, so a
-    # scene button's jump target is shifted back into global time here.
-    def jump_demo(start: float) -> None:
-        jump(start + PROLOGUE_DUR)
-
-    imgui.set_next_window_size(
-        imgui.ImVec2(470, 480), imgui.Cond_.first_use_ever
-    )
-    imgui.set_next_window_bg_alpha(0.7)
-    imgui.begin("Cayley Graph", True)
-    # The framebuffer<->NDC narration is kept at the TOP of the panel, above the
-    # scene's own two trees (its jumps are already in global time).
-    cayley_gl.render_tree(prologue_group(t), jump)
-    cayley_gl.render_tree(epilogue_group(t), jump)
-    imgui.set_next_item_open(True, imgui.Cond_.once)
-    if imgui.tree_node("From World Space, Against Arrows, Read Bottom Up"):
-        for grp in animation.frame_tree(demo_t):
-            cayley_gl.render_tree(grp, jump_demo)
-        imgui.tree_pop()
-    imgui.set_next_item_open(True, imgui.Cond_.once)
-    if imgui.tree_node("Towards NDC, With Arrows, Top Down Reading"):
-        for grp in animation.ndc_tree(demo_t):
-            cayley_gl.render_tree(grp, jump_demo)
-        imgui.tree_pop()
-    imgui.end()
-
-
 def frame(w: int, h: int) -> None:
+    # --- framebuffer morph, as gacalc InvertibleFunctions ---
+    # Per CLAUDE.md: express transformations with gacalc, animate with
+    # `.at()`, reverse with `inverse()`; realize to a 4x4 only for GL upload
+    # (`cayleyscene.to_matrix`).  The grid mesh is the centred prism
+    # (+-hw,+-hh).
+
+    def graph_panel(t: float) -> None:
+
+        def _bracket_button(
+            label: str, start: float, dur: float, t: float
+        ) -> cayleyscene.GuiButton:
+            """A graph-panel jump-button for a prologue/epilogue warp step.
+
+            ``start`` is in GLOBAL time, so its jump target needs no offset
+            (unlike the scene's own steps, which live in demo-local time).
+            """
+            return cayleyscene.GuiButton(label, start, start <= t < start + dur)
+
+        def epilogue_group(t: float) -> cayleyscene.GuiGroup:
+            start: float = PROLOGUE_DUR + DEMO_DUR
+            return cayleyscene.GuiGroup(
+                "NDC -> Framebuffer (epilogue)",
+                [
+                    _bracket_button(
+                        "NDC -> Prism (*W *H)", start, EPILOGUE_WARP, t
+                    ),
+                    _bracket_button(
+                        "Center -> bottom-left",
+                        start + EPILOGUE_WARP,
+                        EPILOGUE_TRANSLATE,
+                        t,
+                    ),
+                ],
+            )
+
+        def prologue_group(t: float) -> cayleyscene.GuiGroup:
+            return cayleyscene.GuiGroup(
+                "Framebuffer -> NDC (prologue)",
+                [
+                    _bracket_button(
+                        "Translate to center", PROLOGUE_HOLD, MORPH_DUR, t
+                    ),
+                    _bracket_button(
+                        "Warp to NDC square (/W /H)",
+                        PROLOGUE_HOLD + MORPH_DUR,
+                        MORPH_DUR,
+                        t,
+                    ),
+                    _bracket_button(
+                        "Extrude in Z (+-1)",
+                        PROLOGUE_HOLD + 2.0 * MORPH_DUR,
+                        MORPH_DUR,
+                        t,
+                    ),
+                ],
+            )
+
+        def jump(start: float) -> None:
+            state["time"] = start
+
+        if not win_state.show_graph:
+            return
+        demo_t: float = max(0.0, min(DEMO_DUR, t - PROLOGUE_DUR))
+
+        # The scene's timeline is demo-local; the panel runs in global time,
+        # so a scene button's jump target is shifted back into global time
+        # here.
+        def jump_demo(start: float) -> None:
+            jump(start + PROLOGUE_DUR)
+
+        imgui.set_next_window_size(
+            imgui.ImVec2(470, 480), imgui.Cond_.first_use_ever
+        )
+        imgui.set_next_window_bg_alpha(0.7)
+        imgui.begin("Cayley Graph", True)
+        # The framebuffer<->NDC narration is kept at the TOP of the panel,
+        # above the scene's own two trees (its jumps are already in global
+        # time).
+        cayley_gl.render_tree(prologue_group(t), jump)
+        cayley_gl.render_tree(epilogue_group(t), jump)
+        imgui.set_next_item_open(True, imgui.Cond_.once)
+        if imgui.tree_node("From World Space, Against Arrows, Read Bottom Up"):
+            for grp in animation.frame_tree(demo_t):
+                cayley_gl.render_tree(grp, jump_demo)
+            imgui.tree_pop()
+        imgui.set_next_item_open(True, imgui.Cond_.once)
+        if imgui.tree_node("Towards NDC, With Arrows, Top Down Reading"):
+            for grp in animation.ndc_tree(demo_t):
+                cayley_gl.render_tree(grp, jump_demo)
+            imgui.tree_pop()
+        imgui.end()
+
+    def _place(hw: float, hh: float) -> InvertibleFunction:
+        """Centre -> framebuffer bottom-left origin (offset by half-extents)."""
+        return translate(b=Vector(hw, hh, 0.0))
+
+    def _epilogue_ndc_to_fb(t: float) -> InvertibleFunction:
+        """The epilogue's NDC -> framebuffer transform (the viewport map).
+
+        Scale the NDC square out to the prism by the half-extents, then
+        translate to the bottom-left origin -- two phases, animated LINEARLY.
+        Used for BOTH the grid and the scene, so they follow one curve and
+        stay coincident.
+
+        We build the NDC->framebuffer scale directly
+        (``scale_non_uniform(hw, hh, 1)`` -- the half-extents) rather than
+        ``inverse(_warp).at(t)`` on purpose: gacalc's
+        ``inverse(f).at(t) == inverse(f.at(t))`` is a RECIPROCAL curve (an
+        ease-in), which is asymmetric with the linear forward prologue.
+        Linear matches the prologue and reads as the plain
+        scale-then-translate viewport transform.  (Still gacalc + realized
+        via ``to_matrix`` at the GL boundary; ``inverse()`` is used
+        elsewhere -- the center-on frame.)
+        """
+        hw: float = state["fb_w"] / 2.0
+        hh: float = state["fb_h"] / 2.0
+        epi: float = PROLOGUE_DUR + DEMO_DUR
+        r_scale: float = cayleyscene.interp(t, epi, EPILOGUE_WARP)
+        r_trans: float = cayleyscene.interp(
+            t, epi + EPILOGUE_WARP, EPILOGUE_TRANSLATE
+        )
+        return compose(
+            [
+                _place(hw, hh).at(r_trans),
+                scale_non_uniform(hw, hh, 1.0).at(r_scale),
+            ]
+        )
+
+    def _warp(hw: float, hh: float) -> InvertibleFunction:
+        """Centred prism -> NDC square: the aspect scale (x/hw, y/hh)."""
+        return scale_non_uniform(1.0 / hw, 1.0 / hh, 1.0)
+
+    def grid_matrix(t: float) -> tuple[np.ndarray, bool]:
+        """Model matrix + visibility for the framebuffer grid at time ``t``.
+
+        ``t`` is global time.  Prologue: translate-to-centre -> warp x,y to
+        the NDC square -> extrude z to the NDC cube.  Demo: held at the NDC
+        cube (A3).  Epilogue: NDC -> prism -> framebuffer bottom-left.
+        Always visible, so the bool is always ``True``.  Built from gacalc
+        functions (``.at()`` animates, ``inverse()`` reverses); realized to a
+        matrix only here, for GL upload.
+        """
+
+        def _flatten() -> InvertibleFunction:
+            """Prism -> flat (z to 0).
+
+            Forward-only (a z-scale of 0 is not invertible); used only to
+            animate the prologue extrude via ``.at()``.
+            """
+            return scale_non_uniform(1.0, 1.0, 0.0)
+
+        hw: float = state["fb_w"] / 2.0
+        hh: float = state["fb_h"] / 2.0
+        if t < PROLOGUE_DUR:
+            # bottom-left flat -> centre -> warp to NDC square -> extrude
+            # to cube.
+            # _place.at(1-tau): starts at the bottom-left offset, fades to
+            # centred.
+            # _flatten.at(1-ez): starts flat (z*0), fades to the full prism
+            # (z*1).
+            tau: float = cayleyscene.interp(t, PROLOGUE_HOLD, MORPH_DUR)
+            warp: float = cayleyscene.interp(
+                t, PROLOGUE_HOLD + MORPH_DUR, MORPH_DUR
+            )
+            ez: float = cayleyscene.interp(
+                t, PROLOGUE_HOLD + 2.0 * MORPH_DUR, MORPH_DUR
+            )
+            f: InvertibleFunction = compose(
+                [
+                    _warp(hw, hh).at(warp),
+                    _place(hw, hh).at(1.0 - tau),
+                    _flatten().at(1.0 - ez),
+                ]
+            )
+            return cayleyscene.to_matrix(f), True
+        # epi: the time the epilogue starts
+        if t >= PROLOGUE_DUR + DEMO_DUR:
+            # Reverse the viewport transform onto the grid: _warp puts the
+            # (prism) mesh at NDC, then the SAME ndc->framebuffer transform
+            # the scene uses is applied, so the grid outline and squashed
+            # scene stay coincident (they would drift apart under different
+            # interpolation curves).
+            f = compose([_epilogue_ndc_to_fb(t), _warp(hw, hh)])
+            return cayleyscene.to_matrix(f), True
+        # A3: during the demo the framebuffer STAYS on screen, held at the
+        # NDC cube (coincident with the reference cube) rather than
+        # disappearing.
+        return cayleyscene.to_matrix(_warp(hw, hh)), True
+
+    def draw_grid(m: np.ndarray) -> None:
+        p: _p.Pipeline = standard_objects.cube_pipeline
+        GL.glUseProgram(p.program)
+        GL.glBindVertexArray(grid["vao"])
+        GL.glUniform3f(p.u_color, 0.2, 0.8, 1.0)  # cyan, distinct from the cube
+        ms.set_current_matrix(ms.MatrixStack.model, m)
+        _p.set_uniforms(p.u_m, p.u_v, p.u_p)
+        GL.glDrawArrays(GL.GL_LINES, 0, grid["n"])
+
+    def scene_epilogue_transform(t: float) -> np.ndarray | None:
+        """NDC->framebuffer for the demo's OWN geometry during the epilogue.
+
+        The INVERSE of the framebuffer->NDC viewport transform.
+        ``inverse(_warp)`` scales NDC->prism and ``_place`` translates to the
+        bottom-left origin, so the squashed scene lands inside the framebuffer
+        prism where the pixels are.  Applied to the view, so it acts AFTER the
+        shader squash.  The reference NDC cube is left at +-1 for contrast.
+        ``None`` outside the epilogue.
+        """
+        # epi: the time the epilogue starts
+        if t < PROLOGUE_DUR + DEMO_DUR:
+            return None
+        return cayleyscene.to_matrix(_epilogue_ndc_to_fb(t))
+
     if not state["paused"]:
         state["time"] = min(TOTAL_DUR, state["time"] + state["speed"] / 60.0)
     t: float = state["time"]
@@ -730,12 +748,11 @@ def frame(w: int, h: int) -> None:
     )
     cayley_gl.setup_orbit_view(camera, w, h)
 
-    inv: np.ndarray = cayleyscene.to_matrix(animation.inverse_transform(demo_t))
-
-    # Center AND ORIENT the view on the entity's drawn frame (inv @ placement):
-    # view = orbit @ inverse(frame), so the entity sits at the orbit center
-    # axis-aligned (for the camera, you see from its orientation) and you orbit
-    # around its own frame -- not just translate to its position.
+    # Center AND ORIENT the view on the entity's drawn frame (the inverse
+    # transform @ placement): view = orbit @ inverse(frame), so the entity sits
+    # at the orbit center axis-aligned (for the camera, you see from its
+    # orientation) and you orbit around its own frame -- not just translate to
+    # its position.
     if state["center_on"] == FB_FOCUS:
         # Orbit around the framebuffer's current centre (its display-space
         # position -- the translation column of its model matrix).  Only
@@ -772,6 +789,9 @@ def frame(w: int, h: int) -> None:
     standard_objects.draw_cube()
     GL.glClear(GL.GL_DEPTH_BUFFER_BIT)
 
+    # inv: the world-to-camera morph (the inverse transform) at this time
+    inv: np.ndarray = cayleyscene.to_matrix(animation.inverse_transform(demo_t))
+
     # the camera, drawn as an object (with its own ground/frustum/axis/cube)
     if demo_t >= animation.timeline.arrival_time(Space.camera):
         cam_frame: np.ndarray = inv @ cayleyscene.to_matrix(
@@ -780,18 +800,22 @@ def frame(w: int, h: int) -> None:
         ms.set_current_matrix(ms.MatrixStack.model, cam_frame)
         standard_objects.draw_ground()
         GL.glClear(GL.GL_DEPTH_BUFFER_BIT)
-        ry: float = (
+        # ry: when the camera step ends
+        if demo_t >= (
             animation.timeline.arrival_time(Space.camera) + scene.step_duration
-        )
-        if demo_t >= ry:
+        ):
             standard_objects.draw_frustum(demo_t, state["line_width"], w, h)
         standard_objects.draw_axis()
         standard_objects.draw_cube()
         # A4: the camera's own NDC cube carries the framebuffer pixel grid too
         # (held at the NDC form -- the cube with pixels -- in the camera frame).
-        cam_hw: float = state["fb_w"] / 2.0
-        cam_hh: float = state["fb_h"] / 2.0
-        draw_grid(cam_frame @ cayleyscene.to_matrix(_warp(cam_hw, cam_hh)))
+        # cam_hw, cam_hh: half the framebuffer's width and height
+        draw_grid(
+            cam_frame
+            @ cayleyscene.to_matrix(
+                _warp(state["fb_w"] / 2.0, state["fb_h"] / 2.0)
+            )
+        )
 
     # world axis: bright before paddle1 builds, grayed after
     ms.set_current_matrix(ms.MatrixStack.model, inv)

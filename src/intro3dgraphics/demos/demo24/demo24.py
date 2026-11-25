@@ -226,16 +226,16 @@ def load_texture(path: str, repeat: bool) -> int:
     )
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
     channels: int = img.shape[2]
-    fmt: GLenum = GL.GL_RGB if channels == 3 else GL.GL_RGBA
-    internal: GLenum = GL.GL_RGB8 if channels == 3 else GL.GL_RGBA8
     GL.glTexImage2D(
         GL.GL_TEXTURE_2D,
         0,
-        internal,
+        # internal: the format the GPU stores (RGB8 or RGBA8)
+        GL.GL_RGB8 if channels == 3 else GL.GL_RGBA8,
         w,
         h,
         0,
-        fmt,
+        # fmt: the format of the pixels given here (RGB or RGBA)
+        GL.GL_RGB if channels == 3 else GL.GL_RGBA,
         GL.GL_UNSIGNED_BYTE,
         img,
     )

@@ -44,161 +44,14 @@ import pathlib
 import sys
 
 
-def _annotated_names(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
-    """Names that carry an annotation somewhere in ``fn``'s own scope: annotated
-    params, plus ``AnnAssign`` targets not inside a nested function."""
-    names: set[str] = set()
-    args: ast.arguments = fn.args
-    for a in (
-        *args.posonlyargs,
-        *args.args,
-        *args.kwonlyargs,
-        args.vararg,
-        args.kwarg,
-    ):
-        if a is not None and a.annotation is not None:
-            names.add(a.arg)
-    for node in _own_scope_nodes(fn):
-        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
-            names.add(node.target.id)
-    return names
 
 
-def _own_scope_nodes(
-    fn: ast.FunctionDef | ast.AsyncFunctionDef,
-) -> list[ast.AST]:
-    """Every node lexically inside ``fn`` but NOT inside a nested def/lambda/
-    class (those have their own scopes).  Comprehension bodies are kept: they
-    hold no ``Assign`` nodes, so they cannot produce a finding.
-
-    A ``class`` body nested in ``fn`` is filtered out too: its assignments are
-    class attributes / enum members, not locals of ``fn`` (annotating them
-    would change their meaning), and its methods are separate scopes that
-    ``check_file``'s own walk visits independently.
-    """
-    out: list[ast.AST] = []
-    for stmt in fn.body:
-        out.extend(ast.walk(stmt))
-    # Drop anything that lives inside a nested scope (ast.walk descends into
-    # nested functions/lambdas/classes too, so filter their subtrees out).
-    nested: set[int] = set()
-    for stmt in fn.body:
-        for node in ast.walk(stmt):
-            if node is not fn and isinstance(
-                node,
-                (
-                    ast.FunctionDef,
-                    ast.AsyncFunctionDef,
-                    ast.Lambda,
-                    ast.ClassDef,
-                ),
-            ):
-                for inner in ast.walk(node):
-                    if inner is not node:
-                        nested.add(id(inner))
-    return [n for n in out if id(n) not in nested]
 
 
-def check_file(path: pathlib.Path) -> list[tuple[int, str]]:
-    """Un-annotated local ``name = ...`` assignments in every function of a file.
-
-    Args:
-        path: The Python source file to check.
-
-    Returns:
-        Sorted ``(line, name)`` pairs, one per finding.
-    """
-    tree: ast.Module = ast.parse(path.read_text(), filename=str(path))
-    findings: list[tuple[int, str]] = []
-    for fn in ast.walk(tree):
-        if not isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            continue
-        annotated: set[str] = _annotated_names(fn)
-        scope: list[ast.AST] = _own_scope_nodes(fn)
-        # A name declared `global`/`nonlocal` in this function is NOT a local of
-        # it -- it rebinds a module/enclosing variable annotated at THAT scope,
-        # and Python forbids annotating a global/nonlocal-declared name
-        # (`SyntaxError: annotated name can't be global`).  So skip them here.
-        declared_elsewhere: set[str] = {
-            name
-            for node in scope
-            if isinstance(node, (ast.Global, ast.Nonlocal))
-            for name in node.names
-        }
-        for node in scope:
-            if not isinstance(node, ast.Assign):
-                continue
-            for target in node.targets:
-                if (
-                    isinstance(target, ast.Name)
-                    and target.id not in annotated
-                    and target.id not in declared_elsewhere
-                ):
-                    findings.append((node.lineno, target.id))
-    return sorted(set(findings))
 
 
-def _module_scope_nodes(tree: ast.Module) -> list[ast.AST]:
-    """Every node at MODULE scope -- lexically in the module but NOT inside a
-    def/lambda/class (those have their own scopes).  Includes assignments inside
-    top-level ``if``/``for``/``while``/``with``/``try`` blocks, which still run
-    at import and bind module globals."""
-    out: list[ast.AST] = []
-    for stmt in tree.body:
-        out.extend(ast.walk(stmt))
-    nested: set[int] = set()
-    for stmt in tree.body:
-        for node in ast.walk(stmt):
-            if isinstance(
-                node,
-                (
-                    ast.FunctionDef,
-                    ast.AsyncFunctionDef,
-                    ast.Lambda,
-                    ast.ClassDef,
-                ),
-            ):
-                for inner in ast.walk(node):
-                    if inner is not node:
-                        nested.add(id(inner))
-    return [n for n in out if id(n) not in nested]
 
 
-def check_file_module(path: pathlib.Path) -> list[tuple[int, str]]:
-    """Module-level (global) ``name = ...`` assignments lacking an annotation.
-
-    Same exemptions as locals (tuple-unpack / ``for`` / ``with as`` / ``except
-    as`` / comprehension / walrus / augmented / attribute-or-subscript targets);
-    annotating a name once at module scope covers its later re-binds."""
-    tree: ast.Module = ast.parse(path.read_text(), filename=str(path))
-    scope: list[ast.AST] = _module_scope_nodes(tree)
-    annotated: set[str] = {
-        n.target.id
-        for n in scope
-        if isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name)
-    }
-    findings: list[tuple[int, str]] = []
-    for node in scope:
-        if not isinstance(node, ast.Assign):
-            continue
-        # A `TypeVar`/`ParamSpec`/`TypeVarTuple` definition cannot carry an
-        # annotation (`X: TypeVar = TypeVar(...)` makes the type checker stop
-        # treating X as a type variable), so don't flag it.
-        if isinstance(node.value, ast.Call):
-            func: ast.expr = node.value.func
-            fname: str = (
-                func.id
-                if isinstance(func, ast.Name)
-                else func.attr
-                if isinstance(func, ast.Attribute)
-                else ""
-            )
-            if fname in ("TypeVar", "ParamSpec", "TypeVarTuple"):
-                continue
-        for target in node.targets:
-            if isinstance(target, ast.Name) and target.id not in annotated:
-                findings.append((node.lineno, target.id))
-    return sorted(set(findings))
 
 
 def iter_py(paths: list[str]) -> list[pathlib.Path]:
@@ -255,7 +108,165 @@ def main() -> int:
         0 if clean, 1 if any binding lacks an annotation, 2 if a path does not
         exist or no ``.py`` file matched.
     """
-    root: pathlib.Path = pathlib.Path(__file__).resolve().parents[1]
+
+    def check_file_module(path: pathlib.Path) -> list[tuple[int, str]]:
+        """Module-level (global) ``name = ...`` assignments lacking an annotation.
+
+        Same exemptions as locals (tuple-unpack / ``for`` / ``with as`` / ``except
+        as`` / comprehension / walrus / augmented / attribute-or-subscript targets);
+        annotating a name once at module scope covers its later re-binds."""
+
+        def _module_scope_nodes(tree: ast.Module) -> list[ast.AST]:
+            """Every node at MODULE scope -- lexically in the module but NOT inside a
+            def/lambda/class (those have their own scopes).  Includes assignments inside
+            top-level ``if``/``for``/``while``/``with``/``try`` blocks, which still run
+            at import and bind module globals."""
+            out: list[ast.AST] = []
+            for stmt in tree.body:
+                out.extend(ast.walk(stmt))
+            nested: set[int] = set()
+            for stmt in tree.body:
+                for node in ast.walk(stmt):
+                    if isinstance(
+                        node,
+                        (
+                            ast.FunctionDef,
+                            ast.AsyncFunctionDef,
+                            ast.Lambda,
+                            ast.ClassDef,
+                        ),
+                    ):
+                        for inner in ast.walk(node):
+                            if inner is not node:
+                                nested.add(id(inner))
+            return [n for n in out if id(n) not in nested]
+
+        # the file's parsed syntax tree
+        scope: list[ast.AST] = _module_scope_nodes(
+            ast.parse(path.read_text(), filename=str(path))
+        )
+        annotated: set[str] = {
+            n.target.id
+            for n in scope
+            if isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name)
+        }
+        findings: list[tuple[int, str]] = []
+        for node in scope:
+            if not isinstance(node, ast.Assign):
+                continue
+            # A `TypeVar`/`ParamSpec`/`TypeVarTuple` definition cannot carry an
+            # annotation (`X: TypeVar = TypeVar(...)` makes the type checker stop
+            # treating X as a type variable), so don't flag it.
+            if isinstance(node.value, ast.Call):
+                func: ast.expr = node.value.func
+                fname: str = (
+                    func.id
+                    if isinstance(func, ast.Name)
+                    else func.attr
+                    if isinstance(func, ast.Attribute)
+                    else ""
+                )
+                if fname in ("TypeVar", "ParamSpec", "TypeVarTuple"):
+                    continue
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id not in annotated:
+                    findings.append((node.lineno, target.id))
+        return sorted(set(findings))
+
+
+    def check_file(path: pathlib.Path) -> list[tuple[int, str]]:
+        """Un-annotated local ``name = ...`` assignments in every function of a file.
+
+        Args:
+            path: The Python source file to check.
+
+        Returns:
+            Sorted ``(line, name)`` pairs, one per finding.
+        """
+
+        def _own_scope_nodes(
+            fn: ast.FunctionDef | ast.AsyncFunctionDef,
+        ) -> list[ast.AST]:
+            """Every node lexically inside ``fn`` but NOT inside a nested def/lambda/
+            class (those have their own scopes).  Comprehension bodies are kept: they
+            hold no ``Assign`` nodes, so they cannot produce a finding.
+
+            A ``class`` body nested in ``fn`` is filtered out too: its assignments are
+            class attributes / enum members, not locals of ``fn`` (annotating them
+            would change their meaning), and its methods are separate scopes that
+            ``check_file``'s own walk visits independently.
+            """
+            out: list[ast.AST] = []
+            for stmt in fn.body:
+                out.extend(ast.walk(stmt))
+            # Drop anything that lives inside a nested scope (ast.walk descends into
+            # nested functions/lambdas/classes too, so filter their subtrees out).
+            nested: set[int] = set()
+            for stmt in fn.body:
+                for node in ast.walk(stmt):
+                    if node is not fn and isinstance(
+                        node,
+                        (
+                            ast.FunctionDef,
+                            ast.AsyncFunctionDef,
+                            ast.Lambda,
+                            ast.ClassDef,
+                        ),
+                    ):
+                        for inner in ast.walk(node):
+                            if inner is not node:
+                                nested.add(id(inner))
+            return [n for n in out if id(n) not in nested]
+
+
+        def _annotated_names(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
+            """Names that carry an annotation somewhere in ``fn``'s own scope: annotated
+            params, plus ``AnnAssign`` targets not inside a nested function."""
+            names: set[str] = set()
+            args: ast.arguments = fn.args
+            for a in (
+                *args.posonlyargs,
+                *args.args,
+                *args.kwonlyargs,
+                args.vararg,
+                args.kwarg,
+            ):
+                if a is not None and a.annotation is not None:
+                    names.add(a.arg)
+            for node in _own_scope_nodes(fn):
+                if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+                    names.add(node.target.id)
+            return names
+
+        findings: list[tuple[int, str]] = []
+        # the file's parsed syntax tree
+        for fn in ast.walk(ast.parse(path.read_text(), filename=str(path))):
+            if not isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            annotated: set[str] = _annotated_names(fn)
+            scope: list[ast.AST] = _own_scope_nodes(fn)
+            # A name declared `global`/`nonlocal` in this function is NOT a local of
+            # it -- it rebinds a module/enclosing variable annotated at THAT scope,
+            # and Python forbids annotating a global/nonlocal-declared name
+            # (`SyntaxError: annotated name can't be global`).  So skip them here.
+            declared_elsewhere: set[str] = {
+                name
+                for node in scope
+                if isinstance(node, (ast.Global, ast.Nonlocal))
+                for name in node.names
+            }
+            for node in scope:
+                if not isinstance(node, ast.Assign):
+                    continue
+                for target in node.targets:
+                    if (
+                        isinstance(target, ast.Name)
+                        and target.id not in annotated
+                        and target.id not in declared_elsewhere
+                    ):
+                        findings.append((node.lineno, target.id))
+        return sorted(set(findings))
+
     argv: list[str] = sys.argv[1:]
     # --include-module also flags module-level (global) un-annotated assigns, not
     # just locals.  Off by default so the src/tests gate stays locals-only.
@@ -272,6 +283,7 @@ def main() -> int:
             file=sys.stderr,
         )
         return 2
+    root: pathlib.Path = pathlib.Path(__file__).resolve().parents[1]
     total: int = 0
     for f in files:
         rel: pathlib.Path = display_path(f, root)

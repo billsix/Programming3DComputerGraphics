@@ -13,61 +13,6 @@ import math
 import OpenGL.GL as GL
 
 
-def _draw_solid_cylinder(
-    base_radius: float, top_radius: float, height: float, slices: int
-) -> None:
-    """Cylinder side surface, oriented along +Z (replacement for
-    gluCylinder)."""
-    GL.glBegin(GL.GL_QUAD_STRIP)
-    for i in range(slices + 1):
-        a: float = 2.0 * math.pi * float(i) / slices
-        c, s = math.cos(a), math.sin(a)
-        GL.glNormal3f(c, s, 0.0)
-        GL.glVertex3f(c * base_radius, s * base_radius, 0.0)
-        GL.glVertex3f(c * top_radius, s * top_radius, height)
-    GL.glEnd()
-
-
-def _draw_solid_cone(base: float, height: float, slices: int) -> None:
-    """Cone with apex on +Z and base disk closing the bottom."""
-    GL.glBegin(GL.GL_TRIANGLE_FAN)
-    GL.glNormal3f(0.0, 0.0, 1.0)
-    GL.glVertex3f(0.0, 0.0, height)
-    for i in range(slices + 1):
-        a: float = 2.0 * math.pi * float(i) / slices
-        GL.glVertex3f(math.cos(a) * base, math.sin(a) * base, 0.0)
-    GL.glEnd()
-    # Base disk
-    GL.glBegin(GL.GL_TRIANGLE_FAN)
-    GL.glNormal3f(0.0, 0.0, -1.0)
-    GL.glVertex3f(0.0, 0.0, 0.0)
-    for i in range(slices, -1, -1):
-        a: float = 2.0 * math.pi * float(i) / slices
-        GL.glVertex3f(math.cos(a) * base, math.sin(a) * base, 0.0)
-    GL.glEnd()
-
-
-def _draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
-    """Solid sphere centered at the origin -- the white ball marking the
-    origin, like the gluSphere call at the end of gltDrawUnitAxes.  Emits
-    (lat1, lat0) per slice so the outward face winds CCW under the default
-    glFrontFace(GL_CCW)."""
-    for i in range(stacks):
-        lat0: float = math.pi * (-0.5 + float(i) / stacks)
-        lat1: float = math.pi * (-0.5 + float(i + 1) / stacks)
-        s0, c0 = math.sin(lat0), math.cos(lat0)
-        s1, c1 = math.sin(lat1), math.cos(lat1)
-        GL.glBegin(GL.GL_QUAD_STRIP)
-        for j in range(slices + 1):
-            lng: float = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
-            GL.glNormal3f(cl * c1, sl * c1, s1)
-            GL.glVertex3f(radius * cl * c1, radius * sl * c1, radius * s1)
-            GL.glNormal3f(cl * c0, sl * c0, s0)
-            GL.glVertex3f(radius * cl * c0, radius * sl * c0, radius * s0)
-        GL.glEnd()
-
-
 def draw_unit_axes(scale: float = 1.0) -> None:
     """Draw a unit-length basis at the current modelview origin:
     +X red, +Y green, +Z blue.  Each axis is a thin cylinder shaft
@@ -78,6 +23,59 @@ def draw_unit_axes(scale: float = 1.0) -> None:
     *scale* multiplies all geometry proportionally -- pass <1.0 for a
     smaller gizmo that fits inside a nested local frame.
     """
+
+    def _draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
+        """Solid sphere centered at the origin -- the white ball marking the
+        origin, like the gluSphere call at the end of gltDrawUnitAxes.  Emits
+        (lat1, lat0) per slice so the outward face winds CCW under the default
+        glFrontFace(GL_CCW)."""
+        for i in range(stacks):
+            lat0: float = math.pi * (-0.5 + float(i) / stacks)
+            lat1: float = math.pi * (-0.5 + float(i + 1) / stacks)
+            s0, c0 = math.sin(lat0), math.cos(lat0)
+            s1, c1 = math.sin(lat1), math.cos(lat1)
+            GL.glBegin(GL.GL_QUAD_STRIP)
+            for j in range(slices + 1):
+                lng: float = 2.0 * math.pi * float(j) / slices
+                cl, sl = math.cos(lng), math.sin(lng)
+                GL.glNormal3f(cl * c1, sl * c1, s1)
+                GL.glVertex3f(radius * cl * c1, radius * sl * c1, radius * s1)
+                GL.glNormal3f(cl * c0, sl * c0, s0)
+                GL.glVertex3f(radius * cl * c0, radius * sl * c0, radius * s0)
+            GL.glEnd()
+
+    def _draw_solid_cone(base: float, height: float, slices: int) -> None:
+        """Cone with apex on +Z and base disk closing the bottom."""
+        GL.glBegin(GL.GL_TRIANGLE_FAN)
+        GL.glNormal3f(0.0, 0.0, 1.0)
+        GL.glVertex3f(0.0, 0.0, height)
+        for i in range(slices + 1):
+            a: float = 2.0 * math.pi * float(i) / slices
+            GL.glVertex3f(math.cos(a) * base, math.sin(a) * base, 0.0)
+        GL.glEnd()
+        # Base disk
+        GL.glBegin(GL.GL_TRIANGLE_FAN)
+        GL.glNormal3f(0.0, 0.0, -1.0)
+        GL.glVertex3f(0.0, 0.0, 0.0)
+        for i in range(slices, -1, -1):
+            a: float = 2.0 * math.pi * float(i) / slices
+            GL.glVertex3f(math.cos(a) * base, math.sin(a) * base, 0.0)
+        GL.glEnd()
+
+    def _draw_solid_cylinder(
+        base_radius: float, top_radius: float, height: float, slices: int
+    ) -> None:
+        """Cylinder side surface, oriented along +Z (replacement for
+        gluCylinder)."""
+        GL.glBegin(GL.GL_QUAD_STRIP)
+        for i in range(slices + 1):
+            a: float = 2.0 * math.pi * float(i) / slices
+            c, s = math.cos(a), math.sin(a)
+            GL.glNormal3f(c, s, 0.0)
+            GL.glVertex3f(c * base_radius, s * base_radius, 0.0)
+            GL.glVertex3f(c * top_radius, s * top_radius, height)
+        GL.glEnd()
+
     # Force solid fill for the gizmo geometry regardless of the caller's
     # polygon mode (demo19e renders the rest of its scene as wireframe).
     GL.glPushAttrib(GL.GL_POLYGON_BIT)
