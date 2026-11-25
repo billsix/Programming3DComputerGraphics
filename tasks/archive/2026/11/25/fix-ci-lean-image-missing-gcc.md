@@ -1,6 +1,6 @@
 # The lean CI image has `gcc` and `python3-devel`, so `PyOpenGL-accelerate` builds and the `checks` workflow can run
 
-**Done:** 2026-11-25 (work commit `b32297c4`; the archive move follows once the GitHub run is green). Source: the maintainer (William Emerison Six <billsix@gmail.com>, 2026-11-25), who asked why CI failed, chose option (a) below, and said "go".
+**Done:** 2026-11-25 (the work is in squash commit `72276ebd`). Source: the maintainer (William Emerison Six <billsix@gmail.com>, 2026-11-25), who asked why CI failed, chose option (a) below, and said "go".
 
 ## What was wrong
 
@@ -20,7 +20,7 @@ Ruled out: the `nameAndScope` merge (runs 1 and 2 predate it and were already re
 
 ## What was done
 
-- `gcc` and `python3-devel` were added to the alphabetical `dnf install` list in `entrypoint/01-install-base.sh` (mode 755 kept). The edit shipped in the maintainer's commit `b32297c4` (message "added rename module name task"), together with the rename task document.
+- `gcc` and `python3-devel` were added to the alphabetical `dnf install` list in `entrypoint/01-install-base.sh` (mode 755 kept). The edit shipped in the maintainer's squash commit `72276ebd`, together with the task documents.
 - `python3-devel` was added together with `gcc` because the build needs `Python.h`; the rebuild showed no further header was missing.
 
 ## Verification (nested, 2026-11-25)
@@ -28,10 +28,9 @@ Ruled out: the `nameAndScope` merge (runs 1 and 2 predate it and were already re
 - Lean, CI flags: `make check-format` exit 0 and `make type-check` exit 0. The image builds, `PyOpenGL-accelerate` compiles, the ePiX layer builds, `ruff` and `ty` pass, and `git diff --exit-code` is clean.
 - Default flags (full image): `make type-check` exit 0.
 
-## Owed
+## Result on GitHub
 
-- The maintainer pushes `master`, then the `checks` run is confirmed green: `curl -s "https://api.github.com/repos/billsix/Programming3DComputerGraphics/actions/runs?per_page=1"` and read `conclusion`.
-- Archive this task (`git mv`) after that, as its own commit, and repoint the `CLAUDE.md` "Continuous integration" record line (`tasks/fix-ci-lean-image-missing-gcc.md`) at the archive path in the same commit.
+The `checks` run for `72276ebd` (run 5) passed, both jobs.
 
 ## Not done
 

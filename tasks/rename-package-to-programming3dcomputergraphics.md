@@ -1,7 +1,7 @@
 # Rename `intro3dgraphics` to `programming3dcomputergraphics`, so the package, image and mount path match the repository
 
 **Status:** proposed — needs go-ahead
-**Priority:** 5 (cosmetic and cheap while nothing is published under the current name; do after `tasks/fix-ci-lean-image-missing-gcc.md` so CI is green to verify against)
+**Priority:** 5 (cosmetic and cheap while nothing is published under the current name; do after `tasks/archive/2026/11/25/fix-ci-lean-image-missing-gcc.md` so CI is green to verify against)
 **Difficulty:** 3 (mechanical, 124 files; the earlier rename was one codemod; the extra risk is a 28-character name against the 80-column limit)
 **Created:** 2026-11-25 (William Emerison Six <billsix@gmail.com>, from `git config`)
 
@@ -16,7 +16,7 @@ The repository is `github.com/billsix/Programming3DComputerGraphics` but the Pyt
 **Read first:**
 - `tasks/archive/2026/11/24/rename-package-modelviewprojection-to-intro3dgraphics.md` (method, the traps it found, the verification list).
 - The old codemod: `git show e035416e:tasks/adhoc/rename-package-modelviewprojection-to-intro3dgraphics/rename.py` (removed from the tree in `0b488854`). It has four rules over separate file sets, skips `tasks/archive`, `entrypoint/dotfiles`, "Historical copy" reference docs, `README.md` and `CLAUDE.md`, and was run twice to prove idempotency. Copy it to `tasks/adhoc/rename-package-to-programming3dcomputergraphics/`, adapt it, and read the Python coding standard (`python-coding-standard.md` in github.com/billsix/runClaudeInContainer, and `tasks/reference/python-coding-standard-mvp.md`) before editing, because an ad-hoc script is held to it.
-- `tasks/fix-ci-lean-image-missing-gcc.md` (the CI fix this follows; both edit `Makefile`/`Dockerfile`-adjacent files, so land that one first).
+- `tasks/archive/2026/11/25/fix-ci-lean-image-missing-gcc.md` (the CI fix this follows; both edit `Makefile`/`Dockerfile`-adjacent files, so land that one first).
 
 **Where the name appears now** (counted 2026-11-25 with `git grep -i intro3dgraphics`: 124 tracked files, 669 lines; 5 of those files are under `tasks/archive` and stay as written):
 
@@ -44,7 +44,7 @@ Make `programming3dcomputergraphics` the single name for the Python package, the
 
 ## Plan
 
-- [ ] Land `tasks/fix-ci-lean-image-missing-gcc.md` first, and note the baseline: `make format`, `make type-check`, `make test` and `make check-regions` green on `master` with default flags.
+- [ ] Land `tasks/archive/2026/11/25/fix-ci-lean-image-missing-gcc.md` first, and note the baseline: `make format`, `make type-check`, `make test` and `make check-regions` green on `master` with default flags.
 - [ ] Recover the old codemod from `e035416e`, adapt its four rules to the new name, save it under `tasks/adhoc/rename-package-to-programming3dcomputergraphics/` with a `discover.sh` and a worklog under `data/`, and keep it idempotent (second run: 0 changes).
 - [ ] `git mv src/intro3dgraphics src/programming3dcomputergraphics`, then run the codemod over code, config, book, tests, tools and entrypoint scripts. Leave every "must not change" item above untouched.
 - [ ] Update the `Makefile` (`CONTAINER_NAME`, the mount, `REPO_MOUNT`, the `cd` lines), the `Dockerfile` and `tools/verify_render.sh`; check the `ARG`/`--build-arg` pairs still agree.
