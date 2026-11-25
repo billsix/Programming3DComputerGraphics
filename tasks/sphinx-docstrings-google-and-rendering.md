@@ -83,3 +83,7 @@ gacalc's worked example lives in that repo (github.com/billsix/geometricalgebra)
   undefined hyperrefs and no `Missing character` lines. The sandbox could not run it: `make image` fails
   here at the `pyopengl-accelerate` build (`Python.h` not found, because `python3-devel` moved out of the
   base group in `10daff11`), so the project image does not exist in the sandbox.
+
+## Follow-up (2026-11-25): confirm the host `make docs` result
+
+The maintainer built the image and ran `make docs` on the host after the 2026-11-24 batch merge and did not report its warnings. Archive this task once the build is confirmed to show 0 substitution warnings, no undefined hyperrefs and no missing glyphs in the PDF, and the new pages render (`sampling`, the ch02/03/05/18 "Try it yourself" links, the ch15 stencil section). Nothing else is owed.
