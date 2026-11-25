@@ -195,10 +195,6 @@ state: dict[str, typing.Any] = {
 win_state: cayley_gl.WindowState = cayley_gl.WindowState()
 
 
-def jump(start: float) -> None:
-    state["time"] = start
-
-
 def _toggle_pause() -> None:
     state["paused"] = not state["paused"]
 
@@ -209,10 +205,6 @@ def _restart() -> None:
 
 def _toggle_graph() -> None:
     win_state.show_graph = not win_state.show_graph
-
-
-def _focus(node: Space | None) -> None:
-    state["center_on"] = node
 
 
 # camera moves in cameraspace (px/pz adjusted by heading rot_y); shared by the
@@ -242,6 +234,10 @@ def _cam_right() -> None:  # +X cameraspace
 
 
 def imgui_menubar() -> None:
+
+    def _focus(node: Space | None) -> None:
+        state["center_on"] = node
+
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
@@ -350,28 +346,32 @@ def on_key(
             _toggle_graph()
 
 
-def graph_panel(t: float) -> None:
-    if not win_state.show_graph:
-        return
-    imgui.set_next_window_size(
-        imgui.ImVec2(470, 480), imgui.Cond_.first_use_ever
-    )
-    imgui.set_next_window_bg_alpha(0.7)
-    imgui.begin("Cayley Graph", True)
-    imgui.set_next_item_open(True, imgui.Cond_.once)
-    if imgui.tree_node("From World Space, Against Arrows, Read Bottom Up"):
-        for grp in animation.frame_tree(t):
-            cayley_gl.render_tree(grp, jump)
-        imgui.tree_pop()
-    imgui.set_next_item_open(True, imgui.Cond_.once)
-    if imgui.tree_node("Towards NDC, With Arrows, Top Down Reading"):
-        for grp in animation.ndc_tree(t):
-            cayley_gl.render_tree(grp, jump)
-        imgui.tree_pop()
-    imgui.end()
-
-
 def frame(w: int, h: int) -> None:
+
+    def graph_panel(t: float) -> None:
+
+        def jump(start: float) -> None:
+            state["time"] = start
+
+        if not win_state.show_graph:
+            return
+        imgui.set_next_window_size(
+            imgui.ImVec2(470, 480), imgui.Cond_.first_use_ever
+        )
+        imgui.set_next_window_bg_alpha(0.7)
+        imgui.begin("Cayley Graph", True)
+        imgui.set_next_item_open(True, imgui.Cond_.once)
+        if imgui.tree_node("From World Space, Against Arrows, Read Bottom Up"):
+            for grp in animation.frame_tree(t):
+                cayley_gl.render_tree(grp, jump)
+            imgui.tree_pop()
+        imgui.set_next_item_open(True, imgui.Cond_.once)
+        if imgui.tree_node("Towards NDC, With Arrows, Top Down Reading"):
+            for grp in animation.ndc_tree(t):
+                cayley_gl.render_tree(grp, jump)
+            imgui.tree_pop()
+        imgui.end()
+
     if not state["paused"]:
         state["time"] = min(
             animation.timeline.duration, state["time"] + state["speed"] / 60.0
@@ -383,7 +383,6 @@ def frame(w: int, h: int) -> None:
         window, imguiio, camera, state["mouse"]
     )
     cayley_gl.setup_orbit_view(camera, w, h)
-    morph: np.ndarray = cayleyscene.to_matrix(animation.inverse_transform(t))
     if state["center_on"]:
         # gacalc inverse of the entity's frame (the world->camera inverse
         # composed with its placement), realized to a matrix for the view stack
@@ -404,6 +403,8 @@ def frame(w: int, h: int) -> None:
     ms.set_to_identity_matrix(ms.MatrixStack.model)
     standard_objects.draw_ground()
 
+    morph: np.ndarray = cayleyscene.to_matrix(animation.inverse_transform(t))
+
     # the camera, drawn as an object: its rectangular-prism view volume + axes
     # + NDC cube
     if t >= animation.timeline.arrival_time(Space.camera):
@@ -411,10 +412,10 @@ def frame(w: int, h: int) -> None:
             ms.MatrixStack.model,
             morph @ cayleyscene.to_matrix(animation.transform(Space.camera, t)),
         )
-        ry: float = (
+        # ry: when the camera step ends
+        if t >= (
             animation.timeline.arrival_time(Space.camera) + scene.step_duration
-        )
-        if t >= ry:
+        ):
             standard_objects.draw_rect_prism(t, state["line_width"], w, h)
         standard_objects.draw_axis()
         standard_objects.draw_cube()

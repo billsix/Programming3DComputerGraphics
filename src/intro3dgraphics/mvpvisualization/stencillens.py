@@ -80,34 +80,36 @@ s_was_down: bool = False
 quadric: typing.Any = GLU.gluNewQuadric()
 
 
-def draw_box(half_width: float, half_height: float, half_depth: float) -> None:
-    """Draw an axis-aligned box centered on the origin."""
-    GL.glBegin(GL.GL_QUADS)
-    for normal_axis in range(3):
-        for sign in (-1.0, 1.0):
-            for corner_u, corner_v in (
-                (-1, -1),
-                (1, -1),
-                (1, 1),
-                (-1, 1),
-            ):
-                coordinates: list[float] = [0.0, 0.0, 0.0]
-                extent: tuple[float, float, float] = (
-                    half_width,
-                    half_height,
-                    half_depth,
-                )
-                u_axis: int = (normal_axis + 1) % 3
-                v_axis: int = (normal_axis + 2) % 3
-                coordinates[normal_axis] = sign * extent[normal_axis]
-                coordinates[u_axis] = corner_u * extent[u_axis]
-                coordinates[v_axis] = corner_v * extent[v_axis]
-                GL.glVertex3f(*coordinates)
-    GL.glEnd()
-
-
 def draw_room() -> None:
     """The scene that is always visible: a floor and three pillars."""
+
+    def draw_box(
+        half_width: float, half_height: float, half_depth: float
+    ) -> None:
+        """Draw an axis-aligned box centered on the origin."""
+        GL.glBegin(GL.GL_QUADS)
+        for normal_axis in range(3):
+            for sign in (-1.0, 1.0):
+                for corner_u, corner_v in (
+                    (-1, -1),
+                    (1, -1),
+                    (1, 1),
+                    (-1, 1),
+                ):
+                    coordinates: list[float] = [0.0, 0.0, 0.0]
+                    extent: tuple[float, float, float] = (
+                        half_width,
+                        half_height,
+                        half_depth,
+                    )
+                    u_axis: int = (normal_axis + 1) % 3
+                    v_axis: int = (normal_axis + 2) % 3
+                    coordinates[normal_axis] = sign * extent[normal_axis]
+                    coordinates[u_axis] = corner_u * extent[u_axis]
+                    coordinates[v_axis] = corner_v * extent[v_axis]
+                    GL.glVertex3f(*coordinates)
+        GL.glEnd()
+
     GL.glColor3f(0.12, 0.35, 0.18)
     GL.glBegin(GL.GL_QUADS)
     GL.glVertex3f(-6.0, -1.0, 4.0)

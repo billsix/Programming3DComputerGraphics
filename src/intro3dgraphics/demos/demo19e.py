@@ -115,7 +115,6 @@ def draw_sphere(radius: float) -> None:
 
 def draw_ground() -> None:
     extent: float = 20.0
-    step: float = 1.0
     y: float = -0.4
     GL.glColor3f(0.4, 0.4, 0.4)
     GL.glBegin(GL.GL_LINES)
@@ -127,7 +126,7 @@ def draw_ground() -> None:
         # lines parallel to x
         GL.glVertex3f(extent, y, line)
         GL.glVertex3f(-extent, y, line)
-        line += step
+        line += 1.0  # step: one grid unit
     GL.glEnd()
 
 

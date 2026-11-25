@@ -57,38 +57,6 @@ def _xy(vertices: Sequence[Vector]) -> np.ndarray:
     return np.array([list(v) for v in vertices], dtype=float)
 
 
-def generategridlines(
-    graph_bounds: tuple[int, int], interval: int = 1
-) -> Iterator[tuple[list[Vector], int]]:
-    for x in range(
-        -graph_bounds[0] * extra_lines_multiplier,
-        graph_bounds[0] * extra_lines_multiplier,
-        interval,
-    ):
-        thickness: int = 4 if np.isclose(x, 0.0) else 1
-        yield (
-            [
-                x * e_1 + (-graph_bounds[1] * extra_lines_multiplier) * e_2,
-                x * e_1 + (graph_bounds[1] * extra_lines_multiplier) * e_2,
-            ],
-            thickness,
-        )
-
-    for y in range(
-        -graph_bounds[1] * extra_lines_multiplier,
-        graph_bounds[1] * extra_lines_multiplier,
-        interval,
-    ):
-        thickness = 4 if np.isclose(y, 0.0) else 1
-        yield (
-            [
-                (-graph_bounds[0] * extra_lines_multiplier) * e_1 + y * e_2,
-                (graph_bounds[0] * extra_lines_multiplier) * e_1 + y * e_2,
-            ],
-            thickness,
-        )
-
-
 #: The axes established by the enclosing ``create_graphs()`` block.
 #:
 #: A :class:`contextvars.ContextVar` rather than a plain module global for two
@@ -163,6 +131,38 @@ def create_basis(
     ycolor: tuple[float, float, float] = (1.0, 0.0, 1.0),
 ) -> None:
     # plot transformed basis
+
+    def generategridlines(
+        graph_bounds: tuple[int, int], interval: int = 1
+    ) -> Iterator[tuple[list[Vector], int]]:
+        for x in range(
+            -graph_bounds[0] * extra_lines_multiplier,
+            graph_bounds[0] * extra_lines_multiplier,
+            interval,
+        ):
+            thickness: int = 4 if np.isclose(x, 0.0) else 1
+            yield (
+                [
+                    x * e_1 + (-graph_bounds[1] * extra_lines_multiplier) * e_2,
+                    x * e_1 + (graph_bounds[1] * extra_lines_multiplier) * e_2,
+                ],
+                thickness,
+            )
+
+        for y in range(
+            -graph_bounds[1] * extra_lines_multiplier,
+            graph_bounds[1] * extra_lines_multiplier,
+            interval,
+        ):
+            thickness = 4 if np.isclose(y, 0.0) else 1
+            yield (
+                [
+                    (-graph_bounds[0] * extra_lines_multiplier) * e_1 + y * e_2,
+                    (graph_bounds[0] * extra_lines_multiplier) * e_1 + y * e_2,
+                ],
+                thickness,
+            )
+
     for vecs, thickness in generategridlines(
         graph_bounds, interval=gridline_interval
     ):
@@ -379,8 +379,8 @@ def draw_ndc(
     )  # zorder ensures dots are on top
 
     # Label each vertex
-    labels: list[str] = ["(-1,-1)", "(1,-1)", "(1,1)", "(-1,1)"]
-    for i, label in enumerate(labels):
+    # the four corners, in drawing order
+    for i, label in enumerate(["(-1,-1)", "(1,-1)", "(1,1)", "(-1,1)"]):
         # Use plt.annotate to place the label near the point
         plt.annotate(
             label,
