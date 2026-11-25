@@ -98,19 +98,22 @@ The menubar helpers `_focus` and `rebuild_framebuffer` run on a click and were n
 
 ## Afterwards (2026-11-25, William Emerison Six <billsix@gmail.com> approved the agent's recommendation)
 
-- **Promoted** `nest_one_caller.py` to `tools/nest_one_caller.py`: the repository root comes from
-  `git rev-parse --show-toplevel`, it has `argparse` options (`--dry-run`, `--keep NAME ...`), the `mathutils`
-  special case is gone (a doctest or another file's import already protects public API), and it reports every
-  nesting a dry run would make. It was run on itself, which nested its own 14 helpers (the standard applies to
-  it too). Checked by re-nesting the pre-nesting versions of `axes.py`, `stencillens.py`, `sampling.py`,
-  `pushmatrix.py` and `modelviewperspectiveprojection.py` from the earlier commit in a scratch repository: the first
-  four came out AST-identical to the committed result; the fifth matched ignoring the order of the nested
-  definitions and the reflowed docstrings. Not wired into any gate. `tasks/reference/python-coding-standard-mvp.md`
-  points to it.
+- **Promoted** `nest_one_caller.py` to the shared layer, not to this repository's `tools/`: canonical copy
+  `tasks/reference/nest_one_caller.py` in github.com/billsix/runClaudeInContainer, mirrored byte-identically in
+  github.com/billsix/runCrushInContainer (and its baked client copy), with the standard's "What earns an
+  extraction" section pointing at it. The maintainer approved this on 2026-11-25 so the other six repositories
+  run one copy instead of seven. Changes made for the promotion: the repository root comes from
+  `git rev-parse --show-toplevel`, `argparse` options (`--dry-run`, `--keep NAME ...`), the `mathutils` special
+  case dropped (a doctest or another file's import already protects public API), a dry run that lists every
+  nesting. It was run on itself, which nested its own 14 helpers. Checked by re-nesting the pre-nesting versions of
+  `axes.py`, `stencillens.py`, `sampling.py`, `pushmatrix.py` and `modelviewperspectiveprojection.py` from the
+  earlier commit in a scratch repository: the first four came out AST-identical to the committed result; the fifth
+  matched ignoring the order of the nested definitions and the reflowed docstrings. Not wired into any gate.
+  `tasks/reference/python-coding-standard-mvp.md` points to it.
 - **Removed** the one-shot `discover.py`, `classify_regions.py`, `apply_inlines.py` and `data/` (the survey is
   cheap to regenerate and `classify_regions.py` depends on this repository's `doc-region` markers). They stay in
   the history of the earlier work commits.
 - **Still owed, outside this repository:** the shared-standard edit is staged, not committed, in
   runClaudeInContainer and runCrushInContainer; `wxapp.py` in the container is parked on the work stack; the
   six other repositories that carry this task (`epix-mirror`, `geometricalgebra`, `hanoi`, `mathnotebooks`,
-  `methodfinder`, `multivariate-math`) can use `tools/nest_one_caller.py`, copied.
+  `methodfinder`, `multivariate-math`) can run the shared `nest_one_caller.py`, starting with `--dry-run`.

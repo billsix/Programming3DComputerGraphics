@@ -29,12 +29,14 @@ status=0
 dnf upgrade -y || status=1
 
 dnf install -y \
+    gcc \
     git \
     glib \
     glib2-devel \
     glfw \
     meson \
     ninja \
+    python3-devel \
     python3-glfw \
     python3-numpy \
     python3-openimageio \

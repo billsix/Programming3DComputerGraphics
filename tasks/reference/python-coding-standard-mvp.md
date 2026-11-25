@@ -112,9 +112,10 @@ file with `make check-regions` and by looking for markers before assuming otherw
 push comment and docstring lines past the 80-column limit, and `ruff format` does not reflow prose: reflow each
 paragraph whole.
 
-`tools/nest_one_caller.py` does the nesting: `python tools/nest_one_caller.py --dry-run FILE ...` reports what
-would move and what is skipped and why; run it without `--dry-run`, then the formatter, then reflow what `E501`
-flags. It is not part of any gate.
+The shared `nest_one_caller.py` (github.com/billsix/runClaudeInContainer `tasks/reference/`; mounted at
+`~/.claude/reference/`) does the nesting: `python3 ~/.claude/reference/nest_one_caller.py --dry-run FILE ...`
+reports what would move and what is skipped and why; run it without `--dry-run`, then `make format`, then reflow
+what `E501` flags. It is not part of any gate.
 
 ## OpenGL / PyOpenGL typing and matrix conventions
 
