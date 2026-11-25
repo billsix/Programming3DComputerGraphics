@@ -84,6 +84,14 @@ gacalc's worked example lives in that repo (github.com/billsix/geometricalgebra)
   here at the `pyopengl-accelerate` build (`Python.h` not found, because `python3-devel` moved out of the
   base group in `10daff11`), so the project image does not exist in the sandbox.
 
-## Follow-up (2026-11-25): confirm the host `make docs` result
+## Build result (2026-11-25), from a full `make docs` in the sandbox (the image now builds)
 
-The maintainer built the image and ran `make docs` on the host after the 2026-11-24 batch merge and did not report its warnings. Archive this task once the build is confirmed to show 0 substitution warnings, no undefined hyperrefs and no missing glyphs in the PDF, and the new pages render (`sampling`, the ch02/03/05/18 "Try it yourself" links, the ch15 stencil section). Nothing else is owed.
+Run on `master` after the 2026-11-24 batch merge (exit 0; the HTML, PDF and EPUB built; `sampling`, the ch02/ch05 links to the assignment pages and the ch15 stencil section render):
+
+- **Docstrings: clean.** 0 Sphinx warnings from a docstring (`autodoc_typehints = "none"` works), and the 3 final LaTeX passes leave no undefined hyperref (the 323 `Hyper reference ... glossary:term-...` lines are all in the first pass).
+- **Missing glyphs: 31 `Missing character` lines, all `∧` (U+2227) in `FreeMonoOblique.otf`**, the font of oblique monospace text. `∧` is in none of this repository's sources (`git grep ∧ -- src book/docs/*.rst` finds nothing), so it comes from the gacalc docstrings the book includes through `book/docs/_gacalc_src`. The task's done condition ("no `Missing character` lines") is therefore not met, and this is the font-fallback step the gacalc work took (`tasks/reference/sphinx-book-conventions.md`, the missing-glyph fallbacks in the shared conventions).
+- **Warnings that predate this task and are not docstring related:** `framebuffer` and `ndc` listed twice in the `index.rst` toctree (`toc.duplicate_entry`), and `Title underline too short` at `book/docs/programmingproj1.rst:36`.
+
+## Still open (required before archiving)
+
+- Add the luaotfload fallback of `tasks/reference/sphinx-book-conventions.md` to the `latex_elements` preamble in `book/docs/conf.py` (a fallback font that has `∧`, attached to the monospace font), so `∧` renders in the PDF, then rerun `make docs` and confirm 0 `Missing character` lines. Nothing else is owed.
