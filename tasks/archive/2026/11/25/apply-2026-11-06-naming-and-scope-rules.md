@@ -1,6 +1,6 @@
 # Apply the 2026-11-06 naming and scope rules across this repository
 
-**Status:** done 2026-11-25 (work committed; the archive move and the one-shot script removal are owed, see "Owed")
+**Status:** done and archived 2026-11-25
 **Created:** 2026-11-06 (William Emerison Six <billsix@gmail.com>): asked for the geometricalgebra survey
 task ("search through all of geometricalgebra and see if there is programming advice that we added that
 should be applied to the codebase, to refactor it"), then "add a similar task to every other python
@@ -96,15 +96,21 @@ Containerized, with the image already built (`make -o image <target>`): `format`
 sibling `import export_scene` fails under the probe, which predates this task); the maintainer checked it by hand.
 The menubar helpers `_focus` and `rebuild_framebuffer` run on a click and were not exercised by the agent.
 
-## Owed
+## Afterwards (2026-11-25, William Emerison Six <billsix@gmail.com> approved the agent's recommendation)
 
-1. **Archive** (the agent, once the commit holding this done-record exists): `git mv` this file to
-   `tasks/archive/2026/11/25/`, and `git rm` the one-shot scripts and data under
-   `tasks/adhoc/apply-2026-11-06-naming-and-scope-rules/` (`discover.py`, `classify_regions.py`,
-   `apply_inlines.py`, `data/`). Do the removal in a separate commit after the work commit, so the scripts stay in
-   history.
-2. **Promotion question** (the maintainer): `discover.py` and `nest_one_caller.py` could serve other Python
-   repositories after their paths are made configurable; the other scripts are mvp-specific.
-3. **Shared-standard edits**: staged, not committed, in runClaudeInContainer and runCrushInContainer.
-4. **wx in the container**: parked on the work stack (`WAYLAND_DISPLAY` makes PyOpenGL pick EGL while the wx
-   canvas wants GLX; `GDK_BACKEND=x11` ran under Xvfb).
+- **Promoted** `nest_one_caller.py` to `tools/nest_one_caller.py`: the repository root comes from
+  `git rev-parse --show-toplevel`, it has `argparse` options (`--dry-run`, `--keep NAME ...`), the `mathutils`
+  special case is gone (a doctest or another file's import already protects public API), and it reports every
+  nesting a dry run would make. It was run on itself, which nested its own 14 helpers (the standard applies to
+  it too). Checked by re-nesting the pre-nesting versions of `axes.py`, `stencillens.py`, `sampling.py`,
+  `pushmatrix.py` and `modelviewperspectiveprojection.py` from the earlier commit in a scratch repository: the first
+  four came out AST-identical to the committed result; the fifth matched ignoring the order of the nested
+  definitions and the reflowed docstrings. Not wired into any gate. `tasks/reference/python-coding-standard-mvp.md`
+  points to it.
+- **Removed** the one-shot `discover.py`, `classify_regions.py`, `apply_inlines.py` and `data/` (the survey is
+  cheap to regenerate and `classify_regions.py` depends on this repository's `doc-region` markers). They stay in
+  the history of the earlier work commits.
+- **Still owed, outside this repository:** the shared-standard edit is staged, not committed, in
+  runClaudeInContainer and runCrushInContainer; `wxapp.py` in the container is parked on the work stack; the
+  six other repositories that carry this task (`epix-mirror`, `geometricalgebra`, `hanoi`, `mathnotebooks`,
+  `methodfinder`, `multivariate-math`) can use `tools/nest_one_caller.py`, copied.

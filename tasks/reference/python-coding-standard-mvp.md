@@ -112,6 +112,10 @@ file with `make check-regions` and by looking for markers before assuming otherw
 push comment and docstring lines past the 80-column limit, and `ruff format` does not reflow prose: reflow each
 paragraph whole.
 
+`tools/nest_one_caller.py` does the nesting: `python tools/nest_one_caller.py --dry-run FILE ...` reports what
+would move and what is skipped and why; run it without `--dry-run`, then the formatter, then reflow what `E501`
+flags. It is not part of any gate.
+
 ## OpenGL / PyOpenGL typing and matrix conventions
 
 A GL concern for annotation specifically: **a GL enum is a PyOpenGL `Constant`, not an
