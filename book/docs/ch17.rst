@@ -53,7 +53,7 @@ from the viewer would appear smaller.  This will be fixed in demo18.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/intro3dgraphics/demos/demo17.py in Spyder and hit the play button.
+Load src/programming3dcomputergraphics/demos/demo17.py in Spyder and hit the play button.
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -84,7 +84,7 @@ Description
 ^^^^^^^^^^^
 
 
-Before starting this demo, run src/intro3dgraphics/mvpvisualization/modelvieworthoprojection.py, as
+Before starting this demo, run src/programming3dcomputergraphics/mvpvisualization/modelvieworthoprojection.py, as
 it will show graphically all of the steps in this demo.  In the GUI,
 take a look at the camera options buttons, and once the camera
 is placed and oriented in :term:`world space <World Space>`, use the buttons to change the camera's position
@@ -111,7 +111,7 @@ you would
 #. rotate around the local y axis
 #. rotate around the local x axis
 
-To visualize this, run "python src/intro3dgraphics/mvpvisualization/modelvieworthoprojection.py"
+To visualize this, run "python src/programming3dcomputergraphics/mvpvisualization/modelvieworthoprojection.py"
 
 The ordering of 1) before 2) and 3) should be clear, as
 we are imagining a :term:`coordinate system <Coordinate System>` that moves, just
@@ -186,7 +186,7 @@ to camera space.
    On the red axis, its 2*10 units wide, and 6*10 units tall, which matches
    the model-space data in the constructor for the Paddles.
 
-   Take a look at src/intro3dgraphics/mvpvisualization/modelviewperspectiveprojection.py to see an animated
+   Take a look at src/programming3dcomputergraphics/mvpvisualization/modelviewperspectiveprojection.py to see an animated
    version of the axis being moved from into their world space positions,
    relative to which the model-space data is drawn.
 
@@ -202,7 +202,7 @@ to camera space.
    to world-space backwards, and you will see how the axes are moving and
    why.
 
-   Take a look at src/intro3dgraphics/mvpvisualization/modelviewperspectiveprojection.py to see an
+   Take a look at src/programming3dcomputergraphics/mvpvisualization/modelviewperspectiveprojection.py to see an
    animated version that shows the objects being placed in world space,
    the camera being put into its space using the normal way of thinking
    of a coordinate system being moved, but then the transformations
@@ -234,26 +234,26 @@ Code
 
 The camera now has two angles as instance variables.
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo17.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo17.py
    :language: python
    :start-after: doc-region-begin define camera class
    :end-before: doc-region-end define camera class
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo17.py
+   :caption: src/programming3dcomputergraphics/demos/demo17.py
 
 
 
 Since we want the user to be able to control the camera, we need
 to read the input.
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo17.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo17.py
    :language: python
    :start-after: doc-region-begin define handle inputs
    :end-before: doc-region-end define handle inputs
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo17.py
+   :caption: src/programming3dcomputergraphics/demos/demo17.py
 
 
 ::
@@ -263,13 +263,13 @@ to read the input.
 Left and right rotate the viewer's horizontal
 angle, page up and page down the vertical angle.
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo17.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo17.py
    :language: python
    :start-after: doc-region-begin handle key inputs
    :end-before: doc-region-end handle key inputs
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo17.py
+   :caption: src/programming3dcomputergraphics/demos/demo17.py
 
 
 
@@ -282,13 +282,13 @@ through the sky.  I.e, we want forward/backwards movement to happen relative
 to the XZ plane at the camera's position, not forward/backwards
 movement relative to camera space.
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo17.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo17.py
    :language: python
    :start-after: doc-region-begin handle key input keys
    :end-before: doc-region-end handle key input keys
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo17.py
+   :caption: src/programming3dcomputergraphics/demos/demo17.py
 
 
 
@@ -297,42 +297,42 @@ relative to camera space down to NDC, by moving the center of the rectangular
 prism to the origin, and scaling by the inverse of the width, height, and depth
 of the viewable region.
 
-.. literalinclude:: ../../src/intro3dgraphics/mathutils.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/mathutils.py
    :start-after: doc-region-begin define ortho
    :end-before: doc-region-end ortho signature
    :language: python
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/mathutils.py
+   :caption: src/programming3dcomputergraphics/mathutils.py
 
-.. literalinclude:: ../../src/intro3dgraphics/mathutils.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/mathutils.py
    :start-after: doc-region-begin ortho body
    :end-before: doc-region-end define ortho
    :language: python
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/mathutils.py
+   :caption: src/programming3dcomputergraphics/mathutils.py
 
 
 
 We will make a wrapper function cs_to_ndc_space_fn which
 calls ortho, setting the size of the rectangular prism.
 
-.. literalinclude:: ../../src/intro3dgraphics/mathutils.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/mathutils.py
    :start-after: doc-region-begin define camera space to ndc
    :end-before: doc-region-end camera space to ndc signature
    :language: python
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/mathutils.py
+   :caption: src/programming3dcomputergraphics/mathutils.py
 
-.. literalinclude:: ../../src/intro3dgraphics/mathutils.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/mathutils.py
    :start-after: doc-region-begin camera space to ndc body
    :end-before: doc-region-end define camera space to ndc
    :language: python
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/mathutils.py
+   :caption: src/programming3dcomputergraphics/mathutils.py
 
 
 
@@ -347,13 +347,13 @@ put this repetition into the book on purpose, so that when we
 start using matrices later, the reader will fully appreciate what
 matrices solve for us.
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo17.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo17.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo17.py
+   :caption: src/programming3dcomputergraphics/demos/demo17.py
 
 
 
@@ -365,10 +365,10 @@ matrices solve for us.
 the square should not be visible when hidden behind the paddle1,
 as we did a translate by -10 in the z direction.
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo17.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo17.py
    :language: python
    :start-after: doc-region-begin draw scene
    :end-before: doc-region-end draw scene
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo17.py
+   :caption: src/programming3dcomputergraphics/demos/demo17.py

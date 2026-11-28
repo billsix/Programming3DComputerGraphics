@@ -4,7 +4,7 @@ API Reference
 Math Utils
 ----------
 
-.. automodule:: intro3dgraphics.mathutils
+.. automodule:: programming3dcomputergraphics.mathutils
    :members:
    :undoc-members:
    :show-inheritance:

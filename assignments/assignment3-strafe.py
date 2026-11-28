@@ -50,8 +50,8 @@ import OpenGL.GL as GL
 from gacalc.g3 import Vector, e_1, e_2, e_3
 from gacalc.transforms import compose, inverse, translate
 
-import intro3dgraphics.util.colorutils as colorutils
-from intro3dgraphics.mathutils import (
+import programming3dcomputergraphics.util.colorutils as colorutils
+from programming3dcomputergraphics.mathutils import (
     fn_stack,
     perspective,
     push_transformation,
@@ -59,8 +59,8 @@ from intro3dgraphics.mathutils import (
     rotate_y,
     rotate_z,
 )
-from intro3dgraphics.util.clipping import draw_in_square_viewport
-from intro3dgraphics.util.windowing import on_key
+from programming3dcomputergraphics.util.clipping import draw_in_square_viewport
+from programming3dcomputergraphics.util.windowing import on_key
 
 if not glfw.init():
     sys.exit()

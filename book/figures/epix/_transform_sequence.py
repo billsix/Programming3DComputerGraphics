@@ -4,7 +4,7 @@ The ePiX replacement for the matplotlib families `_static/<name>-<n>.svg`:
 `translation-forwards`, `translation2-forwards`, `scale`, and the rotation families.
 Each frame shows a paddle as four labelled points over a unit grid, with the modelspace
 frame (blue x-axis, magenta y-axis, highlighted origin bands) and the paddle positions
-BOTH computed by driving mvp's OWN taught code -- `intro3dgraphics.mathutils`
+BOTH computed by driving mvp's OWN taught code -- `programming3dcomputergraphics.mathutils`
 (`translate` / `scale_non_uniform` / `rotate` composed on `gacalc` `Vector`s) -- so the
 picture is produced by the exact functions the chapter teaches.
 
@@ -34,7 +34,7 @@ from _scene2d import (
 from gacalc.g2 import Vector
 from gacalc.transforms import InvertibleFunction
 
-from intro3dgraphics.mathutils import (
+from programming3dcomputergraphics.mathutils import (
     compose,
     rotate,
     scale_non_uniform,

@@ -1,3 +1,3 @@
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 source /venv/bin/activate
-exec spyder -p /intro3dgraphics/
+exec spyder -p /programming3dcomputergraphics/

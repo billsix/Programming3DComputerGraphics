@@ -49,7 +49,7 @@ from gacalc.transforms import (
     uniform_scale,
 )
 
-from intro3dgraphics.mathutils import (
+from programming3dcomputergraphics.mathutils import (
     fn_stack,
     perspective,
     rotate,

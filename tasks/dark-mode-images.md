@@ -41,7 +41,7 @@ images look right in dark mode too — or determine whether that's feasible.
       texExpToPng's defaults — black content, and they are *not* covered by the current CSS
       hack below, so they're already a dark-mode problem in prose, not just the figures).
   - **Generated, colored:** matplotlib **SVGs** from
-    `src/intro3dgraphics/plotsforbook/generate_plots.py`
+    `src/programming3dcomputergraphics/plotsforbook/generate_plots.py`
     (`fig.savefig(..., format="svg")` with **no `facecolor`/`transparent`**, so a white
     background + black axes are baked into the SVG); plus gnuplot `rotate*.svg`.
   - **Real photos / screenshots (must NOT be inverted):** ~35 under

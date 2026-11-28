@@ -8,7 +8,7 @@ from the source demo eventually, just not today.
 
 *(Paths de-staled 2026-09-08: this doc predates the 2026-06-03 restructure, so it said
 `mvpVisualization/` (capital V, with its own per-demo subdirectories) and a top-level
-`demo19a.py`/`demo22/`. The tree is now `src/intro3dgraphics/{demos,mvpvisualization}/`.
+`demo19a.py`/`demo22/`. The tree is now `src/programming3dcomputergraphics/{demos,mvpvisualization}/`.
 No design content changed. Also cross-linked 2026-09-08: **Option 2 builds the same
 `mvpvisualization/` lit-shader pipeline that strand B of
 `tasks/lighting-types-and-visualization.md` needs** — whichever of the two runs first should build
@@ -76,9 +76,9 @@ this should be safe — but spot-check after enabling. If culling produces
 holes, swap two vertices in one of the triangle fans or skip culling.
 
 ### Files
-- `src/intro3dgraphics/demos/demo19a.py` — add the lighting block before
+- `src/programming3dcomputergraphics/demos/demo19a.py` — add the lighting block before
   the main loop. Keep `glColor3f` calls in `draw_unit_axes` as-is.
-- `src/intro3dgraphics/mvpvisualization/modelview.py` — same, before the main loop.
+- `src/programming3dcomputergraphics/mvpvisualization/modelview.py` — same, before the main loop.
 
 ### Verification
 - Run each demo. Cylinders should show smooth shading (brighter on the
@@ -136,7 +136,7 @@ triangle.frag` with a single `uniform vec3 color`. To light the axes:
    `project()` body.
 
 ### Files
-- `src/intro3dgraphics/mvpvisualization/_pipeline.py` — add normals to
+- `src/programming3dcomputergraphics/mvpvisualization/_pipeline.py` — add normals to
   `build_axis_arrow_solid()` (or a sibling builder), add `make_lit_lines_vao`.
 - 6 × `axis_lit.vert` + 6 × `axis_lit.frag` (12 new shader files), one set
   per demo dir. Animated copies in modelview2d / ortho / perspective.
@@ -148,7 +148,7 @@ triangle.frag` with a single `uniform vec3 color`. To light the axes:
 
 ### Reference
 Demo22 already does Lambert lighting in shaders — model on
-`src/intro3dgraphics/demos/demo22/block.frag` for the lit-frag pattern.
+`src/programming3dcomputergraphics/demos/demo22/block.frag` for the lit-frag pattern.
 
 ### Verification
 - Run each of the 6 demos. The cylinder+cone axes should show smooth

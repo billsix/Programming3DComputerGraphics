@@ -4,8 +4,9 @@ export VIRTUAL_ENV_DISABLE_PROMPT=1
 # Activate the container's venv when it exists; outside the container (running
 # format.sh from the repo root on the host) it's absent -- use the caller's env.
 # Every path below is RELATIVE to the repo root, so format.sh runs identically
-# in the container (cd /intro3dgraphics) and on the host (cd <repo>) -- see the .extrabashrc
-# exit hook, which cd's to the project root before calling it.
+# in the container (cd /programming3dcomputergraphics) and on the host
+# (cd <repo>) -- see the .extrabashrc exit hook, which cd's to the project root
+# before calling it.
 [ -f /venv/bin/activate ] && source /venv/bin/activate
 
 # Fail-on-any-step (2026-07-09): every step runs (so one pass reports ALL

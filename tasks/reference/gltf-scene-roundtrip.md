@@ -3,7 +3,7 @@
 Durable notes on how the course round-trips a scene through a glTF 2.0 `.glb`
 file, written when demo22b was built (2026-10-18). States what is true now; the
 work record is `tasks/archive/2026/10/18/demo22b-gltf-roundtrip.md` and the code
-is `src/intro3dgraphics/demos/demo22b/`.
+is `src/programming3dcomputergraphics/demos/demo22b/`.
 
 ## What demo22b demonstrates
 
@@ -57,4 +57,4 @@ the mvp package — so it round-trips and unit-tests in isolation
   from before it was added won't have it. Rebuild the image to run demo22b.
 
 See also: `tasks/reference/architecture-overview.md` (the demo arc),
-`src/intro3dgraphics/demos/demo22/demo22.py` (the parity source).
+`src/programming3dcomputergraphics/demos/demo22/demo22.py` (the parity source).

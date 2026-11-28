@@ -81,7 +81,7 @@ if they were close by
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/intro3dgraphics/demos/demo18.py in Spyder and hit the play button.
+Load src/programming3dcomputergraphics/demos/demo18.py in Spyder and hit the play button.
 
 
 Move the Paddles using the Keyboard
@@ -247,31 +247,31 @@ Right calculation based off of Top and :term:`aspect ratio <Aspect Ratio>`
 
    ...
 
-.. literalinclude:: ../../src/intro3dgraphics/mathutils.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/mathutils.py
    :start-after: doc-region-begin define perspective
    :end-before: doc-region-end perspective signature
    :language: python
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/mathutils.py
+   :caption: src/programming3dcomputergraphics/mathutils.py
 
-.. literalinclude:: ../../src/intro3dgraphics/mathutils.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/mathutils.py
    :start-after: doc-region-begin perspective body
    :end-before: doc-region-end define perspective
    :language: python
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/mathutils.py
+   :caption: src/programming3dcomputergraphics/mathutils.py
 
 
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo18.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo18.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo18.py
+   :caption: src/programming3dcomputergraphics/demos/demo18.py
 
 
 ::
@@ -279,13 +279,13 @@ Right calculation based off of Top and :term:`aspect ratio <Aspect Ratio>`
    ...
 
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo18.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo18.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo18.py
+   :caption: src/programming3dcomputergraphics/demos/demo18.py
 
 
 Try it yourself

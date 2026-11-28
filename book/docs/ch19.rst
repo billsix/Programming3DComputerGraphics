@@ -63,7 +63,7 @@ Use glPushMatrix and glPopMatrix to save/restore a local :term:`coordinate
 system <Coordinate System>`, that way a tree of objects can be drawn without one child
 destroying the relative coordinate system of the parent node.
 
-In src/intro3dgraphics/mvpvisualization/pushmatrix.py, the grayed out
+In src/programming3dcomputergraphics/mvpvisualization/pushmatrix.py, the grayed out
 coordinate system is one that has been pushed onto the stack,
 and it regains its color when it is reactivated by "glPopMatrix"
 
@@ -73,7 +73,7 @@ and it regains its color when it is reactivated by "glPopMatrix"
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/intro3dgraphics/demos/demo19.py in Spyder and hit the play button.
+Load src/programming3dcomputergraphics/demos/demo19.py in Spyder and hit the play button.
 
 
 Move the Paddles using the Keyboard
@@ -123,13 +123,13 @@ buffer is changed to be less than or equal to.
 Code
 ^^^^
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo19.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo19.py
    :language: python
    :start-after: doc-region-begin enable depth test for left hand system
    :end-before: doc-region-end enable depth test for left hand system
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo19.py
+   :caption: src/programming3dcomputergraphics/demos/demo19.py
 
 
 
@@ -143,13 +143,13 @@ matrix.  This just means that the functions (currently)
 will not transform data.
 In univariate terms, f(x) = x
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo19.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo19.py
    :language: python
    :start-after: doc-region-begin load identity
    :end-before: doc-region-end load identity
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo19.py
+   :caption: src/programming3dcomputergraphics/demos/demo19.py
 
 
 
@@ -168,13 +168,13 @@ in the next chapter.
 
     Turn our NDC into Clip Space
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo19.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo19.py
    :language: python
    :start-after: doc-region-begin perspective projection
    :end-before: doc-region-end perspective projection
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo19.py
+   :caption: src/programming3dcomputergraphics/demos/demo19.py
 
 "glMatrixMode" tells the computer which :term:`matrix stack <Matrix Stack>` should be the active one,
 against which subsequent matrix operations which affect.  In this case, we set
@@ -200,13 +200,13 @@ do the :term:`inverse <Inverse>` operations to the view stack.
 
 .. TODO - mention 2 stacks
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo19.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo19.py
    :language: python
    :start-after: doc-region-begin begin modelview transformations
    :end-before: doc-region-end begin modelview transformations
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo19.py
+   :caption: src/programming3dcomputergraphics/demos/demo19.py
 
 First thing we did was set the current matrix to be the :term:`model-view matrix <Model-View Matrix>`, instead
 of the projection matrix.  Most of our work will be with the model-view matrix,
@@ -254,13 +254,13 @@ save onto the current model-view stack, to hold onto world space, so that after
 we draw paddle 1 and the square, we can restore the world space, so that paddle 2 can be drawn relative
 to it.
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo19.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo19.py
    :language: python
    :start-after: doc-region-begin first push matrix
    :end-before: doc-region-end first push matrix
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo19.py
+   :caption: src/programming3dcomputergraphics/demos/demo19.py
 
 
 
@@ -276,13 +276,13 @@ glVertex data is specified in :term:`modelspace<Modelspace>` coordinates,
 but since we loaded the :term:`projection matrix <Projection Matrix>` and the :term:`modelview
 matrix <Model-View Matrix>` into OpenGL, glVertex3f will apply those transformations for us [1]_!
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo19.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo19.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo19.py
+   :caption: src/programming3dcomputergraphics/demos/demo19.py
 
 
 
@@ -296,13 +296,13 @@ just add the transformations relative to it
 before paddle 2 is drawn, we need to remove
 the square's 3 :term:`modelspace<Modelspace>` transformations
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo19.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo19.py
    :language: python
    :start-after: doc-region-begin draw the square
    :end-before: doc-region-end draw the square
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo19.py
+   :caption: src/programming3dcomputergraphics/demos/demo19.py
 
 
 
@@ -314,13 +314,13 @@ we are drawing, and upon the next iteration of the :term:`event loop <Event Loop
 all 3 matrices will be reset to the :term:`identity <Identity>`
 
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo19.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo19.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo19.py
+   :caption: src/programming3dcomputergraphics/demos/demo19.py
 
 
 

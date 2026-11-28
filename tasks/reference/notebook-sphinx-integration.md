@@ -18,7 +18,7 @@ the label/toctree work is done and archived at
 ## The pipeline, end to end
 
 1. **Sources** are jupytext **percent-format** Python files:
-   `src/intro3dgraphics/notebooksrc/{plot2d,framebuffer,ndc,sampling}.py`. They use `# %%` for
+   `src/programming3dcomputergraphics/notebooksrc/{plot2d,framebuffer,ndc,sampling}.py`. They use `# %%` for
    code cells and `# %% [markdown]` for markdown cells. They're editable as plain scripts
    (Spyder) or as notebooks (JupyterLab, via the jupytext viewer).
 2. **`entrypoint.sh` converts each to `.ipynb`** with `jupytext --to notebook … --output

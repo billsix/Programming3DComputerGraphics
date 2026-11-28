@@ -34,7 +34,7 @@ way, but do it inelegantly.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/intro3dgraphics/demos/demo08.py in Spyder and hit the play button.
+Load src/programming3dcomputergraphics/demos/demo08.py in Spyder and hit the play button.
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -70,21 +70,21 @@ around a given point in world space, in this case, the paddle's center.
 ``Vector`` is the same data structure introduced earlier; it is unchanged here.
 
 
-.. literalinclude:: ../../src/intro3dgraphics/mathutils.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/mathutils.py
    :start-after: doc-region-begin define rotate around
    :end-before: doc-region-end rotate around signature
    :language: python
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/mathutils.py
+   :caption: src/programming3dcomputergraphics/mathutils.py
 
-.. literalinclude:: ../../src/intro3dgraphics/mathutils.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/mathutils.py
    :start-after: doc-region-begin rotate around body
    :end-before: doc-region-end define rotate around
    :language: python
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/mathutils.py
+   :caption: src/programming3dcomputergraphics/mathutils.py
 
 
 
@@ -94,35 +94,35 @@ Within the :term:`event loop <Event Loop>`, this seems quite reasonable
 
 
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo08.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo08.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo08.py
+   :caption: src/programming3dcomputergraphics/demos/demo08.py
 
 
 
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo08.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo08.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo08.py
+   :caption: src/programming3dcomputergraphics/demos/demo08.py
 
 
 
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo08.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo08.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo08.py
+   :caption: src/programming3dcomputergraphics/demos/demo08.py
 
 
 

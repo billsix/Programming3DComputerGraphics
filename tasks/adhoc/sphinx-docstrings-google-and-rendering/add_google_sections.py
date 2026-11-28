@@ -10,7 +10,7 @@ import ast
 import pathlib
 
 REPO_ROOT: pathlib.Path = pathlib.Path(__file__).resolve().parents[3]
-TARGET: pathlib.Path = REPO_ROOT / "src/intro3dgraphics/mathutils.py"
+TARGET: pathlib.Path = REPO_ROOT / "src/programming3dcomputergraphics/mathutils.py"
 
 # qualified name -> body lines (unindented); a blank line separates sections
 SECTIONS: dict[str, list[str]] = {
