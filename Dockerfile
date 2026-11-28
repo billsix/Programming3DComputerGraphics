@@ -167,7 +167,7 @@ COPY entrypoint/entrypoint.sh entrypoint/format.sh entrypoint/jupyter.sh \
      /usr/local/bin/
 RUN  echo "source ~/.extrabashrc" >> ~/.bashrc && \
      echo "/usr/local/bin/jupyter.sh # on http://127.0.0.1:8888/lab" >> ~/.bash_history && \
-     echo "emacs src/intro3dgraphics/mathutils.py" >> ~/.bash_history
+     echo "emacs src/programming3dcomputergraphics/mathutils.py" >> ~/.bash_history
 
 # gacalc SOURCE version for the book's literalinclude (docs-only, see below).
 # MUST match the gacalc== pin in requirements.txt -- the same version drives both
@@ -193,15 +193,15 @@ tarfile.open(fileobj=io.BytesIO(urllib.request.urlopen(url).read())).extractall(
 # Bake the project's OWN source into the image so a PULLED image is runnable
 # standalone with no bind-mount: the entrypoint builds the book / runs the demos
 # and tests from this baked copy.  `make shell` and the run targets bind-mount
-# the live host repo over /intro3dgraphics, which SHADOWS this baked copy at the same path,
+# the live host repo over /programming3dcomputergraphics, which SHADOWS this baked copy at the same path,
 # so development overrides it (see tasks/reference/container-source-and-mounts.md).
-# The editable install below targets /intro3dgraphics, so imports resolve to the baked source
+# The editable install below targets /programming3dcomputergraphics, so imports resolve to the baked source
 # when pulled and to the live mount during development; loadpackages.sh re-runs
 # it idempotently on entry.  COPY is LAST so a source change rebuilds only these
 # two layers.  .dockerignore keeps .git / output / *.tar / caches out of the
 # baked tree.
-COPY . /intro3dgraphics
-RUN source /venv/bin/activate && cd /intro3dgraphics && \
+COPY . /programming3dcomputergraphics
+RUN source /venv/bin/activate && cd /programming3dcomputergraphics && \
     uv pip install --no-deps --no-index --no-build-isolation -e . \
         --python /venv/bin/python
 

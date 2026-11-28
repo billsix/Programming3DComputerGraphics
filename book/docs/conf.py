@@ -44,7 +44,7 @@ author = "William Emerison Six"
 
 # The PDF's file name is fixed here: `make release-book-assets` copies output/<CONTAINER_NAME>/<CONTAINER_NAME>.pdf. Without this,
 # Sphinx names the PDF after the project title.
-latex_documents = [("index", "intro3dgraphics.tex", project, author, "manual")]
+latex_documents = [("index", "programming3dcomputergraphics.tex", project, author, "manual")]
 
 # The full version, including alpha/beta/rc tags
 release = "0.0.2"

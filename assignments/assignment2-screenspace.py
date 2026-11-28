@@ -66,9 +66,9 @@ from gacalc.transforms import (
 )
 from OpenGL.GLU import gluOrtho2D
 
-import intro3dgraphics.util.colorutils as colorutils
-from intro3dgraphics.mathutils import rotate
-from intro3dgraphics.util.windowing import on_key
+import programming3dcomputergraphics.util.colorutils as colorutils
+from programming3dcomputergraphics.mathutils import rotate
+from programming3dcomputergraphics.util.windowing import on_key
 
 # Which of the two mappings the event loop uses.  Flip it and rerun.
 KEEP_ASPECT_RATIO: bool = False

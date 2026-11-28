@@ -91,7 +91,7 @@ Architecture A as the primary:
    authorized_keys (Q4), `exec /usr/sbin/sshd -D -e` in the foreground.
 3. Makefile `lsp-start:` target — `.PHONY`, `## `-documented — `podman run` the image with
    `-p $(LSP_SSH_PORT):22` (default `LSP_SSH_PORT := 2222`), the repo mounted at
-   `/intro3dgraphics/:Z` as usual, the authorized_keys mount, and (Q2) the persistent
+   `/programming3dcomputergraphics/:Z` as usual, the authorized_keys mount, and (Q2) the persistent
    editor-server mount. Print the exact `ssh -p 2222 …@localhost` connect line and Zed/VS
    Code hints at start.
 4. Optionally (Q1) also add `.devcontainer/devcontainer.json` pointing at the same image

@@ -32,7 +32,7 @@ chapters (esp. ch21) are not just drifted but **unfinished**.
 **Status:** PARTIAL — caption :194 (`+.py`) fixed & staged 2026-05-27; the name
 refs (:184/:231) done in the (archived) method-vs-function plan. Still open: the
 broken/short sentence ~:267 (**needs Bill's wording**).
-1. **Line 194 — caption missing `.py`.** `:caption: src/intro3dgraphics/mathutils`
+1. **Line 194 — caption missing `.py`.** `:caption: src/programming3dcomputergraphics/mathutils`
    → `…/mathutils.py`.
 2. **Line 184 — wrong name.** "through the `modelspace_to_ndc` method" — the
    FunctionStack method is **`modelspace_to_ndc_fn`**. → done in
@@ -68,7 +68,7 @@ caption fixed (`demo18.py`→`mathutils.py`); the `:248` Vector-class include wa
 replaced with a one-line `Vector3D` reference. Still open: f1/f2/f3 + `Callable` (3).
 1. **Lines 248 and 262 — wrong captions.** Both `literalinclude`s pull from
    `mathutils.py` (Vector class @248, `perspective` @262) but `:caption:` said
-   `src/intro3dgraphics/demo18.py` → set to `…/mathutils.py`. (Same recurring
+   `src/programming3dcomputergraphics/demo18.py` → set to `…/mathutils.py`. (Same recurring
    caption bug as ch05.)
 2. **Line 225 — typo.** "aspect **ration**" → "aspect **ratio**".
 3. **Content gap (TODO.org): f1/f2/f3 + `Callable`.** Event-loop sections
@@ -111,7 +111,7 @@ Work:
    `glUniformMatrix4fv` / the `mvpMatrix` uniform; the `pyMatrixStack` API used
    here (`MatrixStack` enum model/view/projection/modelview/modelviewprojection,
    `push_matrix(stack)` context manager, `set_to_identity_matrix`, `rotate_x/y/z`,
-   `translate`, `perspective`, `multiply` — `src/intro3dgraphics/matrix_stack.py`,
+   `translate`, `perspective`, `multiply` — `src/programming3dcomputergraphics/matrix_stack.py`,
    renamed from `pyMatrixStack.py` 2026-07-19);
    fill in the empty "The Event Loop" section. TODO.org also asks to "connect with
    20 — draw VBO, draw VAO, give shader variables names similar to 20" — diagrams

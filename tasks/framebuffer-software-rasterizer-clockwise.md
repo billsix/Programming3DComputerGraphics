@@ -12,7 +12,7 @@ The original 2026-08-27 one-liner behind the (now-complete) framebuffer bracket 
 *"Make framebuffer in perspective, make it configurable, show at last stage, with test for
 clockwise like in the notebook"* — had a **software-rasterizer** angle that the interactive
 mvpvisualization bracket did not cover. This task is that remainder: the software rasterizer
-(`src/intro3dgraphics/framebuffer/softwarerendering.py`) and its winding-predicate notebook.
+(`src/programming3dcomputergraphics/framebuffer/softwarerendering.py`) and its winding-predicate notebook.
 It is unstarted and gated on the maintainer confirming it is still wanted (Q6 of the original
 task).
 
@@ -22,11 +22,11 @@ task).
   `tasks/archive/2026/09/17/framebuffer-in-perspective.md` (the retargeted work). That was a
   *different subsystem* from the software rasterizer, and the "test for clockwise" part was never
   in scope there — hence this split-out.
-- Software rasterizer: `src/intro3dgraphics/framebuffer/softwarerendering.py`; its driving
-  notebook is `src/intro3dgraphics/notebooksrc/framebuffer.py` (a book toctree page between
+- Software rasterizer: `src/programming3dcomputergraphics/framebuffer/softwarerendering.py`; its driving
+  notebook is `src/programming3dcomputergraphics/notebooksrc/framebuffer.py` (a book toctree page between
   ch02–03).
 - Winding predicates `is_clockwise` / `is_counter_clockwise` live in the rasterizer path; they are
-  tested by the doctests in `src/intro3dgraphics/framebuffer/softwarerendering.py`, and a clockwise regression was fixed in
+  tested by the doctests in `src/programming3dcomputergraphics/framebuffer/softwarerendering.py`, and a clockwise regression was fixed in
   archived `2026/05/26/fix-is-clockwise-recursion.md`.
 - Reference: `tasks/reference/notable-subsystems.md §1` (rasterizer design),
   `tasks/reference/book-figures-and-images.md §3` (notebook pipeline).

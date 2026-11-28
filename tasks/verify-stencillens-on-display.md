@@ -2,13 +2,13 @@
 
 **Status:** blocked **Priority:** 8 **Difficulty:** 1
 **Blocked on:** the maintainer running the demo on a real display (the sandbox only rendered it headless under Xvfb).
-**Recheck:** run `python src/intro3dgraphics/mvpvisualization/stencillens.py` on the host; cleared when the lens follows the arrow keys, Page Up/Down resize it, and `s` shows the creature everywhere.
+**Recheck:** run `python src/programming3dcomputergraphics/mvpvisualization/stencillens.py` on the host; cleared when the lens follows the arrow keys, Page Up/Down resize it, and `s` shows the creature everywhere.
 **Created:** 2026-11-25 (William Emerison Six <billsix@gmail.com>)
 **Source:** `tasks/archive/2026/11/24/stencil-ocarina-of-time-image.md` (its "Verification not done" gap).
 
 ## BLUF
 
-`src/intro3dgraphics/mvpvisualization/stencillens.py` and the ch15 "stencil buffer as a mask" section were verified only by headless renders. Done = one run on a real display with the controls working; then archive this task.
+`src/programming3dcomputergraphics/mvpvisualization/stencillens.py` and the ch15 "stencil buffer as a mask" section were verified only by headless renders. Done = one run on a real display with the controls working; then archive this task.
 
 ## Context
 

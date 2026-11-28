@@ -5,7 +5,7 @@
 set -e
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 source /venv/bin/activate
-cd /intro3dgraphics/
+cd /programming3dcomputergraphics/
 loadpackages.sh
 # No args -> interactive shell (as before). Args (a `-c '...'` payload from
 # `make shell-exec`) -> run them after setup, in a fresh bash not under -e.

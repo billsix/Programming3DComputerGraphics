@@ -13,7 +13,7 @@ This repository is **simultaneously a Sphinx textbook and a runnable Python pack
 The two halves and their relationship:
 
 - **The book** — `book/docs/`, one reStructuredText chapter per demo (`ch01.rst … ch21.rst`, plus `intro.rst`, `perspective.rst`, `glossary.rst`, homework/project pages). Built with Sphinx → HTML/PDF/EPUB into `output/`.
-- **The package** — `src/intro3dgraphics/` (src-layout, installed as the `intro3dgraphics` distribution; see `pyproject.toml`). The actual, tested, runnable code.
+- **The package** — `src/programming3dcomputergraphics/` (src-layout, installed as the `programming3dcomputergraphics` distribution; see `pyproject.toml`). The actual, tested, runnable code.
 
 **The book listings are `literalinclude`d from the real source, not retyped.** Every code block in `book/docs/` selects code between `# doc-region-begin <name>` / `# doc-region-end <name>` comment markers in the source and renders with `:lineno-match:` — 174 marker-based includes, zero hardcoded line ranges (measured 2026-07-19). So editing source **never** breaks book line numbers (Sphinx recomputes them); what *does* change the book is editing text inside a published region, or adding/moving/renaming/deleting a marker. Full rules: `CLAUDE.md` › "The book includes code by MARKER". The end-to-end build/docs mechanics are documented separately in **`tasks/reference/book-and-docs-pipeline.md`** — go there for anything about the Sphinx pipeline, extensions, or the gacalc docs-only source injection.
 
@@ -21,7 +21,7 @@ The two halves and their relationship:
 
 ## 2. The major subsystems
 
-Everything importable lives under `src/intro3dgraphics/`; the SuperBible and Code-the-Classics ports live in a separate top-level `ports/` tree (not part of the installed package).
+Everything importable lives under `src/programming3dcomputergraphics/`; the SuperBible and Code-the-Classics ports live in a separate top-level `ports/` tree (not part of the installed package).
 
 ### The math layer — `mathutils.py` (+ gacalc)
 The graphics-specific math layer. As of the 2026-06 migration (and the 2026-08-13 de-facade) it is **not** a re-export façade: `Vector`, `InvertibleFunction`, `compose`/`inverse`/`translate`/`uniform_scale`/`scale_non_uniform` and rotations all come from the external **gacalc** library and are imported from gacalc directly by callers. `mathutils.py` keeps only what gacalc deliberately doesn't carry: angle-based 2D/axis rotations (`rotate`, `rotate_x/y/z`, `rotate_around`, built on gacalc's `plane_rotation`), the `ortho` / `perspective` / `cs_to_ndc_space_fn` projections, plane-geometry helpers (`find_normal` via wedge + dual, `plane_equation`, `distance_to_plane`), the `cosine`/`sine`/`abs_sin` angle helpers, and **`FunctionStack` + module-level `fn_stack`** — the pure-function analogue of OpenGL's matrix stack used through demos 01–18. See §3 for the gacalc relationship.
@@ -33,7 +33,7 @@ Lives in gacalc since 0.1.1 (github.com/billsix/geometricalgebra `src/gacalc/gl/
 The single most important subsystem: the same Pong-like scene (two paddles + a square defined relative to paddle1) re-implemented at progressively lower-level machinery, one new concept per demo. Arc (checkable chapter↔demo table in `tasks/reference/demo-chapter-inventory.md`): **01–06** 2D immediate-mode with function composition; **07** introduces the paddles; **12** the matrix-stack *concept* (still function-based); **16** jumps to 3D; **19** switches to OpenGL 2.1 fixed-function (first real matrices, hidden behind the familiar API), with `19a–19e` porting SuperBible examples; **20** adds a pass-through shader pair; **21+** OpenGL 3.3 Core with `matrix_stack`; **22/22a/23/24** lighting, planar shadows, texturing (later demos are `demoNN/` subfolders carrying their own `.vert`/`.frag`/assets). Near-identical code across demos is **deliberate** — the course shares a concept only after teaching it; don't DRY the `Paddle`/`Camera` copies. Don't propose new "scenes"—extend the paddle/square/ground scene unless there's a concept it can't demonstrate (e.g., spheres for lighting, complex meshes for normals).
 
 ### `mvpvisualization/` — interactive pipeline & coordinate-system visualizations
-Pedagogical *aids*, not demos: standalone GLFW/ImGui programs that **show** the Cayley-graph traversal and MVP pipeline interactively (`coordinatesystems.py`, `model.py`, `modelview.py`, `modelview2d.py`, `modelvieworthoprojection.py`, `modelviewperspectiveprojection.py`, `pushmatrix.py`). (`stencillens.py` is a separate, flat fixed-function demo of the stencil buffer as a mask, with no Cayley-graph engine; ch15 includes its marked frame loop.) Each is built on the Cayley-graph engine (§ below) via gacalc's GL toolkit `gacalc.gl.cayley_gl`, and loads its shaders from `gacalc.gl.SHADER_DIR`. `gacalc.gl._pipeline` owns the common boilerplate — window/ImGui setup, shader compilation (`compile_program`/`build_pipeline`, with per-demo `project_*.glsl` snippets appended to shared `.vert` shaders), VAO/VBO builders, the standard paddle/square/ground/axis/NDC-cube meshes, the orbit `Camera`, and `cleanup()`; each demo file keeps only its pipeline creation, `draw_*` functions, and main loop. Run by path (`python src/intro3dgraphics/mvpvisualization/coordinatesystems.py`).
+Pedagogical *aids*, not demos: standalone GLFW/ImGui programs that **show** the Cayley-graph traversal and MVP pipeline interactively (`coordinatesystems.py`, `model.py`, `modelview.py`, `modelview2d.py`, `modelvieworthoprojection.py`, `modelviewperspectiveprojection.py`, `pushmatrix.py`). (`stencillens.py` is a separate, flat fixed-function demo of the stencil buffer as a mask, with no Cayley-graph engine; ch15 includes its marked frame loop.) Each is built on the Cayley-graph engine (§ below) via gacalc's GL toolkit `gacalc.gl.cayley_gl`, and loads its shaders from `gacalc.gl.SHADER_DIR`. `gacalc.gl._pipeline` owns the common boilerplate — window/ImGui setup, shader compilation (`compile_program`/`build_pipeline`, with per-demo `project_*.glsl` snippets appended to shared `.vert` shaders), VAO/VBO builders, the standard paddle/square/ground/axis/NDC-cube meshes, the orbit `Camera`, and `cleanup()`; each demo file keeps only its pipeline creation, `draw_*` functions, and main loop. Run by path (`python src/programming3dcomputergraphics/mvpvisualization/coordinatesystems.py`).
 
 ### `graphingcalculator/` — standalone function graphers
 Two run-by-path programs that plot first-class Python functions graphing-calculator style (functions authored in source, not typed at runtime): `grapher2d.py` (`f(x)` over pannable/zoomable axes with grid + ticks) and `grapher3d.py` (`f(x,y)` height field as a wireframe mesh on launch, with an opt-in height-shaded solid and an orbit camera). Each file is only mvp's list of functions and a call to `gacalc.gl.grapher2d.run` / `grapher3d.run`; the window, view, drawing and controls live in gacalc (github.com/billsix/geometricalgebra `tasks/reference/gl-toolkit.md`). The lit triangle-mesh (Blinn-Phong) version is the follow-on github.com/billsix/geometricalgebra `tasks/grapher3d-lit-mesh.md`; the 2D depth-clear and per-pixel-column resampling gotchas are in `gl-and-imgui-gotchas.md` §8. Both graphers caption with typeset LaTeX, billboarded via `gacalc.gl.labels` (texExpToPng → RGBA texture; gotchas §9); grapher2d also has mouse drag-pan / wheel-zoom and an origin + e₁/e₂ basis-vector backdrop mode (cycled with `G`).
@@ -55,7 +55,7 @@ Small, focused, individually-documented modules the demos import: `axes.py` (uni
 ### `ports/` — faithful ports from external graphics sources
 Not part of the installed package; kept in mvp's style for teaching and as porting source material.
 - **`ports/openglsuperbiblev4/`** — ~104 Python ports of the *OpenGL SuperBible v4* examples, organized by chapter (`chapt01 … chapt22`). The main source Bill draws demos from; some are already slotted into the numbered demos (`axes3d`→demo19a, `atom`→19b, `solar`→19c, `sphereworld`→19e, `Block`→demo22 — see `CLAUDE.md` › "SuperBible port plan").
-- **`ports/codetheclassics/`** — ports of the *Code the Classics* (vol 1 & 2) games (boing, bunner, cavern, myriapod, soccer / avenger, beatstreets, eggzy, kinetix, leadingedge), each **one file** that owns its loop and inlines its tightened engine on GLFW + OpenGL 3.3 core (since 2026-09-05 — `tasks/reference/code-the-classics-tightening.md`), importing only the shared audio mixer, image loading and GL helpers from `src/intro3dgraphics/pgzero_gl/` (since 2026-11-15, §9 there).
+- **`ports/codetheclassics/`** — ports of the *Code the Classics* (vol 1 & 2) games (boing, bunner, cavern, myriapod, soccer / avenger, beatstreets, eggzy, kinetix, leadingedge), each **one file** that owns its loop and inlines its tightened engine on GLFW + OpenGL 3.3 core (since 2026-09-05 — `tasks/reference/code-the-classics-tightening.md`), importing only the shared audio mixer, image loading and GL helpers from `src/programming3dcomputergraphics/pgzero_gl/` (since 2026-11-15, §9 there).
 
 ---
 
@@ -93,15 +93,15 @@ point here.)
 | Concern | Location |
 | --- | --- |
 | Vector algebra, `InvertibleFunction`, `compose`/`translate`/`uniform_scale` | external **gacalc** (`from gacalc.g2 import Vector`, `from gacalc.transforms import …`) |
-| Rotations (angle-based), `ortho`/`perspective` projection math, plane geometry, `FunctionStack` | `src/intro3dgraphics/mathutils.py` |
+| Rotations (angle-based), `ortho`/`perspective` projection math, plane geometry, `FunctionStack` | `src/programming3dcomputergraphics/mathutils.py` |
 | The real 4×4 matrix stack (demo21+, OpenGL 3.3) | `gacalc.gl.matrix_stack` (github.com/billsix/geometricalgebra) |
-| A specific teaching demo | `src/intro3dgraphics/demos/demoNN.py` (later ones: `demos/demoNN/demoNN.py` + shaders) |
-| Interactive pipeline / coordinate-system visualizations | `src/intro3dgraphics/mvpvisualization/` (shared setup in `gacalc.gl._pipeline`, GL toolkit in `gacalc.gl.cayley_gl`) |
-| Graphing-calculator programs (`f(x)`, `f(x,y)` surface) | `src/intro3dgraphics/graphingcalculator/grapher{2,3}d.py` (runners over `gacalc.gl.grapher{2,3}d`) |
-| The software rasterizer & 2D orientation predicates | `src/intro3dgraphics/framebuffer/softwarerendering.py` |
+| A specific teaching demo | `src/programming3dcomputergraphics/demos/demoNN.py` (later ones: `demos/demoNN/demoNN.py` + shaders) |
+| Interactive pipeline / coordinate-system visualizations | `src/programming3dcomputergraphics/mvpvisualization/` (shared setup in `gacalc.gl._pipeline`, GL toolkit in `gacalc.gl.cayley_gl`) |
+| Graphing-calculator programs (`f(x)`, `f(x,y)` surface) | `src/programming3dcomputergraphics/graphingcalculator/grapher{2,3}d.py` (runners over `gacalc.gl.grapher{2,3}d`) |
+| The software rasterizer & 2D orientation predicates | `src/programming3dcomputergraphics/framebuffer/softwarerendering.py` |
 | Cayley-graph data structure / path routing (no GL) | `gacalc.cayley.cayleygraph` (`gacalc.cayley.cayleyscene` for scene→render) |
-| Shared demo helpers (axes, windowing, clipping, camera, colors, shading) | `src/intro3dgraphics/util/` |
-| Notebook generation / static book figures | `src/intro3dgraphics/notebooksrc/` (jupytext); ePiX figures in `book/figures/epix/` (rendered by `tools/render_epix_figures.py`) |
+| Shared demo helpers (axes, windowing, clipping, camera, colors, shading) | `src/programming3dcomputergraphics/util/` |
+| Notebook generation / static book figures | `src/programming3dcomputergraphics/notebooksrc/` (jupytext); ePiX figures in `book/figures/epix/` (rendered by `tools/render_epix_figures.py`) |
 | A SuperBible example port | `ports/openglsuperbiblev4/chaptNN/<name>/<name>.py` |
 | A Code-the-Classics game port (engine half + game half in one file) | `ports/codetheclassics/vol{1,2}/<game>/<game>.py`; gates in `tools/ctc_*` |
 | The book chapters (prose + `literalinclude` markers) | `book/docs/chNN.rst` (config `book/docs/conf.py`) |
@@ -126,7 +126,7 @@ point here.)
 
 **`mathutils.py` de-façade detail (gacalc 0.0.16).** gacalc **0.0.16 dropped the dimension suffix** (`Vector2`/`Vector3` → `Vector`, `Bivector3` → `Bivector`), so multi-dimension files module-qualify (`import gacalc.g2 as g2` → `g2.Vector`) and reprs are module-qualified (`g2.Vector(coeff_e_1=…)`).
 
-**The abstraction (in `src/intro3dgraphics/mathutils.py`):**
+**The abstraction (in `src/programming3dcomputergraphics/mathutils.py`):**
 - `InvertibleFunction[V]` = `(func, inverse, latex_repr, latex_repr_inv)`. `__call__` runs forward; `inverse(f)` swaps; `f1 @ f2` is `compose([f1, f2])`.
 - Primitives: `translate(b)`, `uniform_scale(m)`, `scale_non_uniform(*factors)`, `rotate(θ)`, `rotate_x/y/z(θ)`, `rotate_around(θ, center)`, `ortho(...)`, `perspective(...)`, `cs_to_ndc_space_fn`, `identity()`.
 - `compose(list)` traverses a path; `inverse(...)` walks an edge backwards. **No matrix appears anywhere in demos 01–18.**

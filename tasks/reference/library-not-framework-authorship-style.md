@@ -115,7 +115,7 @@ lighting, planar shadows, texturing, per-vertex normals (demo22–24). The clean
 - **The one place the style was violated was `pgzero_gl`/the ports** — corrected 2026-09-05 (library-izing
   the games: `tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md` steps 1–2 plus the tightening pass).
   Its step 3 (2026-11-15) moved what is genuinely shared — the audio mixer, image loading, GL helpers — into
-  `intro3dgraphics.pgzero_gl`, a library the games call down into; each game still owns its loop.
+  `programming3dcomputergraphics.pgzero_gl`, a library the games call down into; each game still owns its loop.
 - **When adding a demo:** keep it a single top-to-bottom script that owns its loop, calls down into
   `mathutils`/`matrix_stack`/`util`, adds ~one concept over its predecessor, and shares a helper only after the
   concept it embodies has been taught inline once.

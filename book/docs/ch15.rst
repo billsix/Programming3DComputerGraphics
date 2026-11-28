@@ -31,7 +31,7 @@ is further away from the camera.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/intro3dgraphics/demos/demo15.py in Spyder and hit the play button.
+Load src/programming3dcomputergraphics/demos/demo15.py in Spyder and hit the play button.
 
 
 Move the Paddles using the Keyboard
@@ -104,7 +104,7 @@ The stencil buffer as a mask
 The stencil buffer can act as a stencil in the everyday sense: a cut-out
 that decides where later drawing is allowed.  A game can use this for a
 "lens" that reveals something otherwise invisible.  The program
-``src/intro3dgraphics/mvpvisualization/stencillens.py`` draws a room (a floor and
+``src/programming3dcomputergraphics/mvpvisualization/stencillens.py`` draws a room (a floor and
 three pillars) that is always visible, and a creature standing in the
 middle of it that is only drawn inside a circle.
 
@@ -129,13 +129,13 @@ the mask has:
    :term:`fragment <Fragment>` of the creature is kept only where the
    stencil value is 1.
 
-.. literalinclude:: ../../src/intro3dgraphics/mvpvisualization/stencillens.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/mvpvisualization/stencillens.py
    :language: python
    :start-after: doc-region-begin stencil lens frame
    :end-before: doc-region-end stencil lens frame
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/mvpvisualization/stencillens.py
+   :caption: src/programming3dcomputergraphics/mvpvisualization/stencillens.py
 
 Pressing *s* turns the stencil test off.  The creature is then drawn
 everywhere, which shows what the mask was hiding.
@@ -166,13 +166,13 @@ if nearer objects are drawn in front
    Show what the color buffer and depth buffer would look like
 
 
-.. literalinclude:: ../../src/intro3dgraphics/demos/demo15.py
+.. literalinclude:: ../../src/programming3dcomputergraphics/demos/demo15.py
    :language: python
    :start-after: doc-region-begin enable depth buffer
    :end-before: doc-region-end enable depth buffer
    :linenos:
    :lineno-match:
-   :caption: src/intro3dgraphics/demos/demo15.py
+   :caption: src/programming3dcomputergraphics/demos/demo15.py
 
 
 With the :term:`depth test <Depth Test>` enabled, the square is now correctly hidden behind
